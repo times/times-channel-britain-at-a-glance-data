@@ -2,9 +2,9 @@
   {
     "position": 1,
     "label": "Inflation",
-    "colour": "red",
-    "now": 3.4,
-    "change": 0.9,
+    "colour": "green",
+    "now": 3,
+    "change": 0,
     "unit": "%",
     "data": [
       {
@@ -222,6 +222,9 @@
       },
       {
         "2025-12-01": 3.4
+      },
+      {
+        "2026-01-01": 3
       }
     ]
   },
