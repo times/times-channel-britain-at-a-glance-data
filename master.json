@@ -540,7 +540,7 @@
     "position": 4,
     "label": "BoE base rate",
     "colour": "green",
-    "change": -1.25,
+    "change": -0.75,
     "now": 3.75,
     "unit": "%",
     "data": [
