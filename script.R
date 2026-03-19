@@ -138,6 +138,28 @@ inac <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentand
   mutate(date = lubridate::ym(date), 
          total = 1000 * as.numeric(total))
 
+#11. BASE RATES
+
+bra <- 'https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp#' %>%
+  read_html() %>%
+  html_table() %>%
+  nth(1) %>%
+  select('date' = 1, 'rate' = 2) %>%
+  mutate(date = lubridate::dmy(date))
+
+br <- bra %>%
+  arrange(date) %>%
+  mutate(step_date = date - days(1),
+         step_rate = lag(rate)) %>%
+  filter(!is.na(step_rate)) %>%
+  select(date = step_date, rate = step_rate) %>%
+  bind_rows(bra) %>%
+  bind_rows(bra %>% 
+              filter(date == max(date)) %>%
+              mutate(date = Sys.Date()))  %>%
+  arrange(desc(date)) 
+
+
 #COMBINE
 
 
@@ -159,20 +181,26 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select(position, label, date, up, unit, 'total' = unem),
-                         inac %>%
+                         br %>%
                            mutate(position = 4,
+                                  label = 'BoE base rate',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(position, label, date, up, unit, 'total' = rate),
+                         inac %>%
+                           mutate(position = 5,
                                   label = 'Long-term sick',
                                   up = 'bad',
                                   unit = '') %>%
                            select(position, label, date, up, unit, total),
                          hp %>%
-                           mutate(position = 5,
+                           mutate(position = 6,
                                   label = 'House prices',
                                   up = 'good',
                                   unit = '£') %>%
                            select(position, label, date, up, unit, 'total' = price),
                          # housing %>%
-                         #   mutate(position = 6,
+                         #   mutate(position = 7,
                          #          label = 'Housing completions',
                          #          up = 'good',
                          #          unit = '') %>%
@@ -183,12 +211,12 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(position, label, date, up, unit, total),
-                         crime %>%
-                           mutate(position = 8,
-                                  label = 'Crime, including fraud',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(position, label, date, up, unit, 'total' = `With fraud`),
+                         # crime %>%
+                         #   mutate(position = 8,
+                         #          label = 'Crime, including fraud',
+                         #          up = 'bad',
+                         #          unit = '') %>%
+                         #   select(position, label, date, up, unit, 'total' = `With fraud`),
                          # boats %>%
                          #   mutate(position = 9,
                          #          label = 'Small boat crossings in past year',
@@ -196,7 +224,7 @@ master <- bind_rows(list(inf %>%
                          #          unit = '') %>%
                          #   select(position, label, date, up, unit, 'total' = rolling),
                          imm %>%
-                           mutate(position = 10,
+                           mutate(position = 8,
                                   label = 'Net migration',
                                   up = 'bad',
                                   unit = '') %>%
