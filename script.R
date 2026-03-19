@@ -147,17 +147,19 @@ bra <- 'https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp#' %>%
   select('date' = 1, 'rate' = 2) %>%
   mutate(date = lubridate::dmy(date))
 
-br <- bra %>%
+br <-  bra %>%
   arrange(date) %>%
   mutate(step_date = date - days(1),
          step_rate = lag(rate)) %>%
   filter(!is.na(step_rate)) %>%
   select(date = step_date, rate = step_rate) %>%
-  bind_rows(bra) %>%
-  bind_rows(bra %>% 
+  bind_rows(bra,
+            bra %>% 
               filter(date == max(date)) %>%
-              mutate(date = Sys.Date()))  %>%
-  arrange(desc(date)) 
+              mutate(date = Sys.Date()),
+            tibble(date = Sys.Date() - years(1)))  %>%
+  arrange((date))  %>%
+  mutate(rate = zoo::na.locf(rate)) 
 
 
 #COMBINE
