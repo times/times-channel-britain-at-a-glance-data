@@ -32,9 +32,9 @@ unemp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
 
 #4. HOUSE PRICES
 
-hp <- read_csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
-  filter(`Reporting period` == 'monthly') %>%
-  select('date' = Period, 'price' = `Average price All property types`) %>%
+hp <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
+  filter(`Reporting.period` == 'monthly') %>%
+  select('date' = Period, 'price' = `Average.price.All.property.types`) %>%
   mutate(date = ym(date), price = as.numeric(price)) 
 
 
@@ -72,7 +72,7 @@ imm <- read_excel('downloads/immigration.xlsx', 5, skip = 5)  %>%
   select(date, total)
 
 
-#7. HOUSING COMPLETIONS
+#7. HOUSING STARTS
 'https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/ukhousebuildingpermanentdwellingsstartedandcompleted' %>%
   read_html() %>%
   html_nodes('.btn--thick') %>%
@@ -82,8 +82,10 @@ imm <- read_excel('downloads/immigration.xlsx', 5, skip = 5)  %>%
 
 housing <- read_excel('downloads/houses.xlsx', 6, skip = 5) %>%
   select('date' = 2, 'start' = 3, 'complete' = 7) %>%
-  mutate(date = lubridate::my(gsub('(.*) - ','', date )))  %>%
-  select(-start)
+  mutate(date = lubridate::my(gsub('(.*) - ','', date )),
+         rolling = rollsum(start, 4, align = 'right', 
+                         fill = NA))  %>%
+  select(date, 'start' = rolling)
 
 
 
@@ -121,14 +123,15 @@ boat_url = "https://www.gov.uk/government/publications/migrants-detected-crossin
 download.file(boat_url[grepl('.ods', boat_url)][1],
               'downloads/boats.ods')
 
-boats <- readODS::read_ods('downloads/boats.ods', 3)  %>%
+boats.daily <- readODS::read_ods('downloads/boats.ods', 3)  %>%
   mutate(date = lubridate::dmy(Date),
-         d2 = as.Date(paste0('2025', substr(date, 5,10))),
-         year = substr(date, 1, 4),
          rolling = rollsum(`Migrants arrived`, 365, align = 'right', fill = NA)) %>%
   select(date, 'migrants' = 2, 
-         'boats' = 3, 
-         d2, year, rolling) 
+         'boats' = 3,  rolling) 
+
+dates.boats <- seq(max(boats.daily$date), min(boats.daily$date), by = '-7 days')
+
+boats <- boats.daily %>% filter(date %in%  dates.boats) 
 
 #10. INACTIVITY BY REASON
 
@@ -162,6 +165,262 @@ br <-  bra %>%
   mutate(rate = zoo::na.locf(rate)) 
 
 
+
+# 12. Job vacancies
+
+vac <- 'https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/timeseries/ap2y/unem' %>%
+  read_csv() %>%
+  slice(150:nrow(.)) %>%
+  select('date' = 1, 'vacancies' = 2) %>%
+  mutate(date = lubridate::ym(date),
+         vacancies = 1000 * as.numeric(vacancies))
+
+
+# 13. real wages (regular pay seasonally adjusted)
+
+wages <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai7/emp',
+         skip = 150) %>%
+  select('date' = 1, 'pay' = 2)  %>%
+  mutate(date = lubridate::ym(date)) %>%
+  left_join(read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7bt/mm23')  %>%
+              slice(200:nrow(.)) %>%
+              select('date' = 1, 'inf' = 2) %>%
+              mutate(date = lubridate::ym(date),
+                     inf = as.numeric(inf),
+                     inf2 = inf / last(inf)))  %>%
+  mutate(realpay = pay / inf2) %>%
+  select(date, 'wages' = realpay)
+
+
+
+# 14. petrol prices (RAC)
+
+
+petrol <- read_csv('https://static.dwcdn.net/data/D7n0J.csv?v=1774282200000') %>%
+  select('date' = 1, 'petrol' = 2) %>%
+  mutate(date = lubridate::dmy(date),
+         petrol = petrol / 100) 
+
+
+#15. government approval
+
+'https://api-test.yougov.com/public-data/v5/uk/trackers/government-approval/download/' %>%
+  download.file(paste0('downloads/', 'approval.xlsx'))
+
+app <- read_excel('downloads/approval.xlsx') %>%
+  gather(date, t, 2:ncol(.)) %>%
+  select('q' = 1, date, t) %>%
+  filter(grepl('prov', q)) %>%
+  spread(q, t) %>%
+  mutate(net = 100 * (Approve - Disapprove),
+         date = lubridate::ymd(date))  %>%
+  select(date, net)
+
+
+# 16. consumer confidence 
+
+consumer <- read_csv('https://fred.stlouisfed.org/graph/fredgraph.csv?id=CSCICP02GBM460S&cosd=2020-01-01') |>
+  select(date = 1, consumer = 2)
+
+
+
+# 17.  renewables
+
+rlink <- 'https://www.gov.uk/government/statistics/electricity-section-5-energy-trends' %>%
+  read_html() %>%
+  html_nodes('a')   %>%
+  html_attr('href')
+
+rlink[grepl('5.1_', rlink)] %>% unique() %>%
+  download.file('downloads/renewables.xlsx')
+
+r1 <- read_excel('downloads/renewables.xlsx', 'Quarter', skip = 5)  %>%
+  slice(40:80) %>%
+  filter(`Generator type` == 'All generating companies') %>%
+  gather(date, t, 3:ncol(.)) %>%
+  mutate(date = gsub("[\r\n]", "", date),
+         q = substr(date, 9, 9),
+         y = substr(trimws(date), 11,14),
+         date = lubridate::yq(paste(y, q)),
+         t = as.numeric(t))
+
+
+ren <- r1 %>%
+  filter(grepl('Total all', Fuel)) %>%
+  select(date,  'total' = t) %>%
+  left_join(r1 %>% 
+              filter(grepl('Hydr|Total wind|Solar|Bioener', Fuel)) %>%
+              group_by(date) %>%
+              summarise('renewable' = sum(t, na.rm = T))) %>%
+  mutate(renewablepc = 100 * renewable / total)
+
+
+
+# 18. gov borrowing (rates)
+
+gilts.daily <- 'https://www.bankofengland.co.uk/boeapps/database/fromshowcolumns.asp?Travel=NIxIRxSUx&FromSeries=1&ToSeries=50&DAT=ALL&FNY=&CSVF=TT&html.x=54&html.y=45&C=C6S&Filter=N' %>%
+  read_html() %>%
+  html_table() %>%
+  nth(1) %>%
+  select('date' = 1, 'yield' = 2) %>%
+  mutate(date = lubridate::dmy(date)) 
+
+
+gilts.dates <- seq(max(gilts.daily$date), min(gilts.daily$date), by = "-7 days")
+
+
+gilts <- gilts.daily %>% filter(date %in% gilts.dates)
+
+
+#19  asylum grants
+
+as.u <- 'https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-tables#asylum' %>%
+  read_html() %>%
+  html_nodes('.gem-c-attachment-link .govuk-link') %>%
+  html_attr('href')
+
+download.file(as.u[grepl('/asylum-claims-datasets', as.u)], 'downloads/asylumclaims.xlsx')
+
+asylum <- read_excel('~/Downloads/asylumclaims.xlsx', 11, skip = 1) %>%
+  mutate(date = lubridate::yq(Quarter)) %>%
+  filter(`Case outcome group` == 'Grant of Protection') %>%
+  group_by(date) %>%
+  summarise(protec = sum(Decisions)) %>%
+  mutate(protec = rollsum(protec, 4, align = 'right', fill = NA)) 
+
+
+
+# 20. direct debit failure rate
+
+dd.url <- 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/monthlydirectdebitfailurerateandaveragetransactionamount' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href')
+download.file(paste0('https://www.ons.gov.uk', dd.url[1]), 'downloads/dd.xlsx')
+dd <- read_excel('~/Downloads/dd.xlsx', 4, skip = 4) %>%
+  mutate_at(2:ncol(.), function(x) 100 * x) %>%
+  select('date' = 1, 'ddfail' = 2)
+
+
+# 21. A&E 
+
+
+ae.links <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/ae-waiting-times-and-activity/' %>%
+  read_html() %>%
+  html_nodes('a') %>%
+  html_attr('href')
+
+ae.links[grepl('Monthly-AE', ae.links)] %>%
+  download.file(destfile = 'downloads/latest-ae.xls')
+
+ae <- read_excel('downloads/latest-ae.xls', 2) %>%
+  select('date' = 1, 'pc4hour' = 10) %>%
+  mutate_at(1:2, as.numeric) %>%
+  mutate(date = as.Date(date, origin = '1899-12-30'),
+         pc4hour = 100 * pc4hour) %>%
+  filter(!is.na(date)) 
+
+
+
+# 22. private rents
+
+'https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/priceindexofprivaterentsukmonthlypricestatistics' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  nth(1) %>%
+  paste0('https://www.ons.gov.uk', .) %>%
+  download.file('downloads/rents.xlsx')
+
+rent <- read_excel('downloads/rents.xlsx', 4, skip = 2)  %>%
+  filter(`Area name` == "United Kingdom") %>%
+  select('date' = 1, 'rent2bed' = 16)  %>%
+  mutate(rent2bed = as.numeric(rent2bed)) 
+
+# 23. PRISONS
+
+prison <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
+  mutate(date = lubridate::my(Date),
+         prison = Population) %>%
+  select(date, prison) %>%
+  bind_rows(tibble(date = as.Date(c('2025-10-01', '2025-11-01', '2025-12-01', '2026-01-01', '2026-02-01')),
+                   prison = c(87413, 87332, 86596, 87212, 87367)))
+
+
+
+# 24. NEETS
+
+neet <- 'https://explore-education-statistics.service.gov.uk/data-tables/permalink/3bf73997-2f44-4a93-e3fa-08de88f3d3c1' %>%
+  read_html() %>%
+  html_table() %>%
+  nth(1) %>%
+  select('year' = 1, 'q1' = 6, 'q2' = 7, 'q3' = 8, 'q4' = 9) %>%
+  mutate_at(2:5, function(x) as.numeric(gsub('%' ,'', x))) %>%
+  filter(!is.na(year)) %>%
+  gather(quarter, neet, 2:5) %>%
+  mutate(date = lubridate::yq( paste(year, quarter))) %>%
+  select(date, neet)
+
+
+# 25. Crown court open caseload
+
+
+download.file('https://assets.publishing.service.gov.uk/media/6941934a1ec67214e98f303a/cc_open_tool.xlsx',
+              'downloads/cc.xlsx')
+
+cc  <- read_excel('downloads/cc.xlsx', 2, skip = 8) %>%
+  mutate(year = zoo::na.locf(year),
+         date = lubridate::yq(paste(year, quarter))) %>%
+  select(date, 'crowncourt' = 3)
+
+
+
+# 26. PINT COST
+
+download.file('https://raw.githubusercontent.com/onsdigital/cpi-items-actions/main/datadownload.xlsx',
+              'downloads/pint.xlsx')
+
+pint <- read_excel('downloads/pint.xlsx', 4) %>%
+  filter(ITEM_ID == '310110') %>%
+  gather(date, total, 2:ncol(.)) %>%
+  mutate(date = as.Date(as.numeric(date), origin = '1899-12-30')) %>%
+  select(-ITEM_ID)
+
+
+# 27. Knife crime
+
+crimelink <- 'https://www.gov.uk/government/statistical-data-sets/police-recorded-crime-and-outcomes-open-data-tables' %>%
+  read_html() %>%
+  html_nodes('.govuk-link') %>%
+  html_attr('href')
+
+download.file(crimelink[grepl('knife', crimelink)], 'downloads/knifecrime.ods')
+
+knife <- read_ods( 'downloads/knifecrime.ods',  5) %>%
+  mutate(year = as.numeric(paste0('20', substr(`Financial Year`, 6,7))),
+         q = as.numeric(gsub('Q', '', `Financial Quarter`)),
+         q = ifelse(q == 4, 3, (q*3)+3),
+         year = ifelse(q == 3, year , year - 1),
+         date = lubridate::ym(paste(year, q))) %>%
+  group_by(date) %>%
+  summarise(knife = sum(`Force Offences`, na.rm = T)) %>%
+  mutate(knife = rollsum(knife, 4, fill = NA, align = 'right')) 
+
+
+# 28. Police-recorded crime
+
+
+# 
+# download.file(crimelink[grepl('2013-onwards', crimelink)], 'downloads/reportedcrime.ods')
+# 
+# readODS::read_ods('downloads/reportedcrime.ods', )
+
+
+# 29. charge rates
+
+
+########## STEP TWO
+
 #COMBINE
 
 
@@ -169,106 +428,267 @@ master <- bind_rows(list(inf %>%
                            mutate(position = 1,
                                   label = 'Inflation',
                                   up = 'bad',
+                                  note = "Consumer prices index, change on previous 12 months (ONS)",
+                                  parent = 'Economy',
                                   unit = '%') %>%
-                           select(position, label, date, up, unit, 'total' = inf),
+                           select(position, label, note, parent, date, up, unit, 'total' = inf),
                          gdp %>%
                            mutate(position = 2,
                                   label = 'Real GDP per capita',
                                   up = 'good',
+                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
+                                  parent = 'Economy',
                                   unit = '£') %>%
-                           select(position, label, date, up, unit, 'total' = gdp),
+                           select(position, label, note, parent, date, up, unit, 'total' = gdp),
                          unemp %>%
                            mutate(position = 3,
                                   label = 'Unemployment',
                                   up = 'bad',
+                                  note = "Percentage of people not in work but looking for a job (ONS)", 
+                                  parent = 'Economy',
                                   unit = '%') %>%
-                           select(position, label, date, up, unit, 'total' = unem),
+                           select(position, label, note, parent, date, up, unit, 'total' = unem),
                          br %>%
-                           mutate(position = 4,
+                           mutate(position = 5,
                                   label = 'BoE base rate',
                                   up = 'bad',
+                                  note = "Base rate that underpins mortgage and savings rates (Bank of England)", 
+                                  parent = 'Living standards',
                                   unit = '%') %>%
-                           select(position, label, date, up, unit, 'total' = rate),
+                           select(position, label, note, parent, date, up, unit, 'total' = rate),
                          inac %>%
-                           mutate(position = 5,
+                           mutate(position = 18,
                                   label = 'Long-term sick',
                                   up = 'bad',
+                                  note = "Number of people who are inactive due to long-term sickness", 
+                                  parent = 'Health',
                                   unit = '') %>%
-                           select(position, label, date, up, unit, total),
+                           select(position, label, note, parent, date, up, unit, total),
                          hp %>%
                            mutate(position = 6,
                                   label = 'House prices',
-                                  up = 'good',
+                                  up = 'neutral',
+                                  note = "Rolling annual average of sold UK house prices (Land Registry)", 
+                                  parent = 'Housing',
                                   unit = '£') %>%
-                           select(position, label, date, up, unit, 'total' = price),
-                         # housing %>%
-                         #   mutate(position = 7,
-                         #          label = 'Housing completions',
-                         #          up = 'good',
-                         #          unit = '') %>%
-                         #   select(position, label, date, up, unit, 'total' = complete),
+                           select(position, label, note, parent, date, up, unit, 'total' = price),
                          waits %>%
                            mutate(position = 7,
                                   label = 'NHS waiting list',
+                                  note = "Total size of waiting list (NHS England)", 
+                                  parent = 'Health',
                                   up = 'bad',
                                   unit = '') %>%
-                           select(position, label, date, up, unit, total),
-                         # crime %>%
-                         #   mutate(position = 8,
-                         #          label = 'Crime, including fraud',
-                         #          up = 'bad',
-                         #          unit = '') %>%
-                         #   select(position, label, date, up, unit, 'total' = `With fraud`),
-                         # boats %>%
-                         #   mutate(position = 9,
-                         #          label = 'Small boat crossings in past year',
-                         #          up = 'bad',
-                         #          unit = '') %>%
-                         #   select(position, label, date, up, unit, 'total' = rolling),
+                           select(position, label, note, parent, date, up, unit, total),
                          imm %>%
                            mutate(position = 8,
                                   label = 'Net migration',
+                                  note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
+                                  parent = 'Immigration',
                                   up = 'bad',
                                   unit = '') %>%
-                           select(position, label, date, up, unit, total))) %>%
+                           select(position, label, note, parent, date, up, unit, total),
+                         housing %>%
+                           mutate(position = 9,
+                                  label = 'Housing starts',
+                                  note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
+                                  parent = 'Housing',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = start),
+                         crime %>%
+                           mutate(position = 10,
+                                  label = 'Survey-based crime',
+                                  note = "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)", 
+                                  parent = 'Crime',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = `With fraud`),
+                         boats %>%
+                           mutate(position = 11,
+                                  label = 'Small boat crossings',
+                                  note = "Number of people who have crossed the Channel in the past year (Home Office)", 
+                                  parent = 'Immigration',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = rolling),
+                         vac %>%
+                           mutate(position = 12,
+                                  label = 'Job vacancies',
+                                  note = "Total number of job vacancies (ONS)", 
+                                  parent = 'Economy',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = vacancies),
+                         wages %>%
+                           mutate(position = 13,
+                                  label = 'Real wages',
+                                  note = "Average weekly wage, adjusted for inflation (ONS)",
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '£') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = wages),
+                         petrol %>%
+                           mutate(position = 14,
+                                  label = 'Petrol price',
+                                  note = "Price of a litre of unleaded petrol (RAC)", 
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = petrol),
+                         app %>%
+                           mutate(position = 15,
+                                  label = 'Net government approval',
+                                  note = "Government approval minus government disapproval  (YouGov)", 
+                                  parent = 'Government',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = net),
+                         consumer %>%
+                           mutate(position = 16,
+                                  label = 'Consumer confidence',
+                                  note = "Long-running index of consumers' financial mood (GfK)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = consumer),
+                         ren %>%
+                           mutate(position = 17,
+                                  label = 'Electricity from renewables',
+                                  note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)", 
+                                  parent = 'Government',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = renewablepc),
+                         gilts %>%
+                           mutate(position = 4,
+                                  label = 'Government borrowing costs',
+                                  note = "10-year gilt yields (Bank of England)", 
+                                  parent = 'Government',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = yield),
+                         asylum %>%
+                           mutate(position = 19,
+                                  label = 'Asylum grants',
+                                  note = "Number of people granted asylum at initial decision in the past year (Home Office)", 
+                                  parent = 'Immigration',
+                                  up = 'neutral',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = protec),
+                         dd %>%
+                           mutate(position = 20,
+                                  label = 'Direct debits failing',
+                                  note = "Monthly direct debit failure rate (ONS)", 
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = ddfail),
+                         ae %>%
+                           mutate(position = 21,
+                                  label = 'A&E seen in 4 hours',
+                                  note = "Percentage of A&E patients seen within 4 hours (NHS England)", 
+                                  parent = 'Health',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = pc4hour),
+                         rent %>%
+                           mutate(position = 22,
+                                  label = 'Renting a 2-bed',
+                                  note = "Cost of privately renting a 2-bed property (ONS)", 
+                                  parent = 'Housing',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = rent2bed),
+                         prison %>%
+                           mutate(position = 23,
+                                  label = 'Prisoners',
+                                  note = "Total prison population (Ministry of Justice)", 
+                                  parent = 'Crime',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = prison),
+                         cc %>%
+                           mutate(position = 24,
+                                  label = 'Crown court caseload',
+                                  note = "Number of crown court cases currently open (Ministry of Justice)", 
+                                  parent = 'Crime',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = crowncourt),
+                         neet %>%
+                           mutate(position = 25,
+                                  label = 'NEETS aged 16-24',
+                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
+                                  parent = 'Economy',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = neet),
+                         pint %>%
+                           mutate(position = 26,
+                                  label = 'Price of a pint',
+                                  note = "Average price of a pint of premium lager (ONS)", 
+                                  parent = 'Living Standards',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(position, label, note, parent, date, up, unit,  total),
+                         knife %>%
+                           mutate(position = 27,
+                                  label = 'Knife crime',
+                                  note = "Offences involving a knife, recorded by policer (Home Office)", 
+                                  parent = 'Crime',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit,  'total' = knife))) %>%
   filter(date >= as.Date('2020-01-01'))
 
+# ADD A ROW FROM A YEAR AGO 
+
+master.adj <- master %>%
+  bind_rows(master %>%
+              group_by(label) %>%
+              filter(date == max(date)) %>%
+              mutate(date = date - years(1) ,
+                     total = NA)) %>%
+  group_by(label) %>%
+  arrange(date) %>%
+  mutate(total = zoo::na.locf(total)) %>%
+  unique()
 
 
-master %>% filter(grepl('Crime', label)) %>% tail()
 
 
-file <- master %>% 
-  left_join(master %>%
+# THEN MAKE THE FILE 
+
+
+file <- master.adj %>% 
+  left_join(master.adj %>%
               group_by(label) %>%
               filter(date == max(date)) %>%
               select(label, 'now' = total) %>%
-              left_join(master %>% group_by(label) %>%
+              left_join(master.adj %>% 
+                          group_by(label) %>%
                           filter(date == max(date) - years(1)) %>%
                           select(label, y1 = total)) %>%
               mutate(change = now - y1) %>%
               select(-y1)) %>%
   arrange(position, label, date) %>%
-  group_by(position, label, now, change, up, unit) %>%
+  group_by(position, label, note, parent, now, change, up, unit) %>%
   nest(data = c(date, total)) %>%
   ungroup() %>%
   mutate(c = ifelse(change > 0, up, 'reverse'),
          c = ifelse(c == 'reverse' & up == 'bad', 'good',c),
          c = ifelse(c == 'reverse' & up == 'good', 'bad', c),
-         colour = ifelse(c == 'bad', 'red', ifelse(c == 'good', 'green', '')))  %>%
-  select(position,label, colour, now, change, unit, data) %>%
+         colour = ifelse(c == 'bad', 'red', ifelse(c == 'good', 'green', 'grey')))  %>%
+  select(position,label, note, parent, colour, now, change, unit, data) %>%
   mutate(data = map(data, ~ {
     df <- .x
     map2(as.character(df$date), df$total, ~ set_names(list(.y), .x))
   })) 
 
 file %>%
-  write_json('master.json',auto_unbox = T, pretty = T)
+  write_json('sparklines-page.json', auto_unbox = T, pretty = T)
 
-# jsonfile <- file %>% toJSON(auto_unbox = T, pretty = T)
-# 
-# t = data.frame(text = jsonfile) %>%
-#   mutate(text = as.character(text))
-# googlesheets4::write_sheet(t, '1iXjSJWF8eAb4adxn8w8ZO_cIu98ka-Fu65rs15C7uTU', sheet = 'sparklines' )
-# 
-# 
+file %>%
+  write_json('sparklines-slice.json', auto_unbox = T, pretty = T)
+
