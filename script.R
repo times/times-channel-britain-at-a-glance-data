@@ -103,7 +103,7 @@ crime <- read_excel('downloads/crime.xlsx', 4, skip = 7) %>%
   select(1:33) %>%
   gather(date, t, 2:ncol(.)) %>%
   rename('offence' = 1, 'date' = 2) %>%
-  mutate(date = lubridate::my(gsub('(.*) to ', '', substr(date, 1, 20))),
+  mutate(date = lubridate::my(substr(trimws(gsub('(.*) to', '', date)), 1, 8)),
          t = as.numeric(t),
          offence = gsub(' \\[(.*)', '', offence)) %>%
   filter(grepl('ALL CSEW HEADLINE', offence), !is.na(t)) %>%
