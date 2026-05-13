@@ -869,7 +869,7 @@ file <- master.adj %>%
          c2 = ifelse(c2 == 'reverse' & up == 'bad', 'good',c2),
          c2 = ifelse(c2 == 'reverse' & up == 'good', 'bad', c2),
          colour2 = ifelse(c2 == 'bad', 'red', ifelse(c2 == 'good', 'green', 'grey')))  %>%
-  select(position,label, note, parent, colour1, colour2, now, change1, change2, unit, data) %>%
+  select(position,label, note, parent, 'colour' = colour1, colour2, now, 'change' = change1, change2, unit, data) %>%
   mutate(data = map(data, ~ {
     df <- .x
     map2(as.character(df$date), df$total, ~ set_names(list(.y), .x))
