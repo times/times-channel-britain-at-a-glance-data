@@ -817,13 +817,18 @@ master <- bind_rows(list(unemp %>%
                           select(position, label, note, parent, date, up, unit, 'total' = vacancies))) %>%
   filter(date >= as.Date('2020-01-01'))
 
-# ADD A ROW FROM A YEAR AGO 
+# ADD A ROW FROM 1 AND 2 YEARS AGO
 
 master.adj <- master %>%
   bind_rows(master %>%
               group_by(label) %>%
               filter(date == max(date)) %>%
               mutate(date = date - years(1) ,
+                     total = NA),
+            master %>%
+              group_by(label) %>%
+              filter(date == max(date)) %>%
+              mutate(date = date - years(2),
                      total = NA)) %>%
   group_by(label) %>%
   arrange(date) %>%
@@ -845,17 +850,26 @@ file <- master.adj %>%
                           group_by(label) %>%
                           filter(date == max(date) - years(1)) %>%
                           select(label, y1 = total)) %>%
-              mutate(change = now - y1) %>%
-              select(-y1)) %>%
+              left_join(master.adj %>%
+                          group_by(label) %>%
+                          filter(date == max(date) - years(2)) %>%
+                          select(label, y2 = total)) %>%
+              mutate(change1 = now - y1,
+                     change2 = now - y2) %>%
+              select(-y1, -y2)) %>%
   arrange(position, label, date) %>%
-  group_by(position, label, note, parent, now, change, up, unit) %>%
+  group_by(position, label, note, parent, now, change1, change2, up, unit) %>%
   nest(data = c(date, total)) %>%
   ungroup() %>%
-  mutate(c = ifelse(change > 0, up, 'reverse'),
-         c = ifelse(c == 'reverse' & up == 'bad', 'good',c),
-         c = ifelse(c == 'reverse' & up == 'good', 'bad', c),
-         colour = ifelse(c == 'bad', 'red', ifelse(c == 'good', 'green', 'grey')))  %>%
-  select(position,label, note, parent, colour, now, change, unit, data) %>%
+  mutate(c1 = ifelse(change1 > 0, up, 'reverse'),
+         c1 = ifelse(c1 == 'reverse' & up == 'bad', 'good',c1),
+         c1 = ifelse(c1 == 'reverse' & up == 'good', 'bad', c1),
+         colour1 = ifelse(c1 == 'bad', 'red', ifelse(c1 == 'good', 'green', 'grey')))  %>%
+  mutate(c2 = ifelse(change2 > 0, up, 'reverse'),
+         c2 = ifelse(c2 == 'reverse' & up == 'bad', 'good',c2),
+         c2 = ifelse(c2 == 'reverse' & up == 'good', 'bad', c2),
+         colour2 = ifelse(c2 == 'bad', 'red', ifelse(c2 == 'good', 'green', 'grey')))  %>%
+  select(position,label, note, parent, colour1, colour2, now, change1, change2, unit, data) %>%
   mutate(data = map(data, ~ {
     df <- .x
     map2(as.character(df$date), df$total, ~ set_names(list(.y), .x))
