@@ -5,8 +5,10 @@
     "note": "Percentage of people not in work but looking for a job (ONS)",
     "parent": "Economy",
     "colour": "red",
+    "colour2": "red",
     "now": 4.9,
     "change": 0.5,
+    "change2": 0.7,
     "unit": "%",
     "data": [
       {
@@ -236,8 +238,10 @@
     "note": "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
     "parent": "Economy",
     "colour": "green",
+    "colour2": "green",
     "now": 40535,
     "change": 373,
+    "change2": 423,
     "unit": "£",
     "data": [
       {
@@ -320,8 +324,10 @@
     "note": "Price of a litre of unleaded petrol (RAC)",
     "parent": "Living standards",
     "colour": "red",
+    "colour2": "red",
     "now": 1.5713,
     "change": 0.2127,
+    "change2": 0.0762,
     "unit": "£",
     "data": [
       {
@@ -637,6 +643,9 @@
         "2024-04-15": 1.4951
       },
       {
+        "2024-04-28": 1.4951
+      },
+      {
         "2024-05-01": 1.5031
       },
       {
@@ -794,8 +803,10 @@
     "note": "Number of people who are inactive due to long-term sickness",
     "parent": "Health",
     "colour": "red",
+    "colour2": "green",
     "now": 2788000,
     "change": 3000,
+    "change2": -46000,
     "unit": "",
     "data": [
       {
@@ -1025,8 +1036,10 @@
     "note": "Average weekly wage, adjusted for inflation (ONS)",
     "parent": "Living standards",
     "colour": "green",
+    "colour2": "green",
     "now": 696.4454,
     "change": 1.813,
+    "change2": 20.7538,
     "unit": "£",
     "data": [
       {
@@ -1259,8 +1272,10 @@
     "note": "10-year gilt yields (Bank of England)",
     "parent": "Government",
     "colour": "red",
+    "colour2": "red",
     "now": 4.8695,
     "change": 0.3742,
+    "change2": 0.6205,
     "unit": "%",
     "data": [
       {
@@ -1918,6 +1933,9 @@
         "2024-05-03": 4.249
       },
       {
+        "2024-05-08": 4.249
+      },
+      {
         "2024-05-10": 4.1754
       },
       {
@@ -2234,8 +2252,10 @@
     "note": "Shoplifting offences recorded by police",
     "parent": "Crime",
     "colour": "green",
+    "colour2": "red",
     "now": 509566,
     "change": -7045,
+    "change2": 167167,
     "unit": "",
     "data": [
       {
@@ -2249,6 +2269,9 @@
       },
       {
         "2023-03-01": 342399
+      },
+      {
+        "2023-12-01": 342399
       },
       {
         "2024-03-01": 444006
@@ -2270,8 +2293,10 @@
     "note": "Base rate that underpins mortgage and savings rates (Bank of England)",
     "parent": "Living standards",
     "colour": "green",
+    "colour2": "green",
     "now": 3.75,
     "change": -0.5,
+    "change2": -1.5,
     "unit": "%",
     "data": [
       {
@@ -2371,6 +2396,9 @@
         "2023-08-03": 5.25
       },
       {
+        "2024-05-12": 5.25
+      },
+      {
         "2024-07-31": 5.25
       },
       {
@@ -2420,8 +2448,10 @@
     "note": "Rolling annual average of sold UK house prices (Land Registry)",
     "parent": "Housing",
     "colour": "grey",
+    "colour2": "grey",
     "now": 267957,
     "change": 3186,
+    "change2": 13324,
     "unit": "£",
     "data": [
       {
@@ -2654,8 +2684,10 @@
     "note": "Total size of waiting list (NHS England)",
     "parent": "Health",
     "colour": "green",
+    "colour2": "green",
     "now": 7124952,
     "change": -276201,
+    "change2": -411955,
     "unit": "",
     "data": [
       {
@@ -2809,6 +2841,9 @@
         "2024-01-31": 7536907
       },
       {
+        "2024-02-01": 7536907
+      },
+      {
         "2024-03-01": 7538830
       },
       {
@@ -2888,8 +2923,10 @@
     "note": "Consumer prices index, change on previous 12 months (ONS)",
     "parent": "Economy",
     "colour": "red",
+    "colour2": "red",
     "now": 3.3,
     "change": 0.7,
+    "change2": 0.1,
     "unit": "%",
     "data": [
       {
@@ -3125,8 +3162,10 @@
     "note": "Price of a litre of diesel (RAC)",
     "parent": "Living standards",
     "colour": "red",
+    "colour2": "red",
     "now": 1.8901,
     "change": 0.4672,
+    "change2": 0.3102,
     "unit": "£",
     "data": [
       {
@@ -3442,6 +3481,9 @@
         "2024-04-15": 1.5799
       },
       {
+        "2024-04-28": 1.5799
+      },
+      {
         "2024-05-01": 1.5806
       },
       {
@@ -3599,8 +3641,10 @@
     "note": "Number of housing units on which construction has started in England in the past year (MHCLG)",
     "parent": "Housing",
     "colour": "green",
+    "colour2": "red",
     "now": 124860,
     "change": 16720,
+    "change2": -25740,
     "unit": "",
     "data": [
       {
@@ -3683,8 +3727,10 @@
     "note": "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)",
     "parent": "Crime",
     "colour": "green",
+    "colour2": "red",
     "now": 9578000,
     "change": -36000,
+    "change2": 922000,
     "unit": "",
     "data": [
       {
@@ -3692,6 +3738,9 @@
       },
       {
         "2023-03-01": 8656000
+      },
+      {
+        "2023-12-01": 8656000
       },
       {
         "2024-03-01": 8787000
@@ -3713,8 +3762,10 @@
     "note": "Number of people who have crossed the Channel in the past year (Home Office)",
     "parent": "Immigration",
     "colour": "green",
+    "colour2": "red",
     "now": 37266,
     "change": -2572,
+    "change2": 5831,
     "unit": "",
     "data": [
       {
@@ -4399,6 +4450,9 @@
         "2024-05-02": 31435
       },
       {
+        "2024-05-07": 31435
+      },
+      {
         "2024-05-09": 31783
       },
       {
@@ -4724,8 +4778,10 @@
     "note": "Latest annual estimate of UK immigration, minus emigration (ONS)",
     "parent": "Immigration",
     "colour": "green",
+    "colour2": "green",
     "now": 204000,
     "change": -445000,
+    "change2": -720000,
     "unit": "",
     "data": [
       {
@@ -4802,8 +4858,10 @@
     "note": "Government approval minus government disapproval  (YouGov)",
     "parent": "Government",
     "colour": "red",
+    "colour2": "red",
     "now": -48,
     "change": -1,
+    "change2": 0,
     "unit": "%",
     "data": [
       {
@@ -5479,6 +5537,9 @@
         "2024-04-28": -48
       },
       {
+        "2024-05-04": -48
+      },
+      {
         "2024-05-06": -56
       },
       {
@@ -5786,8 +5847,10 @@
     "note": "Police-recorded theft of items (includes phone snatching)",
     "parent": "Crime",
     "colour": "green",
+    "colour2": "red",
     "now": 129068,
     "change": -23225,
+    "change2": 16889,
     "unit": "",
     "data": [
       {
@@ -5801,6 +5864,9 @@
       },
       {
         "2023-03-01": 112179
+      },
+      {
+        "2023-12-01": 112179
       },
       {
         "2024-03-01": 131587
@@ -5822,8 +5888,10 @@
     "note": "Long-running index of consumers' financial mood (GfK)",
     "parent": "Living standards",
     "colour": "red",
+    "colour2": "red",
     "now": -15.25,
     "change": -1.75,
+    "change2": 0,
     "unit": "%",
     "data": [
       {
@@ -6059,8 +6127,10 @@
     "note": "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
     "parent": "Government",
     "colour": "green",
+    "colour2": "green",
     "now": 54.4766,
     "change": 6.4131,
+    "change2": 3.8839,
     "unit": "%",
     "data": [
       {
@@ -6143,8 +6213,10 @@
     "note": "Number of people granted asylum at initial decision in the past year (Home Office)",
     "parent": "Immigration",
     "colour": "grey",
+    "colour2": "grey",
     "now": 53195,
     "change": 13792,
+    "change2": -6926,
     "unit": "",
     "data": [
       {
@@ -6227,8 +6299,10 @@
     "note": "Monthly direct debit failure rate (ONS)",
     "parent": "Living standards",
     "colour": "red",
+    "colour2": "red",
     "now": 2.4271,
     "change": 0.2475,
+    "change2": 0.33,
     "unit": "%",
     "data": [
       {
@@ -6455,8 +6529,10 @@
     "note": "Percentage of A&E patients seen within 4 hours (NHS England)",
     "parent": "Health",
     "colour": "green",
+    "colour2": "green",
     "now": 77.1072,
     "change": 2.1274,
+    "change2": 2.762,
     "unit": "%",
     "data": [
       {
@@ -6692,8 +6768,10 @@
     "note": "Cost of privately renting a 2-bed property (ONS)",
     "parent": "Housing",
     "colour": "red",
+    "colour2": "red",
     "now": 1261,
     "change": 44,
+    "change2": 134,
     "unit": "£",
     "data": [
       {
@@ -6929,8 +7007,10 @@
     "note": "Total prison population (Ministry of Justice)",
     "parent": "Crime",
     "colour": "red",
+    "colour2": "green",
     "now": 87367,
     "change": 168,
+    "change2": -606,
     "unit": "",
     "data": [
       {
@@ -7163,8 +7243,10 @@
     "note": "Number of crown court cases currently open (Ministry of Justice)",
     "parent": "Crime",
     "colour": "red",
+    "colour2": "red",
     "now": 79619,
     "change": 6770,
+    "change2": 13286,
     "unit": "",
     "data": [
       {
@@ -7244,8 +7326,10 @@
     "note": "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)",
     "parent": "Economy",
     "colour": "green",
+    "colour2": "red",
     "now": 13.3,
     "change": -0.3,
+    "change2": 1.2,
     "unit": "%",
     "data": [
       {
@@ -7328,8 +7412,10 @@
     "note": "Average price of a pint of premium lager (ONS)",
     "parent": "Living standards",
     "colour": "red",
+    "colour2": "red",
     "now": 5.6,
     "change": 0.18,
+    "change2": 0.39,
     "unit": "£",
     "data": [
       {
@@ -7565,8 +7651,10 @@
     "note": "Offences involving a knife, recorded by policer (Home Office)",
     "parent": "Crime",
     "colour": "green",
+    "colour2": "green",
     "now": 49151,
     "change": -5397,
+    "change2": -4525,
     "unit": "",
     "data": [
       {
@@ -7649,8 +7737,10 @@
     "note": "Average price of a cup of takeaway coffee (ONS)",
     "parent": "Living standards",
     "colour": "red",
+    "colour2": "red",
     "now": 3.39,
     "change": 0.13,
+    "change2": 0.27,
     "unit": "£",
     "data": [
       {
@@ -7886,8 +7976,10 @@
     "note": "Average price of a restaurant main course (ONS)",
     "parent": "Living standards",
     "colour": "red",
+    "colour2": "red",
     "now": 16.52,
     "change": 0.91,
+    "change2": 1.55,
     "unit": "£",
     "data": [
       {
@@ -8123,8 +8215,10 @@
     "note": "Percentage starting cancer treatment within 62 days of referral (NHS)",
     "parent": "Health",
     "colour": "green",
+    "colour2": "green",
     "now": 70.1649,
     "change": 0.362,
+    "change2": 4.665,
     "unit": "%",
     "data": [
       {
@@ -8267,8 +8361,10 @@
     "note": "Percentage of general acute beds occupied (NHS)",
     "parent": "Health",
     "colour": "red",
+    "colour2": "green",
     "now": 93.7,
     "change": 0.1,
+    "change2": -0.3,
     "unit": "%",
     "data": [
       {
@@ -8498,8 +8594,10 @@
     "note": "Size of the national debt (ONS)",
     "parent": "Government",
     "colour": "red",
+    "colour2": "red",
     "now": 2910800000000,
     "change": 106000000000,
+    "change2": 225200000000,
     "unit": "£",
     "data": [
       {
@@ -8735,8 +8833,10 @@
     "note": "Ratio of house prices to average annual wages (ONS)",
     "parent": "Housing",
     "colour": "green",
+    "colour2": "green",
     "now": 7.034,
     "change": -0.2364,
+    "change2": -0.3259,
     "unit": "",
     "data": [
       {
@@ -8969,8 +9069,10 @@
     "note": "Total number of job vacancies (ONS)",
     "parent": "Economy",
     "colour": "red",
+    "colour2": "red",
     "now": 711000,
     "change": -64000,
+    "change2": -182000,
     "unit": "",
     "data": [
       {
