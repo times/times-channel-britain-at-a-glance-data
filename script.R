@@ -539,6 +539,16 @@ gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy
          gdp = as.numeric(gdp))
 
 
+# 39. Debt as % of GDP
+
+debt.gdp <-  read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/hf6x/pusf') %>%
+  slice(270:nrow(.)) %>%
+  select('date' = 1, 'debt.gdp' = 2) %>%
+  mutate(date= lubridate::ym(date),
+         debt.gdp = as.numeric(debt.gdp)) %>%
+  filter(!is.na(debt.gdp))
+
+
 # 
 # download.file(crimelink[grepl('2013-onwards', crimelink)], 'downloads/reportedcrime.ods')
 # 
