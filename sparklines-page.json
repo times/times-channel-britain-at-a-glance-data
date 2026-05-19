@@ -2142,6 +2142,245 @@
   },
   {
     "position": 8,
+    "label": "Debt-to-GDP ratio",
+    "note": "National debt as a percentage of GDP (ONS)",
+    "parent": "Economy",
+    "colour": "red",
+    "colour2": "green",
+    "now": 93.8,
+    "change": 0.6,
+    "change2": -0.3,
+    "unit": "%",
+    "data": [
+      {
+        "2020-01-01": 83.5
+      },
+      {
+        "2020-02-01": 83.7
+      },
+      {
+        "2020-03-01": 84.5
+      },
+      {
+        "2020-04-01": 89.6
+      },
+      {
+        "2020-05-01": 93.3
+      },
+      {
+        "2020-06-01": 95.3
+      },
+      {
+        "2020-07-01": 96
+      },
+      {
+        "2020-08-01": 97.7
+      },
+      {
+        "2020-09-01": 98.1
+      },
+      {
+        "2020-10-01": 98
+      },
+      {
+        "2020-11-01": 97.9
+      },
+      {
+        "2020-12-01": 97.6
+      },
+      {
+        "2021-01-01": 96
+      },
+      {
+        "2021-02-01": 96.2
+      },
+      {
+        "2021-03-01": 95.4
+      },
+      {
+        "2021-04-01": 96.1
+      },
+      {
+        "2021-05-01": 96.4
+      },
+      {
+        "2021-06-01": 95.8
+      },
+      {
+        "2021-07-01": 95.3
+      },
+      {
+        "2021-08-01": 93.9
+      },
+      {
+        "2021-09-01": 93.2
+      },
+      {
+        "2021-10-01": 95.9
+      },
+      {
+        "2021-11-01": 96.4
+      },
+      {
+        "2021-12-01": 96.2
+      },
+      {
+        "2022-01-01": 94.8
+      },
+      {
+        "2022-02-01": 94
+      },
+      {
+        "2022-03-01": 94.3
+      },
+      {
+        "2022-04-01": 93.8
+      },
+      {
+        "2022-05-01": 93.7
+      },
+      {
+        "2022-06-01": 94
+      },
+      {
+        "2022-07-01": 93.2
+      },
+      {
+        "2022-08-01": 92.9
+      },
+      {
+        "2022-09-01": 92.8
+      },
+      {
+        "2022-10-01": 92.6
+      },
+      {
+        "2022-11-01": 92.9
+      },
+      {
+        "2022-12-01": 93.1
+      },
+      {
+        "2023-01-01": 92.2
+      },
+      {
+        "2023-02-01": 92.6
+      },
+      {
+        "2023-03-01": 93.2
+      },
+      {
+        "2023-04-01": 93.2
+      },
+      {
+        "2023-05-01": 94
+      },
+      {
+        "2023-06-01": 94.8
+      },
+      {
+        "2023-07-01": 93.7
+      },
+      {
+        "2023-08-01": 93.9
+      },
+      {
+        "2023-09-01": 93.5
+      },
+      {
+        "2023-10-01": 94.7
+      },
+      {
+        "2023-11-01": 95.3
+      },
+      {
+        "2023-12-01": 95.6
+      },
+      {
+        "2024-01-01": 93.8
+      },
+      {
+        "2024-02-01": 94
+      },
+      {
+        "2024-03-01": 94.1
+      },
+      {
+        "2024-04-01": 93.4
+      },
+      {
+        "2024-05-01": 94.5
+      },
+      {
+        "2024-06-01": 94.4
+      },
+      {
+        "2024-07-01": 94.2
+      },
+      {
+        "2024-08-01": 94.5
+      },
+      {
+        "2024-09-01": 94
+      },
+      {
+        "2024-10-01": 94.3
+      },
+      {
+        "2024-11-01": 95.1
+      },
+      {
+        "2024-12-01": 94.7
+      },
+      {
+        "2025-01-01": 92.9
+      },
+      {
+        "2025-02-01": 93.3
+      },
+      {
+        "2025-03-01": 93.2
+      },
+      {
+        "2025-04-01": 93.6
+      },
+      {
+        "2025-05-01": 94.7
+      },
+      {
+        "2025-06-01": 94.3
+      },
+      {
+        "2025-07-01": 94.9
+      },
+      {
+        "2025-08-01": 95.3
+      },
+      {
+        "2025-09-01": 95.3
+      },
+      {
+        "2025-10-01": 94.5
+      },
+      {
+        "2025-11-01": 95.3
+      },
+      {
+        "2025-12-01": 95
+      },
+      {
+        "2026-01-01": 93
+      },
+      {
+        "2026-02-01": 93.1
+      },
+      {
+        "2026-03-01": 93.8
+      }
+    ]
+  },
+  {
+    "position": 9,
     "label": "Petrol price",
     "note": "Price of a litre of unleaded petrol (RAC)",
     "parent": "Living standards",
@@ -2620,7 +2859,7 @@
     ]
   },
   {
-    "position": 9,
+    "position": 10,
     "label": "Long-term sick",
     "note": "Number of people who are inactive due to long-term sickness",
     "parent": "Health",
@@ -2856,7 +3095,7 @@
     ]
   },
   {
-    "position": 10,
+    "position": 11,
     "label": "Real wages",
     "note": "Average weekly wage, adjusted for inflation (ONS)",
     "parent": "Living standards",
@@ -3095,7 +3334,7 @@
     ]
   },
   {
-    "position": 11,
+    "position": 12,
     "label": "Shoplifting",
     "note": "Shoplifting offences recorded by police",
     "parent": "Crime",
@@ -3136,7 +3375,7 @@
     ]
   },
   {
-    "position": 12,
+    "position": 13,
     "label": "BoE base rate",
     "note": "Base rate that underpins mortgage and savings rates (Bank of England)",
     "parent": "Living standards",
@@ -3291,7 +3530,7 @@
     ]
   },
   {
-    "position": 13,
+    "position": 14,
     "label": "House prices",
     "note": "Rolling annual average of sold UK house prices (Land Registry)",
     "parent": "Housing",
@@ -3527,7 +3766,7 @@
     ]
   },
   {
-    "position": 14,
+    "position": 15,
     "label": "Inflation",
     "note": "Consumer prices index, change on previous 12 months (ONS)",
     "parent": "Economy",
@@ -3766,7 +4005,7 @@
     ]
   },
   {
-    "position": 15,
+    "position": 16,
     "label": "Diesel price",
     "note": "Price of a litre of diesel (RAC)",
     "parent": "Living standards",
@@ -4245,7 +4484,7 @@
     ]
   },
   {
-    "position": 16,
+    "position": 17,
     "label": "Housing starts",
     "note": "Number of housing units on which construction has started in England in the past year (MHCLG)",
     "parent": "Housing",
@@ -4331,7 +4570,7 @@
     ]
   },
   {
-    "position": 17,
+    "position": 18,
     "label": "Survey-based crime",
     "note": "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)",
     "parent": "Crime",
@@ -4366,7 +4605,7 @@
     ]
   },
   {
-    "position": 18,
+    "position": 19,
     "label": "Small boat crossings",
     "note": "Number of people who have crossed the Channel in the past year (Home Office)",
     "parent": "Immigration",
@@ -5385,7 +5624,7 @@
     ]
   },
   {
-    "position": 19,
+    "position": 20,
     "label": "Net migration",
     "note": "Latest annual estimate of UK immigration, minus emigration (ONS)",
     "parent": "Immigration",
@@ -5465,7 +5704,7 @@
     ]
   },
   {
-    "position": 20,
+    "position": 21,
     "label": "Net government approval",
     "note": "Government approval minus government disapproval  (YouGov)",
     "parent": "Government",
@@ -6457,7 +6696,7 @@
     ]
   },
   {
-    "position": 21,
+    "position": 22,
     "label": "Theft from the person",
     "note": "Police-recorded theft of items (includes phone snatching)",
     "parent": "Crime",
@@ -6498,7 +6737,7 @@
     ]
   },
   {
-    "position": 22,
+    "position": 23,
     "label": "Consumer confidence",
     "note": "Long-running index of consumers' financial mood (GfK)",
     "parent": "Living standards",
@@ -6740,7 +6979,7 @@
     ]
   },
   {
-    "position": 23,
+    "position": 24,
     "label": "Electricity from renewables",
     "note": "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
     "parent": "Government",
@@ -6826,7 +7065,7 @@
     ]
   },
   {
-    "position": 24,
+    "position": 25,
     "label": "Asylum grants",
     "note": "Number of people granted asylum at initial decision in the past year (Home Office)",
     "parent": "Immigration",
@@ -6912,7 +7151,7 @@
     ]
   },
   {
-    "position": 25,
+    "position": 26,
     "label": "Direct debits failing",
     "note": "Monthly direct debit failure rate (ONS)",
     "parent": "Living standards",
@@ -7142,7 +7381,7 @@
     ]
   },
   {
-    "position": 26,
+    "position": 27,
     "label": "A&E seen in 4 hours",
     "note": "Percentage of A&E patients seen within 4 hours (NHS England)",
     "parent": "Health",
@@ -7384,7 +7623,7 @@
     ]
   },
   {
-    "position": 27,
+    "position": 28,
     "label": "Average NHS wait",
     "note": "Median number of weeks spent waiting for NHS treatment (NHS England)",
     "parent": "Health",
@@ -7623,7 +7862,7 @@
     ]
   },
   {
-    "position": 28,
+    "position": 29,
     "label": "Seen within 18 weeks",
     "note": "Percentage of patients who received hospital treatment within 18 weeks (NHS England)",
     "parent": "Health",
@@ -7862,7 +8101,7 @@
     ]
   },
   {
-    "position": 29,
+    "position": 30,
     "label": "Renting a 2-bed",
     "note": "Cost of privately renting a 2-bed property (ONS)",
     "parent": "Housing",
@@ -8101,7 +8340,7 @@
     ]
   },
   {
-    "position": 30,
+    "position": 31,
     "label": "Prisoners",
     "note": "Total prison population (Ministry of Justice)",
     "parent": "Crime",
@@ -8337,7 +8576,7 @@
     ]
   },
   {
-    "position": 31,
+    "position": 32,
     "label": "Crown court caseload",
     "note": "Number of crown court cases currently open (Ministry of Justice)",
     "parent": "Crime",
@@ -8420,7 +8659,7 @@
     ]
   },
   {
-    "position": 32,
+    "position": 33,
     "label": "NEETS aged 16-24",
     "note": "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)",
     "parent": "Economy",
@@ -8506,7 +8745,7 @@
     ]
   },
   {
-    "position": 33,
+    "position": 34,
     "label": "Price of a pint",
     "note": "Average price of a pint of premium lager (ONS)",
     "parent": "Living standards",
@@ -8745,7 +8984,7 @@
     ]
   },
   {
-    "position": 34,
+    "position": 35,
     "label": "Knife crime",
     "note": "Offences involving a knife, recorded by policer (Home Office)",
     "parent": "Crime",
@@ -8831,7 +9070,7 @@
     ]
   },
   {
-    "position": 35,
+    "position": 36,
     "label": "Price of a coffee",
     "note": "Average price of a cup of takeaway coffee (ONS)",
     "parent": "Living standards",
@@ -9070,7 +9309,7 @@
     ]
   },
   {
-    "position": 36,
+    "position": 37,
     "label": "Price of a meal",
     "note": "Average price of a restaurant main course (ONS)",
     "parent": "Living standards",
@@ -9309,7 +9548,7 @@
     ]
   },
   {
-    "position": 37,
+    "position": 38,
     "label": "Prompt cancer treatment",
     "note": "Percentage starting cancer treatment within 62 days of referral (NHS)",
     "parent": "Health",
@@ -9455,7 +9694,7 @@
     ]
   },
   {
-    "position": 38,
+    "position": 39,
     "label": "Bed occupancy",
     "note": "Percentage of general acute beds occupied (NHS)",
     "parent": "Health",
@@ -9688,7 +9927,7 @@
     ]
   },
   {
-    "position": 39,
+    "position": 40,
     "label": "House price to earnings",
     "note": "Ratio of house prices to average annual wages (ONS)",
     "parent": "Housing",
@@ -9924,7 +10163,7 @@
     ]
   },
   {
-    "position": 40,
+    "position": 41,
     "label": "Job vacancies",
     "note": "Total number of job vacancies (ONS)",
     "parent": "Economy",
