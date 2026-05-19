@@ -30,6 +30,8 @@ unemp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
          unem = as.numeric(unem))
 
 
+
+
 #4. HOUSE PRICES
 
 hp <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
@@ -48,9 +50,10 @@ wl.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-wait
 download.file(wl.url[grepl('Overview-Timeseries', wl.url)],destfile = 'downloads/latest-waiting-list.xlsx')
 
 waits <- read_excel('downloads/latest-waiting-list.xlsx', skip = 10) %>%
-  select('date' = 2, 'total' = 21) %>%
+  select('date' = 2, 'total' = 21, 'average' = 3) %>%
   mutate(total = as.numeric(total),
-         date = as.Date(as.numeric(date))) %>%
+         date = as.Date(as.numeric(date)),
+         average = as.numeric(average)) %>%
   filter(!is.na(total)) %>%
   mutate(date = zoo::na.approx(date),
          date = as.Date(date, origin = '1899-12-30'))
@@ -509,6 +512,30 @@ theft.person <- read_excel('downloads/crime.xlsx', 13, skip = 8) %>%
   select('code' = 1, 'category' = 2, date, crimes) %>%
   filter(!is.na(code))
 
+# 37 PAYROLL EMPLOYEES
+
+rti_url <- 'https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/realtimeinformationstatisticsreferencetableseasonallyadjusted' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  paste0('https://www.ons.gov.uk', .)
+
+download.file(rti_url[1], 'downloads/rti_sa.xlsx')
+
+# UK total payrolled employees is in table 1 - row label is "United Kingdom"
+payrolled <- read_excel('downloads/rti_sa.xlsx',skip = 4, 2) %>%
+  mutate(date = lubridate::my(Date)) %>%
+  select(date, 'payroll' = 2)
+
+
+# 38. Quarterly GDP 
+
+
+gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihyq/pn2') %>%
+  slice(200:nrow(.)) %>%
+  select('date' = 1, 'gdp' = 2) %>%
+  mutate(date = lubridate::yq(date),
+         gdp = as.numeric(gdp))
 
 
 # 
@@ -533,16 +560,57 @@ master <- bind_rows(list(unemp %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = unem),
-                         gdp %>%
+                         payrolled %>%
                            mutate(position = 2,
+                                  label = 'Payrolled employees',
+                                  up = 'good',
+                                  note = "Number of payrolled employees (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = payroll),
+                         
+                         gilts %>%
+                           mutate(position = 3,
+                                  label = 'Gilt yields',
+                                  note = "10-year government borrowing costs(Bank of England)", 
+                                  parent = 'Government',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = yield),
+                         debt %>%
+                           mutate(position = 4,
+                                  label = 'National debt',
+                                  note = "Size of the national debt (ONS)", 
+                                  parent = 'Government',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(position, label, note, parent, date, up, unit,  'total' = debt),
+                         waits %>%
+                           mutate(position = 5,
+                                  label = 'NHS waiting list',
+                                  note = "Total size of waiting list (NHS England)", 
+                                  parent = 'Health',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(position, label, note, parent, date, up, unit, total),
+                         gdp %>%
+                           mutate(position = 5.2,
                                   label = 'Real GDP per capita',
                                   up = 'good',
                                   note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
                                   parent = 'Economy',
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = gdp),
+                         gdp.growth %>%
+                           mutate(position = 5.3,
+                                  label = 'Quarterly GDP growth',
+                                  up = 'good',
+                                  note = 'Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)',
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(position, label, note, parent, date, up, unit, 'total' = gdp),
                          petrol %>%
-                           mutate(position = 3,
+                           mutate(position = 5.4,
                                   label = 'Petrol price',
                                   note = "Price of a litre of unleaded petrol (RAC)", 
                                   parent = 'Living standards',
@@ -550,7 +618,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = petrol),
                          inac %>%
-                           mutate(position = 4,
+                           mutate(position = 5.6,
                                   label = 'Long-term sick',
                                   up = 'bad',
                                   note = "Number of people who are inactive due to long-term sickness", 
@@ -558,23 +626,15 @@ master <- bind_rows(list(unemp %>%
                                   unit = '') %>%
                            select(position, label, note, parent, date, up, unit, total),
                          wages %>%
-                           mutate(position = 5,
+                           mutate(position = 6,
                                   label = 'Real wages',
                                   note = "Average weekly wage, adjusted for inflation (ONS)",
                                   parent = 'Living standards',
                                   up = 'good',
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = wages),
-                         gilts %>%
-                           mutate(position = 6,
-                                  label = 'Government borrowing costs',
-                                  note = "10-year gilt yields (Bank of England)", 
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(position, label, note, parent, date, up, unit, 'total' = yield),
                          shop %>%
-                           mutate(position = 7,
+                           mutate(position = 8,
                                   label = 'Shoplifting',
                                   note = 'Shoplifting offences recorded by police',
                                   parent = 'Crime',
@@ -583,7 +643,7 @@ master <- bind_rows(list(unemp %>%
                            select(position, label, note, parent, date, up, unit, 'total' = crimes),
                          
                          br %>%
-                           mutate(position = 8,
+                           mutate(position = 9,
                                   label = 'BoE base rate',
                                   up = 'bad',
                                   note = "Base rate that underpins mortgage and savings rates (Bank of England)", 
@@ -591,21 +651,13 @@ master <- bind_rows(list(unemp %>%
                                   unit = '%') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = rate),
                         hp %>%
-                           mutate(position = 9,
+                           mutate(position = 10,
                                   label = 'House prices',
                                   up = 'neutral',
                                   note = "Rolling annual average of sold UK house prices (Land Registry)", 
                                   parent = 'Housing',
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = price),
-                         waits %>%
-                           mutate(position = 10,
-                                  label = 'NHS waiting list',
-                                  note = "Total size of waiting list (NHS England)", 
-                                  parent = 'Health',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(position, label, note, parent, date, up, unit, total),
                          inf %>%
                            mutate(position = 11,
                                   label = 'Inflation',
@@ -711,8 +763,16 @@ master <- bind_rows(list(unemp %>%
                                   up = 'good',
                                   unit = '%') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = pc4hour),
-                         rent %>%
-                           mutate(position = 24,
+                        waits %>%
+                          mutate(position = 24, 
+                                 label = 'Average NHS wait',
+                                 note = 'Median number of weeks spent waiting for NHS treatment (NHS England)',
+                                 parent = 'Health',
+                                 up = 'bad',
+                                 unit = '')  %>%
+                          select(position, label, note, parent, date, up, unit, 'total' = average),
+                        rent %>%
+                           mutate(position = 25,
                                   label = 'Renting a 2-bed',
                                   note = "Cost of privately renting a 2-bed property (ONS)", 
                                   parent = 'Housing',
@@ -720,7 +780,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = rent2bed),
                          prison %>%
-                           mutate(position = 25,
+                           mutate(position = 26,
                                   label = 'Prisoners',
                                   note = "Total prison population (Ministry of Justice)", 
                                   parent = 'Crime',
@@ -728,7 +788,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = prison),
                          cc %>%
-                           mutate(position = 26,
+                           mutate(position = 27,
                                   label = 'Crown court caseload',
                                   note = "Number of crown court cases currently open (Ministry of Justice)", 
                                   parent = 'Crime',
@@ -736,7 +796,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = crowncourt),
                          neet %>%
-                           mutate(position = 27,
+                           mutate(position = 28,
                                   label = 'NEETS aged 16-24',
                                   note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
                                   parent = 'Economy',
@@ -744,7 +804,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '%') %>%
                            select(position, label, note, parent, date, up, unit, 'total' = neet),
                          pint %>%
-                           mutate(position = 28,
+                           mutate(position = 29,
                                   label = 'Price of a pint',
                                   note = "Average price of a pint of premium lager (ONS)", 
                                   parent = 'Living standards',
@@ -752,7 +812,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit,  total),
                          knife %>%
-                           mutate(position = 29,
+                           mutate(position = 30,
                                   label = 'Knife crime',
                                   note = "Offences involving a knife, recorded by policer (Home Office)", 
                                   parent = 'Crime',
@@ -760,7 +820,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '') %>%
                            select(position, label, note, parent, date, up, unit,  'total' = knife),
                          coffee %>%
-                           mutate(position = 30,
+                           mutate(position = 31,
                                   label = 'Price of a coffee',
                                   note = "Average price of a cup of takeaway coffee (ONS)", 
                                   parent = 'Living standards',
@@ -768,7 +828,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit,  'total' = total),
                          restaurant %>%
-                           mutate(position = 31,
+                           mutate(position = 32,
                                   label = 'Price of a meal',
                                   note = "Average price of a restaurant main course (ONS)", 
                                   parent = 'Living standards',
@@ -776,7 +836,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '£') %>%
                            select(position, label, note, parent, date, up, unit,  'total' = total),
                          cancer %>%
-                           mutate(position = 32,
+                           mutate(position = 33,
                                   label = 'Prompt cancer treatment',
                                   note = "Percentage starting cancer treatment within 62 days of referral (NHS)", 
                                   parent = 'Health',
@@ -784,23 +844,15 @@ master <- bind_rows(list(unemp %>%
                                   unit = '%') %>%
                            select(position, label, note, parent, date, up, unit,  'total' = cancer62),
                          beds %>%
-                           mutate(position = 33,
+                           mutate(position = 34,
                                   label = 'Bed occupancy',
                                   note = "Percentage of general acute beds occupied (NHS)", 
                                   parent = 'Health',
                                   up = 'bad',
                                   unit = '%') %>%
                            select(position, label, note, parent, date, up, unit,  'total' = occupancy),
-                         debt %>%
-                           mutate(position = 34,
-                                  label = 'National debt',
-                                  note = "Size of the national debt (ONS)", 
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(position, label, note, parent, date, up, unit,  'total' = debt),
                          house.price.earnings %>%
-                           mutate(position = 35,
+                           mutate(position = 36,
                                   label = 'House price to earnings',
                                   note = "Ratio of house prices to average annual wages (ONS)", 
                                   parent = 'Housing',
@@ -808,7 +860,7 @@ master <- bind_rows(list(unemp %>%
                                   unit = '') %>%
                            select(position, label, note, parent, date, up, unit,  'total' = ratio),
                         vac %>%
-                          mutate(position = 36,
+                          mutate(position = 37,
                                  label = 'Job vacancies',
                                  note = "Total number of job vacancies (ONS)", 
                                  parent = 'Economy',
