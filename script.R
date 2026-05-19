@@ -52,7 +52,7 @@ download.file(wl.url[grepl('Overview-Timeseries', wl.url)],destfile = 'downloads
 waits <- read_excel('downloads/latest-waiting-list.xlsx', skip = 11) %>%
   select('date' = 2, 'total' = 21, 'average' = 3, 'within18' = 8) %>%
   mutate(total = as.numeric(total),
-         within18 = as.numeric(within18),
+         within18 = 100 * as.numeric(within18),
          date = as.Date(as.numeric(date)),
          average = as.numeric(average)) %>%
   filter(!is.na(total)) %>%
@@ -745,6 +745,13 @@ master <- bind_rows(list(unemp %>%
                                  up = 'bad',
                                  unit = '')  %>%
                           select(label, note, parent, date, up, unit, 'total' = average),
+                        waits %>%
+                          mutate(label = 'Seen within 18 weeks',
+                                 note = 'Percentage of patients who received hospital treatment within 18 weeks (NHS England)',
+                                 parent = 'Health',
+                                 up = 'good',
+                                 unit = '%')  %>%
+                          select(label, note, parent, date, up, unit, 'total' = within18),
                         rent %>%
                            mutate(label = 'Renting a 2-bed',
                                   note = "Cost of privately renting a 2-bed property (ONS)", 
