@@ -1,6 +1,92 @@
 [
   {
     "position": 1,
+    "label": "Net migration",
+    "note": "Latest annual estimate of UK immigration, minus emigration (ONS)",
+    "parent": "Immigration",
+    "colour": "green",
+    "colour2": "green",
+    "now": 171000,
+    "change": -160000,
+    "change2": -677000,
+    "unit": "",
+    "data": [
+      {
+        "2020-03-01": 170000
+      },
+      {
+        "2020-06-01": 111000
+      },
+      {
+        "2020-09-01": 35000
+      },
+      {
+        "2020-12-01": 93000
+      },
+      {
+        "2021-03-01": 132000
+      },
+      {
+        "2021-06-01": 251000
+      },
+      {
+        "2021-09-01": 384000
+      },
+      {
+        "2021-12-01": 467000
+      },
+      {
+        "2022-03-01": 575000
+      },
+      {
+        "2022-06-01": 681000
+      },
+      {
+        "2022-09-01": 822000
+      },
+      {
+        "2022-12-01": 891000
+      },
+      {
+        "2023-03-01": 944000
+      },
+      {
+        "2023-06-01": 924000
+      },
+      {
+        "2023-09-01": 891000
+      },
+      {
+        "2023-12-01": 848000
+      },
+      {
+        "2024-03-01": 734000
+      },
+      {
+        "2024-06-01": 649000
+      },
+      {
+        "2024-09-01": 497000
+      },
+      {
+        "2024-12-01": 331000
+      },
+      {
+        "2025-03-01": 260000
+      },
+      {
+        "2025-06-01": 219000
+      },
+      {
+        "2025-09-01": 202000
+      },
+      {
+        "2025-12-01": 171000
+      }
+    ]
+  },
+  {
+    "position": 2,
     "label": "Inflation",
     "note": "Consumer prices index, change on previous 12 months (ONS)",
     "parent": "Economy",
@@ -242,7 +328,7 @@
     ]
   },
   {
-    "position": 2,
+    "position": 3,
     "label": "Unemployment",
     "note": "Percentage of people not in work but looking for a job (ONS)",
     "parent": "Economy",
@@ -478,7 +564,7 @@
     ]
   },
   {
-    "position": 3,
+    "position": 4,
     "label": "Payrolled employees",
     "note": "Number of payrolled employees (ONS)",
     "parent": "Economy",
@@ -720,7 +806,7 @@
     ]
   },
   {
-    "position": 4,
+    "position": 5,
     "label": "Gilt yields",
     "note": "10-year government borrowing costs(Bank of England)",
     "parent": "Government",
@@ -1640,7 +1726,7 @@
     ]
   },
   {
-    "position": 5,
+    "position": 6,
     "label": "National debt",
     "note": "Size of the national debt (ONS)",
     "parent": "Government",
@@ -1879,7 +1965,7 @@
     ]
   },
   {
-    "position": 6,
+    "position": 7,
     "label": "NHS waiting list",
     "note": "Total size of waiting list (NHS England)",
     "parent": "Health",
@@ -2118,7 +2204,7 @@
     ]
   },
   {
-    "position": 7,
+    "position": 8,
     "label": "Real GDP per capita",
     "note": "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
     "parent": "Economy",
@@ -2207,7 +2293,7 @@
     ]
   },
   {
-    "position": 8,
+    "position": 9,
     "label": "Quarterly GDP growth",
     "note": "Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)",
     "parent": "Economy",
@@ -2296,7 +2382,7 @@
     ]
   },
   {
-    "position": 9,
+    "position": 10,
     "label": "Debt-to-GDP ratio",
     "note": "National debt as a percentage of GDP (ONS)",
     "parent": "Economy",
@@ -2535,7 +2621,7 @@
     ]
   },
   {
-    "position": 10,
+    "position": 11,
     "label": "Petrol price",
     "note": "Price of a litre of unleaded petrol (RAC)",
     "parent": "Living standards",
@@ -3014,7 +3100,7 @@
     ]
   },
   {
-    "position": 11,
+    "position": 12,
     "label": "Long-term sick",
     "note": "Number of people who are inactive due to long-term sickness",
     "parent": "Health",
@@ -3250,7 +3336,7 @@
     ]
   },
   {
-    "position": 12,
+    "position": 13,
     "label": "Real wages",
     "note": "Average weekly wage, adjusted for inflation (ONS)",
     "parent": "Living standards",
@@ -3489,7 +3575,7 @@
     ]
   },
   {
-    "position": 13,
+    "position": 14,
     "label": "Shoplifting",
     "note": "Shoplifting offences recorded by police",
     "parent": "Crime",
@@ -3530,7 +3616,7 @@
     ]
   },
   {
-    "position": 14,
+    "position": 15,
     "label": "BoE base rate",
     "note": "Base rate that underpins mortgage and savings rates (Bank of England)",
     "parent": "Living standards",
@@ -3685,7 +3771,7 @@
     ]
   },
   {
-    "position": 15,
+    "position": 16,
     "label": "House prices",
     "note": "Rolling annual average of sold UK house prices (Land Registry)",
     "parent": "Housing",
@@ -3924,7 +4010,7 @@
     ]
   },
   {
-    "position": 16,
+    "position": 17,
     "label": "Diesel price",
     "note": "Price of a litre of diesel (RAC)",
     "parent": "Living standards",
@@ -4403,7 +4489,7 @@
     ]
   },
   {
-    "position": 17,
+    "position": 18,
     "label": "Housing starts",
     "note": "Number of housing units on which construction has started in England in the past year (MHCLG)",
     "parent": "Housing",
@@ -4489,7 +4575,7 @@
     ]
   },
   {
-    "position": 18,
+    "position": 19,
     "label": "Survey-based crime",
     "note": "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)",
     "parent": "Crime",
@@ -4524,7 +4610,7 @@
     ]
   },
   {
-    "position": 19,
+    "position": 20,
     "label": "Small boat crossings",
     "note": "Number of people who have crossed the Channel in the past year (Home Office)",
     "parent": "Immigration",
@@ -5539,86 +5625,6 @@
       },
       {
         "2026-05-14": 36349
-      }
-    ]
-  },
-  {
-    "position": 20,
-    "label": "Net migration",
-    "note": "Latest annual estimate of UK immigration, minus emigration (ONS)",
-    "parent": "Immigration",
-    "colour": "green",
-    "colour2": "green",
-    "now": 204000,
-    "change": -445000,
-    "change2": -720000,
-    "unit": "",
-    "data": [
-      {
-        "2020-03-01": 170000
-      },
-      {
-        "2020-06-01": 111000
-      },
-      {
-        "2020-09-01": 35000
-      },
-      {
-        "2020-12-01": 93000
-      },
-      {
-        "2021-03-01": 132000
-      },
-      {
-        "2021-06-01": 251000
-      },
-      {
-        "2021-09-01": 384000
-      },
-      {
-        "2021-12-01": 467000
-      },
-      {
-        "2022-03-01": 575000
-      },
-      {
-        "2022-06-01": 681000
-      },
-      {
-        "2022-09-01": 822000
-      },
-      {
-        "2022-12-01": 891000
-      },
-      {
-        "2023-03-01": 944000
-      },
-      {
-        "2023-06-01": 924000
-      },
-      {
-        "2023-09-01": 891000
-      },
-      {
-        "2023-12-01": 848000
-      },
-      {
-        "2024-03-01": 734000
-      },
-      {
-        "2024-06-01": 649000
-      },
-      {
-        "2024-09-01": 508000
-      },
-      {
-        "2024-12-01": 345000
-      },
-      {
-        "2025-03-01": 256000
-      },
-      {
-        "2025-06-01": 204000
       }
     ]
   },
