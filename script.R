@@ -556,7 +556,7 @@ debt.gdp <-  read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(neet %>%
+master <- bind_rows(list(neets %>%
                            mutate(label = 'NEETS aged 16-24',
                                   note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
                                   parent = 'Economy',
