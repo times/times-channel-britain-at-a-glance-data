@@ -170,7 +170,7 @@ br <-  bra %>%
 
 
 
-# 12. Job vacancies
+#12. Job vacancies
 
 vac <- 'https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/timeseries/ap2y/unem' %>%
   read_csv() %>%
@@ -180,7 +180,7 @@ vac <- 'https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmark
          vacancies = 1000 * as.numeric(vacancies))
 
 
-# 13. real wages (regular pay seasonally adjusted)
+#13. real wages (regular pay seasonally adjusted)
 
 wages <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai7/emp',
          skip = 150) %>%
@@ -197,7 +197,7 @@ wages <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
 
 
 
-# 14. petrol prices (RAC)
+#14. petrol prices (RAC)
 
 
 petrol <- read_csv('https://static.dwcdn.net/data/D7n0J.csv?v=1774282200000') %>%
@@ -221,14 +221,14 @@ app <- read_excel('downloads/approval.xlsx') %>%
   select(date, net)
 
 
-# 16. consumer confidence 
+#16. consumer confidence 
 
 consumer <- read_csv('https://fred.stlouisfed.org/graph/fredgraph.csv?id=CSCICP02GBM460S&cosd=2020-01-01') |>
   select(date = 1, consumer = 2)
 
 
 
-# 17.  renewables
+#17.  renewables
 
 rlink <- 'https://www.gov.uk/government/statistics/electricity-section-5-energy-trends' %>%
   read_html() %>%
@@ -260,7 +260,7 @@ ren <- r1 %>%
 
 
 
-# 18. gov borrowing (rates)
+#18. gov borrowing (rates)
 
 gilts.daily <- 'https://www.bankofengland.co.uk/boeapps/database/fromshowcolumns.asp?Travel=NIxIRxSUx&FromSeries=1&ToSeries=50&DAT=ALL&FNY=&CSVF=TT&html.x=54&html.y=45&C=C6S&Filter=N' %>%
   read_html() %>%
@@ -294,7 +294,7 @@ asylum <- read_excel('~/Downloads/asylumclaims.xlsx', 11, skip = 1) %>%
 
 
 
-# 20. direct debit failure rate
+#20. direct debit failure rate
 
 dd.url <- 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/monthlydirectdebitfailurerateandaveragetransactionamount' %>%
   read_html() %>%
@@ -306,7 +306,7 @@ dd <- read_excel('~/Downloads/dd.xlsx', 4, skip = 4) %>%
   select('date' = 1, 'ddfail' = 2)
 
 
-# 21. A&E 
+#21. A&E 
 
 
 ae.links <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/ae-waiting-times-and-activity/' %>%
@@ -326,7 +326,7 @@ ae <- read_excel('downloads/latest-ae.xls', 2) %>%
 
 
 
-# 22. private rents
+#22. private rents
 
 'https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/priceindexofprivaterentsukmonthlypricestatistics' %>%
   read_html() %>%
@@ -353,17 +353,18 @@ prison <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
 
 
 # 24. NEETS
-
-neet <- 'https://explore-education-statistics.service.gov.uk/data-tables/permalink/3bf73997-2f44-4a93-e3fa-08de88f3d3c1' %>%
+'https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/datasets/youngpeoplenotineducationemploymentortrainingneettable1' %>%
   read_html() %>%
-  html_table() %>%
-  nth(1) %>%
-  select('year' = 1, 'q1' = 6, 'q2' = 7, 'q3' = 8, 'q4' = 9) %>%
-  mutate_at(2:5, function(x) as.numeric(gsub('%' ,'', x))) %>%
-  filter(!is.na(year)) %>%
-  gather(quarter, neet, 2:5) %>%
-  mutate(date = lubridate::yq( paste(year, quarter))) %>%
-  select(date, neet)
+  html_nodes('.btn--thick')  %>%
+  html_attr('href') %>%
+  paste0('https://www.ons.gov.uk', .)  %>%
+  download.file(., destfile = 'downloads/neets.xlsx')
+
+neets <- read_excel('downloads/neets.xlsx', 2)  %>%
+  select('date' = 1, 'neet' = 6) %>%
+  mutate(date = lubridate::my(gsub('(.*)-', '', date)),
+         neet = as.numeric(neet))  %>%
+  filter(!is.na(neet), !is.na(date))
 
 
 # 25. Crown court open caseload
@@ -491,7 +492,7 @@ house.price.earnings <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/dow
   select(date, ratio) %>%
   filter(!is.na(ratio))
 
-# 35.  shoplifting
+#35.  shoplifting
 
 shop <- read_excel('downloads/crime.xlsx', 13, skip = 8) %>%
   gather(date, crimes, 3:(ncol(.)-1)) %>%
@@ -503,7 +504,7 @@ shop <- read_excel('downloads/crime.xlsx', 13, skip = 8) %>%
 
 
 
-# 36. theft from the person
+#36. theft from the person
 
 theft.person <- read_excel('downloads/crime.xlsx', 13, skip = 8) %>%
   gather(date, crimes, 3:(ncol(.)-1)) %>%
@@ -513,7 +514,7 @@ theft.person <- read_excel('downloads/crime.xlsx', 13, skip = 8) %>%
   select('code' = 1, 'category' = 2, date, crimes) %>%
   filter(!is.na(code))
 
-# 37 PAYROLL EMPLOYEES
+#37 PAYROLL EMPLOYEES
 
 rti_url <- 'https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/realtimeinformationstatisticsreferencetableseasonallyadjusted' %>%
   read_html() %>%
@@ -529,7 +530,7 @@ payrolled <- read_excel('downloads/rti_sa.xlsx',skip = 4, 2) %>%
   select(date, 'payroll' = 2)
 
 
-# 38. Quarterly GDP 
+#38. Quarterly GDP 
 
 
 gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihyq/pn2') %>%
@@ -539,7 +540,7 @@ gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy
          gdp = as.numeric(gdp))
 
 
-# 39. Debt as % of GDP
+#39. Debt as % of GDP
 
 debt.gdp <-  read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/hf6x/pusf') %>%
   slice(270:nrow(.)) %>%
@@ -549,21 +550,34 @@ debt.gdp <-  read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/
   filter(!is.na(debt.gdp))
 
 
-# 
-# download.file(crimelink[grepl('2013-onwards', crimelink)], 'downloads/reportedcrime.ods')
-# 
-# readODS::read_ods('downloads/reportedcrime.ods', )
-
-
-#  charge rates
-
 
 ########## STEP TWO
 
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(unemp %>%
+master <- bind_rows(list(neet %>%
+                           mutate(label = 'NEETS aged 16-24',
+                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
+                                  parent = 'Economy',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = neet),
+                         imm %>%
+                           mutate(label = 'Net migration',
+                                  note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
+                                  parent = 'Immigration',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, total),
+                         inf %>%
+                           mutate(label = 'Inflation',
+                                  up = 'bad',
+                                  note = "Consumer prices index, change on previous 12 months (ONS)",
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select( label, note, parent, date, up, unit, 'total' = inf),
+                         unemp %>%
                            mutate(label = 'Unemployment',
                                   up = 'bad',
                                   note = "Percentage of people not in work but looking for a job (ONS)", 
@@ -613,6 +627,13 @@ master <- bind_rows(list(unemp %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = gdp),
+                         debt.gdp %>%
+                           mutate(label = 'Debt-to-GDP ratio',
+                                  up = 'bad',
+                                  note = 'National debt as a percentage of GDP (ONS)',
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = debt.gdp),
                          petrol %>%
                            mutate(label = 'Petrol price',
                                   note = "Price of a litre of unleaded petrol (RAC)", 
@@ -656,14 +677,7 @@ master <- bind_rows(list(unemp %>%
                                   parent = 'Housing',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = price),
-                         inf %>%
-                           mutate(label = 'Inflation',
-                                  up = 'bad',
-                                  note = "Consumer prices index, change on previous 12 months (ONS)",
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select( label, note, parent, date, up, unit, 'total' = inf),
-                        diesel %>%
+                         diesel %>%
                           mutate(label = 'Diesel price',
                                  note = "Price of a litre of diesel (RAC)", 
                                  parent = 'Living standards',
@@ -692,13 +706,6 @@ master <- bind_rows(list(unemp %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = rolling),
-                         imm %>%
-                           mutate(label = 'Net migration',
-                                  note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
-                                  parent = 'Immigration',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, total),
                          app %>%
                            mutate(label = 'Net government approval',
                                   note = "Government approval minus government disapproval  (YouGov)", 
@@ -783,13 +790,6 @@ master <- bind_rows(list(unemp %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = crowncourt),
-                         neet %>%
-                           mutate(label = 'NEETS aged 16-24',
-                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
-                                  parent = 'Economy',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = neet),
                          pint %>%
                            mutate(label = 'Price of a pint',
                                   note = "Average price of a pint of premium lager (ONS)", 
