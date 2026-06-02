@@ -8460,11 +8460,11 @@
     "label": "Prisoners",
     "note": "Total prison population (Ministry of Justice)",
     "parent": "Crime",
-    "colour": "red",
+    "colour": "green",
     "colour2": "green",
-    "now": 87367,
-    "change": 168,
-    "change2": -606,
+    "now": 85704,
+    "change": -2380,
+    "change2": -1777,
     "unit": "",
     "data": [
       {
@@ -8688,6 +8688,12 @@
       },
       {
         "2026-02-01": 87367
+      },
+      {
+        "2026-03-01": 87292
+      },
+      {
+        "2026-04-01": 85704
       }
     ]
   },
