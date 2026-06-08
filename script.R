@@ -703,7 +703,7 @@ master <- bind_rows(list(red %>%
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, total),
                          flights %>%
-                           mutate(label = 'Monthly flights',
+                           mutate(label = 'Flights',
                                   note = 'Number of monthly flights to and from UK airports, seasonally-adjusted (ONS, EUROCONTROL)',
                                   parent = 'Economy',
                                   up = 'good',
