@@ -5326,7 +5326,7 @@
   {
     "position": 18,
     "label": "Vehicle production",
-    "note": "Total UK monthly vehicle production, seasonally-adjusted (ONS, SMMT)",
+    "note": "Total number of vehicles made in Britain each month, seasonally-adjusted (ONS, SMMT)",
     "parent": "Economy",
     "colour": "red",
     "colour2": "red",
