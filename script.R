@@ -347,8 +347,14 @@ prison <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
   mutate(date = lubridate::my(Date),
          prison = Population) %>%
   select(date, prison) %>%
-  bind_rows(tibble(date = as.Date(c('2025-10-01', '2025-11-01', '2025-12-01', '2026-01-01', '2026-02-01')),
-                   prison = c(87413, 87332, 86596, 87212, 87367)))
+  bind_rows(tibble(date = as.Date(c('2025-10-01', '2025-11-01', 
+                                    '2025-12-01', '2026-01-01', 
+                                    '2026-02-01', '2026-03-01',
+                                    '2026-04-01')),
+                   prison = c(87413, 87332, 
+                              86596, 87212, 
+                              87367, 87292,
+                              85704)))
 
 
 
@@ -447,10 +453,19 @@ can.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/cancer-
 can.url[grepl('National-Time-Series', can.url)][1] %>%
   download.file(destfile = 'downloads/latest-cancer.xlsx')
 
+download.file('https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2024/01/Cancer-Waiting-Times-National-Time-Series-Oct-2009-Sep-2023-with-Revisions.xlsx',
+              'downloads/cancer-old.xlsx')
+
+
+
 cancer <- read_excel('~/Downloads/latest-cancer.xlsx', 2, skip = 3) %>%
   select('date' = 1, 'cancer62' = 19) %>%
   filter(!is.na(cancer62)) %>%
-  mutate(cancer62 = 100 * cancer62)
+  mutate(cancer62 = 100 * cancer62) %>%
+  bind_rows(read_excel('downloads/cancer-old.xlsx', 2, skip = 3) %>%
+              select('date' = 1, 'cancer62' = 47) %>%
+              mutate(cancer62 = 100 * cancer62) %>%
+              filter(date < as.Date('2022-04-01')))
 
 
 # 32. bed occupancy
@@ -550,26 +565,108 @@ debt.gdp <-  read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/
   filter(!is.na(debt.gdp))
 
 
+#40. potential redundancies
+
+'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/advancednotificationofpotentialredundancies' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  nth(1) %>%
+  paste0('https://ons.gov.uk', .) %>%
+  download.file('downloads/redundancies.xlsx')
+
+red <- read_excel('downloads/redundancies.xlsx', 4, skip = 4) %>%
+  select('date' = 1, 'redundancies' = 4)  %>%
+  mutate(redundancies = as.numeric(redundancies)) %>%
+  filter(!is.na(redundancies))
+
+
+#41. electricity price
+
+'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/systempriceofelectricity'  %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  nth(1) %>%
+  paste0('https://ons.gov.uk', .) %>%
+  download.file('downloads/electricity.xlsx')
+
+electricity <- read_excel('downloads/electricity.xlsx', 5, skip = 4) %>%
+  select('date' = 1, 'electricity' = 2)
+
+#42. debit card spending
+
+'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/revolutspendingondebitcards' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  nth(1) %>%
+  paste0('https://ons.gov.uk', .) %>%
+  download.file('downloads/revolut.xlsx')
+
+debitcard <- read_excel('downloads/revolut.xlsx', 9, skip =4) %>%
+  select('date' = 1, 'spending' = 2) %>%
+  mutate(date = lubridate::my(date),
+         spending = as.numeric(spending))
+
+
+#43. % spent on rent
+
+'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/renteraffordability' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  nth(1) %>%
+  paste0('https://ons.gov.uk', .) %>%
+  download.file('downloads/rentspend.xlsx')
+
+rentspend <- read_excel('downloads/rentspend.xlsx', 4, skip = 4) %>%
+  select('date' = 1, 'rentspend' = 3) %>%
+  mutate(date = lubridate::my(date),
+         rentspend = 100 * as.numeric(rentspend))
+
+#44. flights 
+
+'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/dailyukflights' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  nth(1) %>%
+  paste0('https://ons.gov.uk', .) %>%
+  download.file('downloads/flights.xlsx')
+
+flights <- read_excel('downloads/flights.xlsx', 5, skip = 4) %>%
+  select('date' = 1, 'flights' = 3)
+
+
+#45. vehicle production
+
+'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/uknewvehicleregistrationsandproduction' %>%
+  read_html() %>%
+  html_nodes('.btn--thick') %>%
+  html_attr('href') %>%
+  nth(1) %>%
+  paste0('https://ons.gov.uk', .) %>%
+  download.file('downloads/cars.xlsx')
+
+vehicle <- read_excel('downloads/cars.xlsx', 6, skip = 5) %>%
+  select('date' = 1, 'vehicles' = 9 )
+
+
+
 
 ########## STEP TWO
 
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(neets %>%
-                           mutate(label = 'NEETS aged 16-24',
-                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
+master <- bind_rows(list(red %>%
+                           mutate(label = 'Redundancies',
+                                  note = "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
                                   parent = 'Economy',
                                   up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = neet),
-                         imm %>%
-                           mutate(label = 'Net migration',
-                                  note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
-                                  parent = 'Immigration',
-                                  up = 'bad',
                                   unit = '') %>%
-                           select(label, note, parent, date, up, unit, total),
+                           select(label, note, parent, date, up, unit, 'total' = redundancies),
                          inf %>%
                            mutate(label = 'Inflation',
                                   up = 'bad',
@@ -584,6 +681,56 @@ master <- bind_rows(list(neets %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = unem),
+                         waits %>%
+                           mutate(label = 'NHS waiting list',
+                                  note = "Total size of waiting list (NHS England)", 
+                                  parent = 'Health',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, total),
+                         neets %>%
+                           mutate(label = 'NEETS aged 16-24',
+                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
+                                  parent = 'Economy',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = neet),
+                         imm %>%
+                           mutate(label = 'Net migration',
+                                  note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
+                                  parent = 'Immigration',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, total),
+                         flights %>%
+                           mutate(label = 'Monthly flights',
+                                  note = 'Number of monthly flights to and from UK airports, seasonally-adjusted (ONS, EUROCONTROL)',
+                                  parent = 'Economy',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = flights),
+                         petrol %>%
+                           mutate(label = 'Petrol price',
+                                  note = "Price of a litre of unleaded petrol (RAC)", 
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select( label, note, parent, date, up, unit, 'total' = petrol),
+                         electricity %>%
+                           mutate(label = 'Electricity price',
+                                  note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
+                                  parent = 'Living standards',
+                                  up = 'bad', 
+                                  unit = 'p') %>%
+                           select(label, note, parent, date, up, unit, 'total' = electricity),
+                         gdp %>%
+                           mutate(label = 'Real GDP per capita',
+                                  up = 'good',
+                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         
                          payrolled %>%
                            mutate(label = 'Payrolled employees',
                                   up = 'good',
@@ -591,7 +738,22 @@ master <- bind_rows(list(neets %>%
                                   parent = 'Economy',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = payroll),
-                         
+                         debitcard %>%
+                           mutate(label = 'Debit card spend',
+                                  up = 'good',
+                                  note = "Monthly debit card spending index from Revolut, where 100 = 2023 average (ONS, Revolut)", 
+                                  parent = 'Economy',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = spending),
+                        
+                         rentspend %>%
+                           mutate(label = 'Spend on rent',
+                                  up = 'bad',
+                                  note = 'Monthly rental spend as a percentage of gross income for new tenancies (ONS, PriceHubble)',
+                                  parent = 'Housing',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rentspend),
+                          
                          gilts %>%
                            mutate(label = 'Gilt yields',
                                   note = "10-year government borrowing costs(Bank of England)", 
@@ -606,20 +768,6 @@ master <- bind_rows(list(neets %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit,  'total' = debt),
-                         waits %>%
-                           mutate(label = 'NHS waiting list',
-                                  note = "Total size of waiting list (NHS England)", 
-                                  parent = 'Health',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, total),
-                         gdp %>%
-                           mutate(label = 'Real GDP per capita',
-                                  up = 'good',
-                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
                          gdp.growth %>%
                            mutate(label = 'Quarterly GDP growth',
                                   up = 'good',
@@ -634,13 +782,13 @@ master <- bind_rows(list(neets %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = debt.gdp),
-                         petrol %>%
-                           mutate(label = 'Petrol price',
-                                  note = "Price of a litre of unleaded petrol (RAC)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select( label, note, parent, date, up, unit, 'total' = petrol),
+                         vehicle %>%
+                           mutate(label = 'Vehicle production',
+                                  up = 'good',
+                                  note = 'Total number of vehicles made in Britain each month, seasonally-adjusted (ONS, SMMT)',
+                                  parent = 'Economy',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = vehicles),
                          inac %>%
                            mutate(label = 'Long-term sick',
                                   up = 'bad',
@@ -856,7 +1004,7 @@ master <- master %>% left_join(master %>%
                       mutate(position = 1:nrow(.)))
 
 
-# ADD A ROW FROM 1 AND 2 YEARS AGO
+# ADD A ROW FROM 1 AND 2 AND 5 YEARS AGO
 
 master.adj <- master %>%
   bind_rows(master %>%
@@ -868,6 +1016,11 @@ master.adj <- master %>%
               group_by(label) %>%
               filter(date == max(date)) %>%
               mutate(date = date - years(2),
+                     total = NA),
+            master %>%
+              group_by(label) %>%
+              filter(date == max(date)) %>%
+              mutate(date = date - years(5),
                      total = NA)) %>%
   group_by(label) %>%
   arrange(date) %>%
@@ -893,11 +1046,16 @@ file <- master.adj %>%
                           group_by(label) %>%
                           filter(date == max(date) - years(2)) %>%
                           select(label, y2 = total)) %>%
+              left_join(master.adj %>%
+                          group_by(label) %>%
+                          filter(date == max(date) - years(5)) %>%
+                          select(label, y5 = total)) %>%
               mutate(change1 = now - y1,
-                     change2 = now - y2) %>%
-              select(-y1, -y2)) %>%
+                     change2 = now - y2,
+                     change5 = now - y5) %>%
+              select(-y1, -y2, -y5)) %>%
   arrange(position, label, date) %>%
-  group_by(position, label, note, parent, now, change1, change2, up, unit) %>%
+  group_by(position, label, note, parent, now, change1, change2, change5, up, unit) %>%
   nest(data = c(date, total)) %>%
   ungroup() %>%
   mutate(c1 = ifelse(change1 > 0, up, 'reverse'),
@@ -908,7 +1066,12 @@ file <- master.adj %>%
          c2 = ifelse(c2 == 'reverse' & up == 'bad', 'good',c2),
          c2 = ifelse(c2 == 'reverse' & up == 'good', 'bad', c2),
          colour2 = ifelse(c2 == 'bad', 'red', ifelse(c2 == 'good', 'green', 'grey')))  %>%
-  select(position,label, note, parent, 'colour' = colour1, colour2, now, 'change' = change1, change2, unit, data) %>%
+  mutate(c5 = ifelse(change5 > 0, up, 'reverse'),
+         c5 = ifelse(c5 == 'reverse' & up == 'bad', 'good',c5),
+         c5 = ifelse(c5 == 'reverse' & up == 'good', 'bad', c5),
+         colour5 = ifelse(c5 == 'bad', 'red', ifelse(c5 == 'good', 'green', 'grey')))  %>%
+  
+  select(position,label, note, parent, 'colour' = colour1, colour2, colour5, now, 'change' = change1, change2, change5, unit, data) %>%
   mutate(data = map(data, ~ {
     df <- .x
     map2(as.character(df$date), df$total, ~ set_names(list(.y), .x))
