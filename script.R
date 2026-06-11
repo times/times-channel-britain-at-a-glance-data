@@ -50,7 +50,7 @@ wl.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-wait
 download.file(wl.url[grepl('Overview-Timeseries', wl.url)],destfile = 'downloads/latest-waiting-list.xlsx')
 
 waits <- read_excel('downloads/latest-waiting-list.xlsx', skip = 11) %>%
-  select('date' = 2, 'total' = 21, 'average' = 3, 'within18' = 8) %>%
+  select('date' = 2, 'total' = 22, 'average' = 3, 'within18' = 8) %>%
   mutate(total = as.numeric(total),
          within18 = 100 * as.numeric(within18),
          date = as.Date(as.numeric(date)),
