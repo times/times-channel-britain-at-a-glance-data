@@ -42,7 +42,7 @@ hp <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from
 
 #5. NHS WAITING LISTS
 
-wl.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2025-26/' %>%
+wl.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2026-27/' %>%
   read_html() %>%
   html_nodes('a') %>%
   html_attr('href') 
@@ -285,7 +285,7 @@ as.u <- 'https://www.gov.uk/government/statistical-data-sets/immigration-system-
 
 download.file(as.u[grepl('/asylum-claims-datasets', as.u)], 'downloads/asylumclaims.xlsx')
 
-asylum <- read_excel('~/Downloads/asylumclaims.xlsx', 11, skip = 1) %>%
+asylum <- read_excel('downloads/asylumclaims.xlsx', 11, skip = 1) %>%
   mutate(date = lubridate::yq(Quarter)) %>%
   filter(`Case outcome group` == 'Grant of Protection') %>%
   group_by(date) %>%
@@ -301,7 +301,7 @@ dd.url <- 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/d
   html_nodes('.btn--thick') %>%
   html_attr('href')
 download.file(paste0('https://www.ons.gov.uk', dd.url[1]), 'downloads/dd.xlsx')
-dd <- read_excel('~/Downloads/dd.xlsx', 4, skip = 4) %>%
+dd <- read_excel('downloads/dd.xlsx', 4, skip = 4) %>%
   mutate_at(2:ncol(.), function(x) 100 * x) %>%
   select('date' = 1, 'ddfail' = 2)
 
@@ -323,7 +323,6 @@ ae <- read_excel('downloads/latest-ae.xls', 2) %>%
   mutate(date = as.Date(date, origin = '1899-12-30'),
          pc4hour = 100 * pc4hour) %>%
   filter(!is.na(date)) 
-
 
 
 #22. private rents
@@ -458,7 +457,7 @@ download.file('https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/
 
 
 
-cancer <- read_excel('~/Downloads/latest-cancer.xlsx', 2, skip = 3) %>%
+cancer <- read_excel('downloads/latest-cancer.xlsx', 2, skip = 3) %>%
   select('date' = 1, 'cancer62' = 19) %>%
   filter(!is.na(cancer62)) %>%
   mutate(cancer62 = 100 * cancer62) %>%
@@ -660,7 +659,21 @@ vehicle <- read_excel('downloads/cars.xlsx', 6, skip = 5) %>%
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(red %>%
+master <- bind_rows(list(waits %>%
+                           mutate(label = 'NHS waiting list',
+                                  note = "Total size of waiting list (NHS England)", 
+                                  parent = 'Health',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, total),
+                         ae %>%
+                           mutate(label = 'A&E seen in 4 hours',
+                                  note = "Percentage of A&E patients seen within 4 hours (NHS England)", 
+                                  parent = 'Health',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = pc4hour),
+                          red %>%
                            mutate(label = 'Redundancies',
                                   note = "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
                                   parent = 'Economy',
@@ -681,13 +694,6 @@ master <- bind_rows(list(red %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = unem),
-                         waits %>%
-                           mutate(label = 'NHS waiting list',
-                                  note = "Total size of waiting list (NHS England)", 
-                                  parent = 'Health',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, total),
                          neets %>%
                            mutate(label = 'NEETS aged 16-24',
                                   note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
@@ -896,13 +902,6 @@ master <- bind_rows(list(red %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = ddfail),
-                         ae %>%
-                           mutate(label = 'A&E seen in 4 hours',
-                                  note = "Percentage of A&E patients seen within 4 hours (NHS England)", 
-                                  parent = 'Health',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = pc4hour),
                         waits %>%
                           mutate(label = 'Average NHS wait',
                                  note = 'Median number of weeks spent waiting for NHS treatment (NHS England)',
