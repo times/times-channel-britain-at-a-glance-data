@@ -680,7 +680,7 @@ master <- bind_rows(list(housing %>%
                                   note = "Annualised real household disposable income per person (ONS)", 
                                   parent = 'Living standards',
                                   up = 'good',
-                                  unit = '') %>%
+                                  unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = rhdi),
                          
                          waits %>%
