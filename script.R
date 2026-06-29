@@ -36,7 +36,7 @@ unemp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
 
 hp <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
   filter(`Reporting.period` == 'monthly') %>%
-  select('date' = Period, 'price' = `Average.price.All.property.types`) %>%
+  select('date' = Period, 'price' = 11) %>%
   mutate(date = ym(date), price = as.numeric(price)) 
 
 
@@ -652,6 +652,15 @@ vehicle <- read_excel('downloads/cars.xlsx', 6, skip = 5) %>%
   select('date' = 1, 'vehicles' = 9 )
 
 
+#46. Real household disposable income
+
+rhdi <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/crxx/ukea' , skip = 100)  %>%
+  select('date' = 1, 'rhdi' = 2) %>%
+  mutate(date = lubridate::yq(date),
+         rhdi = 4*as.numeric(rhdi))
+  
+
+
 
 
 ########## STEP TWO
@@ -659,7 +668,22 @@ vehicle <- read_excel('downloads/cars.xlsx', 6, skip = 5) %>%
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(waits %>%
+master <- bind_rows(list(housing %>%
+                           mutate(label = 'Housing starts',
+                                  note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
+                                  parent = 'Housing',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = start),
+                         rhdi %>%
+                           mutate(label = 'Real disposable income',
+                                  note = "Annualised real household disposable income per person (ONS)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rhdi),
+                         
+                         waits %>%
                            mutate(label = 'NHS waiting list',
                                   note = "Total size of waiting list (NHS England)", 
                                   parent = 'Health',
@@ -839,14 +863,7 @@ master <- bind_rows(list(waits %>%
                                  unit = '£') %>%
                           select(label, note, parent, date, up, unit,  'total' = diesel),
                         
-                        housing %>%
-                           mutate(label = 'Housing starts',
-                                  note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
-                                  parent = 'Housing',
-                                  up = 'good',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = start),
-                         crime %>%
+                        crime %>%
                            mutate(label = 'Survey-based crime',
                                   note = "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)", 
                                   parent = 'Crime',
