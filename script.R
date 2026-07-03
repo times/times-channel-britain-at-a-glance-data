@@ -682,6 +682,13 @@ master <- bind_rows(list(housing %>%
                                   up = 'good',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = rhdi),
+                         boats %>%
+                           mutate(label = 'Small boat crossings',
+                                  note = "Number of people who have crossed the Channel in the past year (Home Office)", 
+                                  parent = 'Immigration',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rolling),
                          
                          waits %>%
                            mutate(label = 'NHS waiting list',
@@ -870,13 +877,6 @@ master <- bind_rows(list(housing %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = `With fraud`),
-                         boats %>%
-                           mutate(label = 'Small boat crossings',
-                                  note = "Number of people who have crossed the Channel in the past year (Home Office)", 
-                                  parent = 'Immigration',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rolling),
                          app %>%
                            mutate(label = 'Net government approval',
                                   note = "Government approval minus government disapproval  (YouGov)", 
