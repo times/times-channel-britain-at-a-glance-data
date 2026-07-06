@@ -88,7 +88,7 @@ housing <- read_excel('downloads/houses.xlsx', 6, skip = 5) %>%
   select('date' = 2, 'start' = 3, 'complete' = 7) %>%
   mutate(date = lubridate::my(gsub('(.*) - ','', date )),
          rolling = rollsum(start, 4, align = 'right', 
-                         fill = NA))  %>%
+                           fill = NA))  %>%
   select(date, 'start' = rolling)
 
 
@@ -183,7 +183,7 @@ vac <- 'https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmark
 #13. real wages (regular pay seasonally adjusted)
 
 wages <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai7/emp',
-         skip = 150) %>%
+                  skip = 150) %>%
   select('date' = 1, 'pay' = 2)  %>%
   mutate(date = lubridate::ym(date)) %>%
   left_join(read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7bt/mm23')  %>%
@@ -658,7 +658,26 @@ rhdi <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/gross
   select('date' = 1, 'rhdi' = 2) %>%
   mutate(date = lubridate::yq(date),
          rhdi = 4*as.numeric(rhdi))
-  
+
+
+#47. England national team rankings 
+
+eng <- read_tsv('https://eloratings.net/England.tsv?_=1783339445558') %>%
+  select('y'= 1,'m' = 2,'d' = 3,
+         'home'= 4,'away'=5,
+         'home.elo' = 15, 'away.elo' = 16) %>%
+  mutate(date = lubridate::ymd(paste(y,m,d))) %>%
+  select(date, home, away, home.elo, away.elo)
+
+
+eng <- bind_rows(eng %>%
+            select(date, 'team' = home, 'elo' = home.elo),
+          eng %>%
+            select(date, 'team' = away, 'elo' = away.elo)) %>%
+  filter(team == 'EN') %>%
+  filter(date >= as.Date('2020-01-01')) 
+
+
 
 
 
@@ -682,6 +701,13 @@ master <- bind_rows(list(housing %>%
                                   up = 'good',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = rhdi),
+                         eng %>%
+                           mutate(label = 'England world ranking',
+                                  note = 'England men’s national football team official world ranking (FIFA)',
+                                  parent = 'Other',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = elo),
                          boats %>%
                            mutate(label = 'Small boat crossings',
                                   note = "Number of people who have crossed the Channel in the past year (Home Office)", 
@@ -689,7 +715,6 @@ master <- bind_rows(list(housing %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = rolling),
-                         
                          waits %>%
                            mutate(label = 'NHS waiting list',
                                   note = "Total size of waiting list (NHS England)", 
@@ -704,7 +729,7 @@ master <- bind_rows(list(housing %>%
                                   up = 'good',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = pc4hour),
-                          red %>%
+                         red %>%
                            mutate(label = 'Redundancies',
                                   note = "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
                                   parent = 'Economy',
@@ -782,7 +807,7 @@ master <- bind_rows(list(housing %>%
                                   parent = 'Economy',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = spending),
-                        
+                         
                          rentspend %>%
                            mutate(label = 'Spend on rent',
                                   up = 'bad',
@@ -790,7 +815,7 @@ master <- bind_rows(list(housing %>%
                                   parent = 'Housing',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = rentspend),
-                          
+                         
                          gilts %>%
                            mutate(label = 'Gilt yields',
                                   note = "10-year government borrowing costs(Bank of England)", 
@@ -855,7 +880,7 @@ master <- bind_rows(list(housing %>%
                                   parent = 'Living standards',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = rate),
-                        hp %>%
+                         hp %>%
                            mutate(label = 'House prices',
                                   up = 'neutral',
                                   note = "Rolling annual average of sold UK house prices (Land Registry)", 
@@ -863,14 +888,14 @@ master <- bind_rows(list(housing %>%
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = price),
                          diesel %>%
-                          mutate(label = 'Diesel price',
-                                 note = "Price of a litre of diesel (RAC)", 
-                                 parent = 'Living standards',
-                                 up = 'bad',
-                                 unit = '£') %>%
-                          select(label, note, parent, date, up, unit,  'total' = diesel),
-                        
-                        crime %>%
+                           mutate(label = 'Diesel price',
+                                  note = "Price of a litre of diesel (RAC)", 
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit,  'total' = diesel),
+                         
+                         crime %>%
                            mutate(label = 'Survey-based crime',
                                   note = "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)", 
                                   parent = 'Crime',
@@ -905,7 +930,7 @@ master <- bind_rows(list(housing %>%
                                   up = 'good',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = renewablepc),
-                        asylum %>%
+                         asylum %>%
                            mutate(label = 'Asylum grants',
                                   note = "Number of people granted asylum at initial decision in the past year (Home Office)", 
                                   parent = 'Immigration',
@@ -919,21 +944,21 @@ master <- bind_rows(list(housing %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = ddfail),
-                        waits %>%
-                          mutate(label = 'Average NHS wait',
-                                 note = 'Median number of weeks spent waiting for NHS treatment (NHS England)',
-                                 parent = 'Health',
-                                 up = 'bad',
-                                 unit = '')  %>%
-                          select(label, note, parent, date, up, unit, 'total' = average),
-                        waits %>%
-                          mutate(label = 'Seen within 18 weeks',
-                                 note = 'Percentage of patients who received hospital treatment within 18 weeks (NHS England)',
-                                 parent = 'Health',
-                                 up = 'good',
-                                 unit = '%')  %>%
-                          select(label, note, parent, date, up, unit, 'total' = within18),
-                        rent %>%
+                         waits %>%
+                           mutate(label = 'Average NHS wait',
+                                  note = 'Median number of weeks spent waiting for NHS treatment (NHS England)',
+                                  parent = 'Health',
+                                  up = 'bad',
+                                  unit = '')  %>%
+                           select(label, note, parent, date, up, unit, 'total' = average),
+                         waits %>%
+                           mutate(label = 'Seen within 18 weeks',
+                                  note = 'Percentage of patients who received hospital treatment within 18 weeks (NHS England)',
+                                  parent = 'Health',
+                                  up = 'good',
+                                  unit = '%')  %>%
+                           select(label, note, parent, date, up, unit, 'total' = within18),
+                         rent %>%
                            mutate(label = 'Renting a 2-bed',
                                   note = "Cost of privately renting a 2-bed property (ONS)", 
                                   parent = 'Housing',
@@ -1003,21 +1028,21 @@ master <- bind_rows(list(housing %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit,  'total' = ratio),
-                        vac %>%
-                          mutate(label = 'Job vacancies',
-                                 note = "Total number of job vacancies (ONS)", 
-                                 parent = 'Economy',
-                                 up = 'good',
-                                 unit = '') %>%
-                          select(label, note, parent, date, up, unit, 'total' = vacancies))) %>%
+                         vac %>%
+                           mutate(label = 'Job vacancies',
+                                  note = "Total number of job vacancies (ONS)", 
+                                  parent = 'Economy',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = vacancies))) %>%
   filter(date >= as.Date('2020-01-01'))
 
 # POSITION NOW SET BY ORDER
 
 master <- master %>% left_join(master %>%
-                      select(label) %>%
-                      unique() %>%
-                      mutate(position = 1:nrow(.)))
+                                 select(label) %>%
+                                 unique() %>%
+                                 mutate(position = 1:nrow(.)))
 
 
 # ADD A ROW FROM 1 AND 2 AND 5 YEARS AGO
