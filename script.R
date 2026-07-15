@@ -2,6 +2,34 @@ pacman::p_load('tidyverse', 'lubridate', 'DatawRappr',
                'zoo', 'rvest', 'readxl', 'readODS',
                'httr', 'jsonlite')
 
+options(timeout = 120)  # longer timeout for slow government servers
+
+# Retry wrapper for download.file — handles 429 rate-limiting from ONS etc.
+safe_download <- function(url, destfile, retries = 3, pause = 10, ...) {
+  Sys.sleep(3)  # breathing gap to avoid ONS rate-limiting
+  for (i in seq_len(retries)) {
+    err <- tryCatch({ download.file(url, destfile, quiet = TRUE, mode = 'wb', ...); NULL }, error = function(e) e)
+    if (is.null(err)) return(invisible())
+    if (i < retries) { message("  429/error on attempt ", i, ", retrying in ", pause * i, "s..."); Sys.sleep(pause * i) }
+  }
+  stop("Download failed after ", retries, " attempts: ", url)
+}
+
+# Retry wrapper for read_html — same rate-limiting protection
+safe_read_html <- function(url, retries = 3, pause = 10, ...) {
+  Sys.sleep(3)
+  for (i in seq_len(retries)) {
+    result <- tryCatch(rvest::read_html(url, ...), error = function(e) e)
+    if (!inherits(result, 'error')) return(result)
+    if (i < retries) { message("  read_html error on attempt ", i, ", retrying in ", pause * i, "s..."); Sys.sleep(pause * i) }
+  }
+  stop("read_html failed after ", retries, " attempts: ", url)
+}
+
+# Dynamic NHS financial year (April-March)
+fy_start <- ifelse(lubridate::month(Sys.Date()) >= 4, lubridate::year(Sys.Date()), lubridate::year(Sys.Date()) - 1)
+nhs_wl_url <- paste0('https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-', fy_start, '-', formatC((fy_start + 1) %% 100, width = 2, flag = '0'), '/')
+
 
 #1. INFLATION
 
@@ -36,18 +64,18 @@ unemp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
 
 hp <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
   filter(`Reporting.period` == 'monthly') %>%
-  select('date' = Period, 'price' = 11) %>%
+  select('date' = Period, 'price' = Average.price.All.property.types) %>%
   mutate(date = ym(date), price = as.numeric(price)) 
 
 
 #5. NHS WAITING LISTS
 
-wl.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-2026-27/' %>%
-  read_html() %>%
+wl.url <- nhs_wl_url %>%
+  safe_read_html() %>%
   html_nodes('a') %>%
   html_attr('href') 
 
-download.file(wl.url[grepl('Overview-Timeseries', wl.url)],destfile = 'downloads/latest-waiting-list.xlsx')
+safe_download(wl.url[grepl('Overview-Timeseries', wl.url)],destfile = 'downloads/latest-waiting-list.xlsx')
 
 waits <- read_excel('downloads/latest-waiting-list.xlsx', skip = 11) %>%
   select('date' = 2, 'total' = 22, 'average' = 3, 'within18' = 8) %>%
@@ -63,11 +91,11 @@ waits <- read_excel('downloads/latest-waiting-list.xlsx', skip = 11) %>%
 #6. IMMIGRATION
 
 im.url <- 'https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/internationalmigration/datasets/longterminternationalimmigrationemigrationandnetmigrationflowsprovisional' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href')
 
-download.file(paste0('https://www.ons.gov.uk', im.url[1]) , 'downloads/immigration.xlsx')
+safe_download(paste0('https://www.ons.gov.uk', im.url[1]) , 'downloads/immigration.xlsx')
 
 imm <- read_excel('downloads/immigration.xlsx', 5, skip = 5)  %>%
   select('flow' = 1, 'date' = 2, 'total' = 3) %>%
@@ -75,14 +103,16 @@ imm <- read_excel('downloads/immigration.xlsx', 5, skip = 5)  %>%
   mutate(date = lubridate::my(date)) %>%
   select(date, total)
 
+closeAllConnections()
+
 
 #7. HOUSING STARTS
 'https://www.ons.gov.uk/peoplepopulationandcommunity/housing/datasets/ukhousebuildingpermanentdwellingsstartedandcompleted' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   paste0('https://www.ons.gov.uk', .) %>%
-  download.file(destfile = 'downloads/houses.xlsx')
+  safe_download(destfile = 'downloads/houses.xlsx')
 
 housing <- read_excel('downloads/houses.xlsx', 6, skip = 5) %>%
   select('date' = 2, 'start' = 3, 'complete' = 7) %>%
@@ -97,11 +127,11 @@ housing <- read_excel('downloads/houses.xlsx', 6, skip = 5) %>%
 #8. CRIME
 
 crime.url <- 'https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustice/datasets/crimeinenglandandwalesappendixtables'  %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href')
 
-download.file(paste0('https://www.ons.gov.uk', crime.url[1]) , 'downloads/crime.xlsx')
+safe_download(paste0('https://www.ons.gov.uk', crime.url[1]) , 'downloads/crime.xlsx')
 
 crime <- read_excel('downloads/crime.xlsx', 4, skip = 7) %>%
   select(1:33) %>%
@@ -119,12 +149,12 @@ crime <- read_excel('downloads/crime.xlsx', 4, skip = 7) %>%
 #9. SMALL BOATS
 
 boat_url = "https://www.gov.uk/government/publications/migrants-detected-crossing-the-english-channel-in-small-boats" %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('a') %>%
   html_attr('href') 
 
 
-download.file(boat_url[grepl('.ods', boat_url)][1],
+safe_download(boat_url[grepl('.ods', boat_url)][1],
               'downloads/boats.ods')
 
 boats.daily <- readODS::read_ods('downloads/boats.ods', 3)  %>%
@@ -148,7 +178,7 @@ inac <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentand
 #11. BASE RATES
 
 bra <- 'https://www.bankofengland.co.uk/boeapps/database/Bank-Rate.asp#' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_table() %>%
   nth(1) %>%
   select('date' = 1, 'rate' = 2) %>%
@@ -209,7 +239,7 @@ petrol <- read_csv('https://static.dwcdn.net/data/D7n0J.csv?v=1774282200000') %>
 #15. government approval
 
 'https://api-test.yougov.com/public-data/v5/uk/trackers/government-approval/download/' %>%
-  download.file(paste0('downloads/', 'approval.xlsx'))
+  safe_download(paste0('downloads/', 'approval.xlsx'))
 
 app <- read_excel('downloads/approval.xlsx') %>%
   gather(date, t, 2:ncol(.)) %>%
@@ -223,7 +253,8 @@ app <- read_excel('downloads/approval.xlsx') %>%
 
 #16. consumer confidence 
 
-consumer <- read_csv('https://fred.stlouisfed.org/graph/fredgraph.csv?id=CSCICP02GBM460S&cosd=2020-01-01') |>
+safe_download('https://fred.stlouisfed.org/graph/fredgraph.csv?id=CSCICP02GBM460S&cosd=2020-01-01', 'downloads/consumer.csv')
+consumer <- read_csv('downloads/consumer.csv') |>
   select(date = 1, consumer = 2)
 
 
@@ -231,12 +262,12 @@ consumer <- read_csv('https://fred.stlouisfed.org/graph/fredgraph.csv?id=CSCICP0
 #17.  renewables
 
 rlink <- 'https://www.gov.uk/government/statistics/electricity-section-5-energy-trends' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('a')   %>%
   html_attr('href')
 
 rlink[grepl('5.1_', rlink)] %>% unique() %>%
-  download.file('downloads/renewables.xlsx')
+  safe_download('downloads/renewables.xlsx')
 
 r1 <- read_excel('downloads/renewables.xlsx', 'Quarter', skip = 5)  %>%
   slice(40:80) %>%
@@ -263,7 +294,7 @@ ren <- r1 %>%
 #18. gov borrowing (rates)
 
 gilts.daily <- 'https://www.bankofengland.co.uk/boeapps/database/fromshowcolumns.asp?Travel=NIxIRxSUx&FromSeries=1&ToSeries=50&DAT=ALL&FNY=&CSVF=TT&html.x=54&html.y=45&C=C6S&Filter=N' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_table() %>%
   nth(1) %>%
   select('date' = 1, 'yield' = 2) %>%
@@ -279,11 +310,11 @@ gilts <- gilts.daily %>% filter(date %in% gilts.dates)
 #19  asylum grants
 
 as.u <- 'https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-tables#asylum' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.gem-c-attachment-link .govuk-link') %>%
   html_attr('href')
 
-download.file(as.u[grepl('/asylum-claims-datasets', as.u)], 'downloads/asylumclaims.xlsx')
+safe_download(as.u[grepl('/asylum-claims-datasets', as.u)], 'downloads/asylumclaims.xlsx')
 
 asylum <- read_excel('downloads/asylumclaims.xlsx', 11, skip = 1) %>%
   mutate(date = lubridate::yq(Quarter)) %>%
@@ -297,10 +328,10 @@ asylum <- read_excel('downloads/asylumclaims.xlsx', 11, skip = 1) %>%
 #20. direct debit failure rate
 
 dd.url <- 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/monthlydirectdebitfailurerateandaveragetransactionamount' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href')
-download.file(paste0('https://www.ons.gov.uk', dd.url[1]), 'downloads/dd.xlsx')
+safe_download(paste0('https://www.ons.gov.uk', dd.url[1]), 'downloads/dd.xlsx')
 dd <- read_excel('downloads/dd.xlsx', 4, skip = 4) %>%
   mutate_at(2:ncol(.), function(x) 100 * x) %>%
   select('date' = 1, 'ddfail' = 2)
@@ -310,12 +341,12 @@ dd <- read_excel('downloads/dd.xlsx', 4, skip = 4) %>%
 
 
 ae.links <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/ae-waiting-times-and-activity/' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('a') %>%
   html_attr('href')
 
 ae.links[grepl('Monthly-AE', ae.links)] %>%
-  download.file(destfile = 'downloads/latest-ae.xls')
+  safe_download(destfile = 'downloads/latest-ae.xls')
 
 ae <- read_excel('downloads/latest-ae.xls', 2) %>%
   select('date' = 1, 'pc4hour' = 10) %>%
@@ -328,12 +359,12 @@ ae <- read_excel('downloads/latest-ae.xls', 2) %>%
 #22. private rents
 
 'https://www.ons.gov.uk/economy/inflationandpriceindices/datasets/priceindexofprivaterentsukmonthlypricestatistics' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   nth(1) %>%
   paste0('https://www.ons.gov.uk', .) %>%
-  download.file('downloads/rents.xlsx')
+  safe_download('downloads/rents.xlsx')
 
 rent <- read_excel('downloads/rents.xlsx', 4, skip = 2)  %>%
   filter(`Area name` == "United Kingdom") %>%
@@ -342,28 +373,50 @@ rent <- read_excel('downloads/rents.xlsx', 4, skip = 2)  %>%
 
 # 23. PRISONS
 
-prison <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
+prison_dw <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
   mutate(date = lubridate::my(Date),
-         prison = Population) %>%
-  select(date, prison) %>%
-  bind_rows(tibble(date = as.Date(c('2025-10-01', '2025-11-01', 
-                                    '2025-12-01', '2026-01-01', 
-                                    '2026-02-01', '2026-03-01',
-                                    '2026-04-01')),
-                   prison = c(87413, 87332, 
-                              86596, 87212, 
-                              87367, 87292,
-                              85704)))
+         prison = as.numeric(Population)) %>%
+  select(date, prison)
+
+# Scrape current + previous year GOV.UK pages to fill in months after Datawrapper ends
+prison_yr <- lubridate::year(Sys.Date())
+prison_urls <- c(prison_yr, prison_yr - 1) %>%
+  purrr::map(function(yr) {
+    paste0('https://www.gov.uk/government/publications/prison-population-monthly-prison-figures-', yr) %>%
+      safe_read_html() %>%
+      html_nodes('a') %>%
+      html_attr('href') %>%
+      .[grepl('prison-pop', ., ignore.case = TRUE) & grepl('\\.ods$', ., ignore.case = TRUE)]
+  }) %>%
+  unlist() %>%
+  unique()
+
+prison_govuk <- purrr::map_dfr(prison_urls, function(url) {
+  tmp <- tempfile(fileext = '.ods')
+  tryCatch({
+    download.file(url, tmp, quiet = TRUE)
+    df <- readODS::read_ods(tmp, 1)
+    total_row <- df[grepl('^Total$', df[[1]]), ]
+    pop <- as.numeric(total_row[[5]][1])
+    date_str <- gsub('Monthly Bulletin - ', '', names(df)[1])
+    tibble(date = lubridate::my(date_str), prison = pop)
+  }, error = function(e) NULL)
+})
+
+# GOV.UK takes precedence for any overlapping months
+prison <- bind_rows(prison_govuk, prison_dw) %>%
+  arrange(date) %>%
+  distinct(date, .keep_all = TRUE)
 
 
 
 # 24. NEETS
 'https://www.ons.gov.uk/employmentandlabourmarket/peoplenotinwork/unemployment/datasets/youngpeoplenotineducationemploymentortrainingneettable1' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick')  %>%
   html_attr('href') %>%
   paste0('https://www.ons.gov.uk', .)  %>%
-  download.file(., destfile = 'downloads/neets.xlsx')
+  safe_download(., destfile = 'downloads/neets.xlsx')
 
 neets <- read_excel('downloads/neets.xlsx', 2)  %>%
   select('date' = 1, 'neet' = 6) %>%
@@ -375,7 +428,7 @@ neets <- read_excel('downloads/neets.xlsx', 2)  %>%
 # 25. Crown court open caseload
 
 
-download.file('https://assets.publishing.service.gov.uk/media/6941934a1ec67214e98f303a/cc_open_tool.xlsx',
+safe_download('https://assets.publishing.service.gov.uk/media/6941934a1ec67214e98f303a/cc_open_tool.xlsx',
               'downloads/cc.xlsx')
 
 cc  <- read_excel('downloads/cc.xlsx', 2, skip = 8) %>%
@@ -387,7 +440,7 @@ cc  <- read_excel('downloads/cc.xlsx', 2, skip = 8) %>%
 
 # 26. PINT COST
 
-download.file('https://raw.githubusercontent.com/onsdigital/cpi-items-actions/main/datadownload.xlsx',
+safe_download('https://raw.githubusercontent.com/onsdigital/cpi-items-actions/main/datadownload.xlsx',
               'downloads/pint.xlsx')
 
 pint <- read_excel('downloads/pint.xlsx', 4) %>%
@@ -400,11 +453,11 @@ pint <- read_excel('downloads/pint.xlsx', 4) %>%
 # 27. Knife crime
 
 crimelink <- 'https://www.gov.uk/government/statistical-data-sets/police-recorded-crime-and-outcomes-open-data-tables' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.govuk-link') %>%
   html_attr('href')
 
-download.file(crimelink[grepl('knife', crimelink)], 'downloads/knifecrime.ods')
+safe_download(crimelink[grepl('knife', crimelink)], 'downloads/knifecrime.ods')
 
 knife <- read_ods( 'downloads/knifecrime.ods',  5) %>%
   mutate(year = as.numeric(paste0('20', substr(`Financial Year`, 6,7))),
@@ -445,14 +498,14 @@ diesel <- read_csv('https://static.dwcdn.net/data/YyE8M.csv') %>%
 # 31. Cancer delays
 
 can.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/cancer-waiting-times/'  %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('a') %>%
   html_attr('href') 
 
 can.url[grepl('National-Time-Series', can.url)][1] %>%
-  download.file(destfile = 'downloads/latest-cancer.xlsx')
+  safe_download(destfile = 'downloads/latest-cancer.xlsx')
 
-download.file('https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2024/01/Cancer-Waiting-Times-National-Time-Series-Oct-2009-Sep-2023-with-Revisions.xlsx',
+safe_download('https://www.england.nhs.uk/statistics/wp-content/uploads/sites/2/2024/01/Cancer-Waiting-Times-National-Time-Series-Oct-2009-Sep-2023-with-Revisions.xlsx',
               'downloads/cancer-old.xlsx')
 
 
@@ -470,10 +523,10 @@ cancer <- read_excel('downloads/latest-cancer.xlsx', 2, skip = 3) %>%
 # 32. bed occupancy
 
 bed.url <- 'https://www.england.nhs.uk/statistics/statistical-work-areas/bed-availability-and-occupancy/critical-care-and-general-acute-beds-urgent-and-emergency-care-daily-situation-reports/' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('a') 
 
-download.file(html_attr(bed.url[grepl('.xlsx', bed.url)] , 'href'), 
+safe_download(html_attr(bed.url[grepl('.xlsx', bed.url)] , 'href'), 
               'downloads/beds.xlsx')
 
 beds <- read_excel('downloads/beds.xlsx', 2, skip = 12) %>%
@@ -495,7 +548,7 @@ debt <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/gover
 
 house.price.earnings <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
   filter(`Reporting.period` == 'monthly') %>%
-  select('date' = Period, 'price' = 7) %>%
+  select('date' = Period, 'price' = Average.price.All.property.types) %>%
   mutate(date = ym(date), price = as.numeric(price))  %>%
   left_join(read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kab9/emp') %>%
               slice(140:nrow(.)) %>%
@@ -531,12 +584,12 @@ theft.person <- read_excel('downloads/crime.xlsx', 13, skip = 8) %>%
 #37 PAYROLL EMPLOYEES
 
 rti_url <- 'https://www.ons.gov.uk/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/realtimeinformationstatisticsreferencetableseasonallyadjusted' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   paste0('https://www.ons.gov.uk', .)
 
-download.file(rti_url[1], 'downloads/rti_sa.xlsx')
+safe_download(rti_url[1], 'downloads/rti_sa.xlsx')
 
 # UK total payrolled employees is in table 1 - row label is "United Kingdom"
 payrolled <- read_excel('downloads/rti_sa.xlsx',skip = 4, 2) %>%
@@ -567,12 +620,12 @@ debt.gdp <-  read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/
 #40. potential redundancies
 
 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/advancednotificationofpotentialredundancies' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   nth(1) %>%
   paste0('https://ons.gov.uk', .) %>%
-  download.file('downloads/redundancies.xlsx')
+  safe_download('downloads/redundancies.xlsx')
 
 red <- read_excel('downloads/redundancies.xlsx', 4, skip = 4) %>%
   select('date' = 1, 'redundancies' = 4)  %>%
@@ -583,12 +636,12 @@ red <- read_excel('downloads/redundancies.xlsx', 4, skip = 4) %>%
 #41. electricity price
 
 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/systempriceofelectricity'  %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   nth(1) %>%
   paste0('https://ons.gov.uk', .) %>%
-  download.file('downloads/electricity.xlsx')
+  safe_download('downloads/electricity.xlsx')
 
 electricity <- read_excel('downloads/electricity.xlsx', 5, skip = 4) %>%
   select('date' = 1, 'electricity' = 2)
@@ -596,12 +649,12 @@ electricity <- read_excel('downloads/electricity.xlsx', 5, skip = 4) %>%
 #42. debit card spending
 
 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/revolutspendingondebitcards' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   nth(1) %>%
   paste0('https://ons.gov.uk', .) %>%
-  download.file('downloads/revolut.xlsx')
+  safe_download('downloads/revolut.xlsx')
 
 debitcard <- read_excel('downloads/revolut.xlsx', 9, skip =4) %>%
   select('date' = 1, 'spending' = 2) %>%
@@ -612,12 +665,12 @@ debitcard <- read_excel('downloads/revolut.xlsx', 9, skip =4) %>%
 #43. % spent on rent
 
 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/renteraffordability' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   nth(1) %>%
   paste0('https://ons.gov.uk', .) %>%
-  download.file('downloads/rentspend.xlsx')
+  safe_download('downloads/rentspend.xlsx')
 
 rentspend <- read_excel('downloads/rentspend.xlsx', 4, skip = 4) %>%
   select('date' = 1, 'rentspend' = 3) %>%
@@ -627,12 +680,12 @@ rentspend <- read_excel('downloads/rentspend.xlsx', 4, skip = 4) %>%
 #44. flights 
 
 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/dailyukflights' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   nth(1) %>%
   paste0('https://ons.gov.uk', .) %>%
-  download.file('downloads/flights.xlsx')
+  safe_download('downloads/flights.xlsx')
 
 flights <- read_excel('downloads/flights.xlsx', 5, skip = 4) %>%
   select('date' = 1, 'flights' = 3)
@@ -641,12 +694,12 @@ flights <- read_excel('downloads/flights.xlsx', 5, skip = 4) %>%
 #45. vehicle production
 
 'https://www.ons.gov.uk/economy/economicoutputandproductivity/output/datasets/uknewvehicleregistrationsandproduction' %>%
-  read_html() %>%
+  safe_read_html() %>%
   html_nodes('.btn--thick') %>%
   html_attr('href') %>%
   nth(1) %>%
   paste0('https://ons.gov.uk', .) %>%
-  download.file('downloads/cars.xlsx')
+  safe_download('downloads/cars.xlsx')
 
 vehicle <- read_excel('downloads/cars.xlsx', 6, skip = 5) %>%
   select('date' = 1, 'vehicles' = 9 )
@@ -687,20 +740,20 @@ eng <- bind_rows(eng %>%
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(housing %>%
-                           mutate(label = 'Housing starts',
-                                  note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
-                                  parent = 'Housing',
-                                  up = 'good',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = start),
-                         rhdi %>%
+master <- bind_rows(list(rhdi %>%
                            mutate(label = 'Real disposable income',
                                   note = "Annualised real household disposable income per person (ONS)", 
                                   parent = 'Living standards',
                                   up = 'good',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = rhdi),
+                         neets %>%
+                           mutate(label = 'NEETS aged 16-24',
+                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
+                                  parent = 'Economy',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = neet),
                          eng %>%
                            mutate(label = 'England world ranking',
                                   note = 'England men’s national football team official world ranking (FIFA)',
@@ -715,6 +768,20 @@ master <- bind_rows(list(housing %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = rolling),
+                         gilts %>%
+                           mutate(label = 'Gilt yields',
+                                  note = "10-year government borrowing costs(Bank of England)", 
+                                  parent = 'Government',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select( label, note, parent, date, up, unit, 'total' = yield),
+                         housing %>%
+                           mutate(label = 'Housing starts',
+                                  note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
+                                  parent = 'Housing',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = start),
                          waits %>%
                            mutate(label = 'NHS waiting list',
                                   note = "Total size of waiting list (NHS England)", 
@@ -750,13 +817,6 @@ master <- bind_rows(list(housing %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = unem),
-                         neets %>%
-                           mutate(label = 'NEETS aged 16-24',
-                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
-                                  parent = 'Economy',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = neet),
                          imm %>%
                            mutate(label = 'Net migration',
                                   note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
@@ -816,13 +876,6 @@ master <- bind_rows(list(housing %>%
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = rentspend),
                          
-                         gilts %>%
-                           mutate(label = 'Gilt yields',
-                                  note = "10-year government borrowing costs(Bank of England)", 
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select( label, note, parent, date, up, unit, 'total' = yield),
                          debt %>%
                            mutate(label = 'National debt',
                                   note = "Size of the national debt (ONS)", 
