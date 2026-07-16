@@ -740,7 +740,14 @@ eng <- bind_rows(eng %>%
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(rhdi %>%
+master <- bind_rows(list(gdp %>%
+                           mutate(label = 'Real GDP per capita',
+                                  up = 'good',
+                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         rhdi %>%
                            mutate(label = 'Real disposable income',
                                   note = "Annualised real household disposable income per person (ONS)", 
                                   parent = 'Living standards',
@@ -754,13 +761,6 @@ master <- bind_rows(list(rhdi %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = neet),
-                         eng %>%
-                           mutate(label = 'England world ranking',
-                                  note = 'England men’s national football team official world ranking (FIFA)',
-                                  parent = 'Other',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = elo),
                          boats %>%
                            mutate(label = 'Small boat crossings',
                                   note = "Number of people who have crossed the Channel in the past year (Home Office)", 
@@ -845,14 +845,6 @@ master <- bind_rows(list(rhdi %>%
                                   up = 'bad', 
                                   unit = 'p') %>%
                            select(label, note, parent, date, up, unit, 'total' = electricity),
-                         gdp %>%
-                           mutate(label = 'Real GDP per capita',
-                                  up = 'good',
-                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
-                         
                          payrolled %>%
                            mutate(label = 'Payrolled employees',
                                   up = 'good',
@@ -897,6 +889,13 @@ master <- bind_rows(list(rhdi %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = debt.gdp),
+                         eng %>%
+                           mutate(label = 'England world ranking',
+                                  note = 'England men’s national football team official world ranking (FIFA)',
+                                  parent = 'Other',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = elo),
                          vehicle %>%
                            mutate(label = 'Vehicle production',
                                   up = 'good',
