@@ -713,7 +713,44 @@ rhdi <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/gross
          rhdi = 4*as.numeric(rhdi))
 
 
-#47. England national team rankings 
+#47. ROUGH SLEEPING
+
+# MHCLG annual autumn snapshot of people sleeping rough on a single night (England).
+# Dynamically find the latest snapshot release and its ODS attachment, so this
+# survives the annual publication (e.g. autumn 2026 lands in early 2027).
+rough_snaps <- 'https://www.gov.uk/government/collections/homelessness-statistics' %>%
+  safe_read_html() %>%
+  html_nodes('a') %>%
+  html_attr('href') %>%
+  .[grepl('rough-sleeping-snapshot-in-england-autumn-[0-9]{4}$', .)]
+
+rough_latest <- paste0('https://www.gov.uk',
+                       rough_snaps[which.max(as.integer(str_extract(rough_snaps, '[0-9]{4}$')))])
+
+rough_ods <- rough_latest %>%
+  safe_read_html() %>%
+  html_nodes('a') %>%
+  html_attr('href') %>%
+  .[grepl('\\.ods$', ., ignore.case = TRUE)] %>%
+  .[1]
+
+safe_download(rough_ods, 'downloads/rough_sleep.ods')
+
+# Wide table: Table_1_Total. Year columns run across the header row; the England
+# row holds national totals. Locate both dynamically so column shifts don't break it.
+rough_raw <- read_ods('downloads/rough_sleep.ods', sheet = 'Table_1_Total', col_names = FALSE)
+rough_hdr <- which(rough_raw[[5]] == '2010')[1]
+rough_eng <- which(rough_raw[[4]] == 'England')[1]
+rough_hdrvals <- as.character(unlist(rough_raw[rough_hdr, ]))
+rough_cols <- which(grepl('^20[0-9]{2}$', rough_hdrvals) & suppressWarnings(as.integer(rough_hdrvals)) >= 2010)
+
+rough_sleep <- tibble(date = as.Date(paste0(as.integer(rough_hdrvals[rough_cols]), '-10-01')),
+                      rough_sleep = as.numeric(unlist(rough_raw[rough_eng, rough_cols]))) %>%
+  filter(!is.na(rough_sleep)) %>%
+  arrange(date)
+
+
+#48. England national team rankings 
 
 eng <- read_tsv('https://eloratings.net/England.tsv?_=1783339445558') %>%
   select('y'= 1,'m' = 2,'d' = 3,
@@ -740,27 +777,13 @@ eng <- bind_rows(eng %>%
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(gdp %>%
-                           mutate(label = 'Real GDP per capita',
-                                  up = 'good',
-                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
-                         rhdi %>%
+master <- bind_rows(list(rhdi %>%
                            mutate(label = 'Real disposable income',
                                   note = "Annualised real household disposable income per person (ONS)", 
                                   parent = 'Living standards',
                                   up = 'good',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = rhdi),
-                         neets %>%
-                           mutate(label = 'NEETS aged 16-24',
-                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
-                                  parent = 'Economy',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = neet),
                          boats %>%
                            mutate(label = 'Small boat crossings',
                                   note = "Number of people who have crossed the Channel in the past year (Home Office)", 
@@ -775,6 +798,20 @@ master <- bind_rows(list(gdp %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select( label, note, parent, date, up, unit, 'total' = yield),
+                         debt %>%
+                           mutate(label = 'National debt',
+                                  note = "Size of the national debt (ONS)", 
+                                  parent = 'Government',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit,  'total' = debt),
+                         payrolled %>%
+                           mutate(label = 'Payrolled employees',
+                                  up = 'good',
+                                  note = "Number of payrolled employees (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = payroll),
                          housing %>%
                            mutate(label = 'Housing starts',
                                   note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
@@ -782,6 +819,13 @@ master <- bind_rows(list(gdp %>%
                                   up = 'good',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = start),
+                         rough_sleep %>%
+                           mutate(label = 'Rough sleeping',
+                                  up = 'bad',
+                                  note = "Estimated number of people sleeping rough on a single night in autumn (MHCLG, England)", 
+                                  parent = 'Housing',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rough_sleep),
                          waits %>%
                            mutate(label = 'NHS waiting list',
                                   note = "Total size of waiting list (NHS England)", 
@@ -789,6 +833,27 @@ master <- bind_rows(list(gdp %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, total),
+                         wages %>%
+                           mutate(label = 'Real wages',
+                                  note = "Average weekly wage, adjusted for inflation (ONS)",
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '£') %>%
+                           select( label, note, parent, date, up, unit, 'total' = wages),
+                         gdp %>%
+                           mutate(label = 'Real GDP per capita',
+                                  up = 'good',
+                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         neets %>%
+                           mutate(label = 'NEETS aged 16-24',
+                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
+                                  parent = 'Economy',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = neet),
                          ae %>%
                            mutate(label = 'A&E seen in 4 hours',
                                   note = "Percentage of A&E patients seen within 4 hours (NHS England)", 
@@ -845,13 +910,6 @@ master <- bind_rows(list(gdp %>%
                                   up = 'bad', 
                                   unit = 'p') %>%
                            select(label, note, parent, date, up, unit, 'total' = electricity),
-                         payrolled %>%
-                           mutate(label = 'Payrolled employees',
-                                  up = 'good',
-                                  note = "Number of payrolled employees (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = payroll),
                          debitcard %>%
                            mutate(label = 'Debit card spend',
                                   up = 'good',
@@ -868,13 +926,6 @@ master <- bind_rows(list(gdp %>%
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = rentspend),
                          
-                         debt %>%
-                           mutate(label = 'National debt',
-                                  note = "Size of the national debt (ONS)", 
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  'total' = debt),
                          gdp.growth %>%
                            mutate(label = 'Quarterly GDP growth',
                                   up = 'good',
@@ -910,13 +961,6 @@ master <- bind_rows(list(gdp %>%
                                   parent = 'Health',
                                   unit = '') %>%
                            select( label, note, parent, date, up, unit, total),
-                         wages %>%
-                           mutate(label = 'Real wages',
-                                  note = "Average weekly wage, adjusted for inflation (ONS)",
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '£') %>%
-                           select( label, note, parent, date, up, unit, 'total' = wages),
                          shop %>%
                            mutate(label = 'Shoplifting',
                                   note = 'Shoplifting offences recorded by police',
