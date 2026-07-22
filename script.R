@@ -443,11 +443,11 @@ cc  <- read_excel('downloads/cc.xlsx', 2, skip = 8) %>%
 safe_download('https://raw.githubusercontent.com/onsdigital/cpi-items-actions/main/datadownload.xlsx',
               'downloads/pint.xlsx')
 
-pint <- read_excel('downloads/pint.xlsx', 4) %>%
-  filter(ITEM_ID == '310110') %>%
-  gather(date, total, 2:ncol(.)) %>%
-  mutate(date = as.Date(as.numeric(date), origin = '1899-12-30')) %>%
-  select(-ITEM_ID)
+pint <- read_excel('downloads/pint.xlsx', 3) %>%
+  filter(ID_DESC == 'Premium lager - draught (4.3-7.5%)') %>%
+  mutate(date = as.Date(INDEX_DATE),
+         total = as.numeric(AVERAGE_PRICE)) %>%
+  select(date, total)
 
 
 # 27. Knife crime
@@ -472,20 +472,20 @@ knife <- read_ods( 'downloads/knifecrime.ods',  5) %>%
 
 # 28. cup of coffee
 
-coffee <- read_excel('downloads/pint.xlsx', 4) %>%
-  filter(ITEM_ID == '220121') %>%
-  gather(date, total, 2:ncol(.)) %>%
-  mutate(date = as.Date(as.numeric(date), origin = '1899-12-30')) %>%
-  select(-ITEM_ID)
+coffee <- read_excel('downloads/pint.xlsx', 3) %>%
+  filter(ID_DESC == 'Restaurant coffee') %>%
+  mutate(date = as.Date(INDEX_DATE),
+         total = as.numeric(AVERAGE_PRICE)) %>%
+  select(date, total)
 
 
 # 29. Restaurant main
 
-restaurant <- read_excel('downloads/pint.xlsx', 4) %>%
-  filter(ITEM_ID == '220128') %>%
-  gather(date, total, 2:ncol(.)) %>%
-  mutate(date = as.Date(as.numeric(date), origin = '1899-12-30')) %>%
-  select(-ITEM_ID)
+restaurant <- read_excel('downloads/pint.xlsx', 3) %>%
+  filter(ID_DESC == 'Restaurant meal - main course') %>%
+  mutate(date = as.Date(INDEX_DATE),
+         total = as.numeric(AVERAGE_PRICE)) %>%
+  select(date, total)
 
 
 # 30. Diesel
@@ -778,19 +778,26 @@ eng <- bind_rows(eng %>%
 
 
 master <- bind_rows(list(inf %>%
-            mutate(label = 'Inflation',
-              up = 'bad',
-              note = "Consumer prices index, change on previous 12 months (ONS)",
-              parent = 'Economy',
-              unit = '%') %>%
-            select( label, note, parent, date, up, unit, 'total' = inf),
-          rhdi %>%
-                           mutate(label = 'Real disposable income',
-                                  note = "Annualised real household disposable income per person (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
+                           mutate(label = 'Inflation',
+                                  up = 'bad',
+                                  note = "Consumer prices index, change on previous 12 months (ONS)",
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = inf),
+                         hp %>%
+                           mutate(label = 'House prices',
+                                  up = 'neutral',
+                                  note = "Rolling annual average of sold UK house prices (Land Registry)", 
+                                  parent = 'Housing',
                                   unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rhdi),
+                           select(label, note, parent, date, up, unit, 'total' = price),
+                         rent %>%
+                           mutate(label = 'Renting a 2-bed',
+                                  note = "Cost of privately renting a 2-bed property (ONS)", 
+                                  parent = 'Housing',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rent2bed),
                          boats %>%
                            mutate(label = 'Small boat crossings',
                                   note = "Number of people who have crossed the Channel in the past year (Home Office)", 
@@ -798,6 +805,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = rolling),
+                         rhdi %>%
+                           mutate(label = 'Real disposable income',
+                                  note = "Annualised real household disposable income per person (ONS)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rhdi),
                          gilts %>%
                            mutate(label = 'Gilt yields',
                                   note = "10-year government borrowing costs(Bank of England)", 
@@ -805,6 +819,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select( label, note, parent, date, up, unit, 'total' = yield),
+                         pint %>%
+                           mutate(label = 'Price of a pint',
+                                  note = "Average price of a pint of premium lager (ONS)", 
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit,  total),
                          debt %>%
                            mutate(label = 'National debt',
                                   note = "Size of the national debt (ONS)", 
@@ -976,13 +997,6 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Living standards',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = rate),
-                         hp %>%
-                           mutate(label = 'House prices',
-                                  up = 'neutral',
-                                  note = "Rolling annual average of sold UK house prices (Land Registry)", 
-                                  parent = 'Housing',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = price),
                          diesel %>%
                            mutate(label = 'Diesel price',
                                   note = "Price of a litre of diesel (RAC)", 
@@ -1054,13 +1068,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'good',
                                   unit = '%')  %>%
                            select(label, note, parent, date, up, unit, 'total' = within18),
-                         rent %>%
-                           mutate(label = 'Renting a 2-bed',
-                                  note = "Cost of privately renting a 2-bed property (ONS)", 
-                                  parent = 'Housing',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rent2bed),
                          prison %>%
                            mutate(label = 'Prisoners',
                                   note = "Total prison population (Ministry of Justice)", 
@@ -1075,13 +1082,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = crowncourt),
-                         pint %>%
-                           mutate(label = 'Price of a pint',
-                                  note = "Average price of a pint of premium lager (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  total),
                          knife %>%
                            mutate(label = 'Knife crime',
                                   note = "Offences involving a knife, recorded by policer (Home Office)", 
