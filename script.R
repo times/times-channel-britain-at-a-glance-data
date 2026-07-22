@@ -804,13 +804,13 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Housing',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = price),
-                         rent %>%
-                           mutate(label = 'Renting a 2-bed',
-                                  note = "Cost of privately renting a 2-bed property (ONS)", 
-                                  parent = 'Housing',
+                         petrol %>%
+                           mutate(label = 'Petrol price',
+                                  note = "Price of a litre of unleaded petrol (DESNZ)", 
+                                  parent = 'Living standards',
                                   up = 'bad',
                                   unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rent2bed),
+                           select( label, note, parent, date, up, unit, 'total' = petrol),
                          boats %>%
                            mutate(label = 'Small boat crossings',
                                   note = "Number of people who have crossed the Channel in the past year (Home Office)", 
@@ -930,13 +930,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'good',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = flights),
-                         petrol %>%
-                           mutate(label = 'Petrol price',
-                                  note = "Price of a litre of unleaded petrol (DESNZ)", 
-                                  parent = 'Living standards',
+                         rent %>%
+                           mutate(label = 'Renting a 2-bed',
+                                  note = "Cost of privately renting a 2-bed property (ONS)", 
+                                  parent = 'Housing',
                                   up = 'bad',
                                   unit = '£') %>%
-                           select( label, note, parent, date, up, unit, 'total' = petrol),
+                           select(label, note, parent, date, up, unit, 'total' = rent2bed),
                          electricity %>%
                            mutate(label = 'Electricity price',
                                   note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
