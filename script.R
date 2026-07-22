@@ -777,7 +777,14 @@ eng <- bind_rows(eng %>%
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(rhdi %>%
+master <- bind_rows(list(inf %>%
+            mutate(label = 'Inflation',
+              up = 'bad',
+              note = "Consumer prices index, change on previous 12 months (ONS)",
+              parent = 'Economy',
+              unit = '%') %>%
+            select( label, note, parent, date, up, unit, 'total' = inf),
+          rhdi %>%
                            mutate(label = 'Real disposable income',
                                   note = "Annualised real household disposable income per person (ONS)", 
                                   parent = 'Living standards',
@@ -868,13 +875,6 @@ master <- bind_rows(list(rhdi %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = redundancies),
-                         inf %>%
-                           mutate(label = 'Inflation',
-                                  up = 'bad',
-                                  note = "Consumer prices index, change on previous 12 months (ONS)",
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select( label, note, parent, date, up, unit, 'total' = inf),
                          unemp %>%
                            mutate(label = 'Unemployment',
                                   up = 'bad',
