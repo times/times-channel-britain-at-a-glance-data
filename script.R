@@ -227,13 +227,25 @@ wages <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
 
 
 
-#14. petrol prices (RAC)
+#14. petrol & diesel prices (DESNZ weekly road fuel prices)
+# Scrape GOV.UK page for latest CSV so the filename stays current
+fuel_url <- 'https://www.gov.uk/government/statistical-data-sets/oil-and-petroleum-products-weekly-statistics' %>%
+  safe_read_html() %>%
+  html_nodes('a') %>%
+  html_attr('href') %>%
+  .[grepl('weekly_road_fuel_prices_[0-9]+\\.csv$', .)] %>%
+  .[!grepl('2003_to_2017', .)] %>%
+  .[1]
 
+safe_download(fuel_url, 'downloads/fuel_prices.csv')
 
-petrol <- read_csv('https://static.dwcdn.net/data/D7n0J.csv?v=1774282200000') %>%
+fuel_raw <- read_csv('downloads/fuel_prices.csv', show_col_types = FALSE)
+
+petrol <- fuel_raw %>%
   select('date' = 1, 'petrol' = 2) %>%
   mutate(date = lubridate::dmy(date),
-         petrol = petrol / 100) 
+         petrol = petrol / 100) %>%
+  filter(!is.na(date))
 
 
 #15. government approval
@@ -488,12 +500,13 @@ restaurant <- read_excel('downloads/pint.xlsx', 3) %>%
   select(date, total)
 
 
-# 30. Diesel
+# 30. Diesel (reuses DESNZ fuel_prices.csv downloaded in section 14)
 
-diesel <- read_csv('https://static.dwcdn.net/data/YyE8M.csv') %>%
-  select('date' = 1, 'diesel' = 2) %>%
+diesel <- fuel_raw %>%
+  select('date' = 1, 'diesel' = 3) %>%
   mutate(date = lubridate::dmy(date),
-         diesel = diesel / 100) 
+         diesel = diesel / 100) %>%
+  filter(!is.na(date))
 
 # 31. Cancer delays
 
@@ -919,7 +932,7 @@ master <- bind_rows(list(inf %>%
                            select(label, note, parent, date, up, unit, 'total' = flights),
                          petrol %>%
                            mutate(label = 'Petrol price',
-                                  note = "Price of a litre of unleaded petrol (RAC)", 
+                                  note = "Price of a litre of unleaded petrol (DESNZ)", 
                                   parent = 'Living standards',
                                   up = 'bad',
                                   unit = '£') %>%
@@ -999,7 +1012,7 @@ master <- bind_rows(list(inf %>%
                            select(label, note, parent, date, up, unit, 'total' = rate),
                          diesel %>%
                            mutate(label = 'Diesel price',
-                                  note = "Price of a litre of diesel (RAC)", 
+                                  note = "Price of a litre of diesel (DESNZ)", 
                                   parent = 'Living standards',
                                   up = 'bad',
                                   unit = '£') %>%
