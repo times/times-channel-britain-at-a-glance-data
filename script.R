@@ -274,11 +274,45 @@ app <- read_excel('downloads/approval.xlsx') %>%
   select(date, net)
 
 
-#16. consumer confidence 
+#16. consumer confidence
 
-safe_download('https://fred.stlouisfed.org/graph/fredgraph.csv?id=CSCICP02GBM460S&cosd=2020-01-01', 'downloads/consumer.csv')
-consumer <- read_csv('downloads/consumer.csv') |>
-  select(date = 1, consumer = 2)
+# Historic data supplied by the Times business desk, sourced directly from GfK/NIM
+# (GfK's raw Overall Index Score isn't otherwise available as a downloadable
+# time series — FRED/OECD's "composite consumer confidence" series is a
+# differently-constructed measure and is NOT comparable/mergeable with it).
+# This file is static and version-controlled; update it manually if a fuller
+# back-run becomes available. Do not point this at downloads/ (gitignored).
+consumer_historic <- read_csv('data/gfk_consumer_historic.csv') %>%
+  mutate(date = lubridate::ymd(date))
+
+# Scrape GfK/NIQ's own press release for the latest published headline score,
+# and append it if it's newer than the historic file's last entry.
+consumer_latest <- tryCatch({
+  gfk_links <- safe_read_html('https://nielseniq.com/global/en/news-center/press-releases/') %>%
+    html_nodes('a') %>%
+    html_attr('href')
+  gfk_url <- gfk_links[grepl('consumer-confidence', gfk_links, ignore.case = TRUE)][1]
+
+  gfk_text <- safe_read_html(gfk_url) %>% html_text2()
+  gfk_score_text <- str_extract(gfk_text, '(?:Consumer Confidence Index|Overall Index Score) was[^.]*\\.')
+
+  gfk_value <- str_match(gfk_score_text, '(?:to|at) (-?\\d+(?:\\.\\d+)?) in [A-Za-z]+')[, 2]
+  gfk_month <- str_match(gfk_score_text, '(?:to|at) -?\\d+(?:\\.\\d+)? in ([A-Za-z]+)')[, 2]
+  gfk_year <- str_match(gfk_text, 'London,\\s*[A-Za-z]+\\s+\\d{1,2},\\s*(\\d{4})')[, 2]
+
+  gfk_date <- lubridate::my(paste(gfk_month, gfk_year))
+
+  if (is.na(gfk_date) || is.na(gfk_value)) stop('could not parse GfK press release')
+  tibble(date = gfk_date, consumer = as.numeric(gfk_value))
+}, error = function(e) {
+  message('  GfK press release scrape failed, using historic data only: ', conditionMessage(e))
+  tibble(date = as.Date(character()), consumer = numeric())
+})
+
+consumer <- consumer_historic %>%
+  filter(!date %in% consumer_latest$date) %>%
+  bind_rows(consumer_latest) %>%
+  arrange(date)
 
 
 
