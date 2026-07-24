@@ -16,7 +16,7 @@ if git diff --quiet sparklines-page.json sparklines-slice.json; then
 fi
 
 echo "--- Committing and pushing ---"
-git add sparklines-page.json sparklines-slice.json script.R
+git add sparklines-page.json sparklines-slice.json script.R data/
 git commit -m "Update data: $(date '+%Y-%m-%d')"
 git push
 
