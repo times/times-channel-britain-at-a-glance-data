@@ -884,6 +884,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select( label, note, parent, date, up, unit, 'total' = yield),
+                         prison %>%
+                           mutate(label = 'Prisoners',
+                                  note = "Total prison population (Ministry of Justice)", 
+                                  parent = 'Crime',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = prison),
                          pint %>%
                            mutate(label = 'Price of a pint',
                                   note = "Average price of a pint of premium lager (ONS)", 
@@ -1126,13 +1133,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'good',
                                   unit = '%')  %>%
                            select(label, note, parent, date, up, unit, 'total' = within18),
-                         prison %>%
-                           mutate(label = 'Prisoners',
-                                  note = "Total prison population (Ministry of Justice)", 
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = prison),
                          cc %>%
                            mutate(label = 'Crown court caseload',
                                   note = "Number of crown court cases currently open (Ministry of Justice)", 

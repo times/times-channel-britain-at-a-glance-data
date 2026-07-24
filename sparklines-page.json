@@ -3989,6 +3989,250 @@
   },
   {
     "position": 8,
+    "label": "Prisoners",
+    "note": "Total prison population (Ministry of Justice)",
+    "parent": "Crime",
+    "colour": "green",
+    "colour2": "green",
+    "colour5": "red",
+    "now": 85761,
+    "change": -1573,
+    "change2": -1599,
+    "change5": 7585,
+    "unit": "",
+    "data": [
+      {
+        "2020-01-01": 83077
+      },
+      {
+        "2020-02-01": 83654
+      },
+      {
+        "2020-03-01": 83052
+      },
+      {
+        "2020-04-01": 81039
+      },
+      {
+        "2020-05-01": 79958
+      },
+      {
+        "2020-06-01": 79393
+      },
+      {
+        "2020-07-01": 79563
+      },
+      {
+        "2020-08-01": 79372
+      },
+      {
+        "2020-09-01": 79138
+      },
+      {
+        "2020-10-01": 78977
+      },
+      {
+        "2020-11-01": 78746
+      },
+      {
+        "2020-12-01": 78618
+      },
+      {
+        "2021-01-01": 77983
+      },
+      {
+        "2021-02-01": 77932
+      },
+      {
+        "2021-03-01": 78008
+      },
+      {
+        "2021-04-01": 77771
+      },
+      {
+        "2021-05-01": 78034
+      },
+      {
+        "2021-06-01": 78176
+      },
+      {
+        "2021-07-01": 78488
+      },
+      {
+        "2021-08-01": 78750
+      },
+      {
+        "2021-09-01": 78830
+      },
+      {
+        "2021-10-01": 79380
+      },
+      {
+        "2021-11-01": 79685
+      },
+      {
+        "2021-12-01": 79092
+      },
+      {
+        "2022-01-01": 79412
+      },
+      {
+        "2022-02-01": 79724
+      },
+      {
+        "2022-03-01": 79744
+      },
+      {
+        "2022-04-01": 79729
+      },
+      {
+        "2022-05-01": 80185
+      },
+      {
+        "2022-06-01": 80476
+      },
+      {
+        "2022-07-01": 80984
+      },
+      {
+        "2022-08-01": 81274
+      },
+      {
+        "2022-09-01": 81309
+      },
+      {
+        "2022-10-01": 82063
+      },
+      {
+        "2022-11-01": 82839
+      },
+      {
+        "2022-12-01": 82176
+      },
+      {
+        "2023-01-01": 82792
+      },
+      {
+        "2023-02-01": 83844
+      },
+      {
+        "2023-03-01": 84372
+      },
+      {
+        "2023-04-01": 84658
+      },
+      {
+        "2023-05-01": 85415
+      },
+      {
+        "2023-06-01": 85851
+      },
+      {
+        "2023-07-01": 86602
+      },
+      {
+        "2023-08-01": 87063
+      },
+      {
+        "2023-09-01": 87793
+      },
+      {
+        "2023-10-01": 87801
+      },
+      {
+        "2023-11-01": 87930
+      },
+      {
+        "2023-12-01": 87216
+      },
+      {
+        "2024-01-01": 87538
+      },
+      {
+        "2024-02-01": 87973
+      },
+      {
+        "2024-03-01": 87699
+      },
+      {
+        "2024-04-01": 87481
+      },
+      {
+        "2024-05-01": 87177
+      },
+      {
+        "2024-06-01": 87360
+      },
+      {
+        "2024-07-01": 87479
+      },
+      {
+        "2024-08-01": 88350
+      },
+      {
+        "2024-09-01": 86526
+      },
+      {
+        "2024-10-01": 85867
+      },
+      {
+        "2024-11-01": 86038
+      },
+      {
+        "2024-12-01": 85618
+      },
+      {
+        "2025-01-01": 86463
+      },
+      {
+        "2025-02-01": 87199
+      },
+      {
+        "2025-03-01": 87919
+      },
+      {
+        "2025-04-01": 88084
+      },
+      {
+        "2025-05-01": 88103
+      },
+      {
+        "2025-06-01": 87334
+      },
+      {
+        "2025-07-01": 87966
+      },
+      {
+        "2025-08-01": 88273
+      },
+      {
+        "2025-09-01": 87336
+      },
+      {
+        "2025-10-01": 87413
+      },
+      {
+        "2025-12-01": 86596
+      },
+      {
+        "2026-01-01": 87212
+      },
+      {
+        "2026-02-01": 87367
+      },
+      {
+        "2026-04-01": 85704
+      },
+      {
+        "2026-05-01": 85992
+      },
+      {
+        "2026-06-01": 85761
+      }
+    ]
+  },
+  {
+    "position": 9,
     "label": "Price of a pint",
     "note": "Average price of a pint of premium lager (ONS)",
     "parent": "Living standards",
@@ -4202,7 +4446,7 @@
     ]
   },
   {
-    "position": 9,
+    "position": 10,
     "label": "National debt",
     "note": "Size of the national debt (ONS)",
     "parent": "Government",
@@ -4452,7 +4696,7 @@
     ]
   },
   {
-    "position": 10,
+    "position": 11,
     "label": "Payrolled employees",
     "note": "Number of payrolled employees (ONS)",
     "parent": "Economy",
@@ -4702,7 +4946,7 @@
     ]
   },
   {
-    "position": 11,
+    "position": 12,
     "label": "Housing starts",
     "note": "Number of housing units on which construction has started in England in the past year (MHCLG)",
     "parent": "Housing",
@@ -4790,7 +5034,7 @@
     ]
   },
   {
-    "position": 12,
+    "position": 13,
     "label": "Rough sleeping",
     "note": "Estimated number of people sleeping rough on a single night in autumn (MHCLG, England)",
     "parent": "Housing",
@@ -4824,7 +5068,7 @@
     ]
   },
   {
-    "position": 13,
+    "position": 14,
     "label": "NHS waiting list",
     "note": "Total size of waiting list (NHS England)",
     "parent": "Health",
@@ -5071,7 +5315,7 @@
     ]
   },
   {
-    "position": 14,
+    "position": 15,
     "label": "Real wages",
     "note": "Average weekly wage, adjusted for inflation (ONS)",
     "parent": "Living standards",
@@ -5318,7 +5562,7 @@
     ]
   },
   {
-    "position": 15,
+    "position": 16,
     "label": "Real GDP per capita",
     "note": "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
     "parent": "Economy",
@@ -5409,7 +5653,7 @@
     ]
   },
   {
-    "position": 16,
+    "position": 17,
     "label": "NEETS aged 16-24",
     "note": "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)",
     "parent": "Economy",
@@ -5500,7 +5744,7 @@
     ]
   },
   {
-    "position": 17,
+    "position": 18,
     "label": "A&E seen in 4 hours",
     "note": "Percentage of A&E patients seen within 4 hours (NHS England)",
     "parent": "Health",
@@ -5750,7 +5994,7 @@
     ]
   },
   {
-    "position": 18,
+    "position": 19,
     "label": "Redundancies",
     "note": "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
     "parent": "Economy",
@@ -6798,7 +7042,7 @@
     ]
   },
   {
-    "position": 19,
+    "position": 20,
     "label": "Unemployment",
     "note": "Percentage of people not in work but looking for a job (ONS)",
     "parent": "Economy",
@@ -7042,7 +7286,7 @@
     ]
   },
   {
-    "position": 20,
+    "position": 21,
     "label": "Net migration",
     "note": "Latest annual estimate of UK immigration, minus emigration (ONS)",
     "parent": "Immigration",
@@ -7130,7 +7374,7 @@
     ]
   },
   {
-    "position": 21,
+    "position": 22,
     "label": "Flights",
     "note": "Number of monthly flights to and from UK airports, seasonally-adjusted (ONS, EUROCONTROL)",
     "parent": "Economy",
@@ -7380,7 +7624,7 @@
     ]
   },
   {
-    "position": 22,
+    "position": 23,
     "label": "Renting a 2-bed",
     "note": "Cost of privately renting a 2-bed property (ONS)",
     "parent": "Housing",
@@ -7630,7 +7874,7 @@
     ]
   },
   {
-    "position": 23,
+    "position": 24,
     "label": "Electricity price",
     "note": "System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)",
     "parent": "Living standards",
@@ -7880,7 +8124,7 @@
     ]
   },
   {
-    "position": 24,
+    "position": 25,
     "label": "Debit card spend",
     "note": "Monthly debit card spending index from Revolut, where 100 = 2023 average (ONS, Revolut)",
     "parent": "Economy",
@@ -8130,7 +8374,7 @@
     ]
   },
   {
-    "position": 25,
+    "position": 26,
     "label": "Spend on rent",
     "note": "Monthly rental spend as a percentage of gross income for new tenancies (ONS, PriceHubble)",
     "parent": "Housing",
@@ -8380,7 +8624,7 @@
     ]
   },
   {
-    "position": 26,
+    "position": 27,
     "label": "Quarterly GDP growth",
     "note": "Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)",
     "parent": "Economy",
@@ -8471,7 +8715,7 @@
     ]
   },
   {
-    "position": 27,
+    "position": 28,
     "label": "Debt-to-GDP ratio",
     "note": "National debt as a percentage of GDP (ONS)",
     "parent": "Economy",
@@ -8721,7 +8965,7 @@
     ]
   },
   {
-    "position": 28,
+    "position": 29,
     "label": "England world ranking",
     "note": "England men’s national football team official world ranking (FIFA)",
     "parent": "Other",
@@ -9013,7 +9257,7 @@
     ]
   },
   {
-    "position": 29,
+    "position": 30,
     "label": "Vehicle production",
     "note": "Total number of vehicles made in Britain each month, seasonally-adjusted (ONS, SMMT)",
     "parent": "Economy",
@@ -9260,7 +9504,7 @@
     ]
   },
   {
-    "position": 30,
+    "position": 31,
     "label": "Long-term sick",
     "note": "Number of people who are inactive due to long-term sickness",
     "parent": "Health",
@@ -9504,7 +9748,7 @@
     ]
   },
   {
-    "position": 31,
+    "position": 32,
     "label": "Shoplifting",
     "note": "Shoplifting offences recorded by police",
     "parent": "Crime",
@@ -9541,7 +9785,7 @@
     ]
   },
   {
-    "position": 32,
+    "position": 33,
     "label": "BoE base rate",
     "note": "Base rate that underpins mortgage and savings rates (Bank of England)",
     "parent": "Living standards",
@@ -9701,7 +9945,7 @@
     ]
   },
   {
-    "position": 33,
+    "position": 34,
     "label": "Diesel price",
     "note": "Price of a litre of diesel (DESNZ)",
     "parent": "Living standards",
@@ -10752,7 +10996,7 @@
     ]
   },
   {
-    "position": 34,
+    "position": 35,
     "label": "Survey-based crime",
     "note": "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)",
     "parent": "Crime",
@@ -10786,7 +11030,7 @@
     ]
   },
   {
-    "position": 35,
+    "position": 36,
     "label": "Net government approval",
     "note": "Government approval minus government disapproval  (YouGov)",
     "parent": "Government",
@@ -11807,7 +12051,7 @@
     ]
   },
   {
-    "position": 36,
+    "position": 37,
     "label": "Theft from the person",
     "note": "Police-recorded theft of items (includes phone snatching)",
     "parent": "Crime",
@@ -11844,7 +12088,7 @@
     ]
   },
   {
-    "position": 37,
+    "position": 38,
     "label": "Electricity from renewables",
     "note": "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
     "parent": "Government",
@@ -11935,7 +12179,7 @@
     ]
   },
   {
-    "position": 38,
+    "position": 39,
     "label": "Asylum grants",
     "note": "Number of people granted asylum at initial decision in the past year (Home Office)",
     "parent": "Immigration",
@@ -12026,7 +12270,7 @@
     ]
   },
   {
-    "position": 39,
+    "position": 40,
     "label": "Direct debits failing",
     "note": "Monthly direct debit failure rate (ONS)",
     "parent": "Living standards",
@@ -12240,7 +12484,7 @@
     ]
   },
   {
-    "position": 40,
+    "position": 41,
     "label": "Average NHS wait",
     "note": "Median number of weeks spent waiting for NHS treatment (NHS England)",
     "parent": "Health",
@@ -12487,7 +12731,7 @@
     ]
   },
   {
-    "position": 41,
+    "position": 42,
     "label": "Seen within 18 weeks",
     "note": "Percentage of patients who received hospital treatment within 18 weeks (NHS England)",
     "parent": "Health",
@@ -12730,250 +12974,6 @@
       },
       {
         "2026-05-01": 65.5652
-      }
-    ]
-  },
-  {
-    "position": 42,
-    "label": "Prisoners",
-    "note": "Total prison population (Ministry of Justice)",
-    "parent": "Crime",
-    "colour": "green",
-    "colour2": "green",
-    "colour5": "red",
-    "now": 85761,
-    "change": -1573,
-    "change2": -1599,
-    "change5": 7585,
-    "unit": "",
-    "data": [
-      {
-        "2020-01-01": 83077
-      },
-      {
-        "2020-02-01": 83654
-      },
-      {
-        "2020-03-01": 83052
-      },
-      {
-        "2020-04-01": 81039
-      },
-      {
-        "2020-05-01": 79958
-      },
-      {
-        "2020-06-01": 79393
-      },
-      {
-        "2020-07-01": 79563
-      },
-      {
-        "2020-08-01": 79372
-      },
-      {
-        "2020-09-01": 79138
-      },
-      {
-        "2020-10-01": 78977
-      },
-      {
-        "2020-11-01": 78746
-      },
-      {
-        "2020-12-01": 78618
-      },
-      {
-        "2021-01-01": 77983
-      },
-      {
-        "2021-02-01": 77932
-      },
-      {
-        "2021-03-01": 78008
-      },
-      {
-        "2021-04-01": 77771
-      },
-      {
-        "2021-05-01": 78034
-      },
-      {
-        "2021-06-01": 78176
-      },
-      {
-        "2021-07-01": 78488
-      },
-      {
-        "2021-08-01": 78750
-      },
-      {
-        "2021-09-01": 78830
-      },
-      {
-        "2021-10-01": 79380
-      },
-      {
-        "2021-11-01": 79685
-      },
-      {
-        "2021-12-01": 79092
-      },
-      {
-        "2022-01-01": 79412
-      },
-      {
-        "2022-02-01": 79724
-      },
-      {
-        "2022-03-01": 79744
-      },
-      {
-        "2022-04-01": 79729
-      },
-      {
-        "2022-05-01": 80185
-      },
-      {
-        "2022-06-01": 80476
-      },
-      {
-        "2022-07-01": 80984
-      },
-      {
-        "2022-08-01": 81274
-      },
-      {
-        "2022-09-01": 81309
-      },
-      {
-        "2022-10-01": 82063
-      },
-      {
-        "2022-11-01": 82839
-      },
-      {
-        "2022-12-01": 82176
-      },
-      {
-        "2023-01-01": 82792
-      },
-      {
-        "2023-02-01": 83844
-      },
-      {
-        "2023-03-01": 84372
-      },
-      {
-        "2023-04-01": 84658
-      },
-      {
-        "2023-05-01": 85415
-      },
-      {
-        "2023-06-01": 85851
-      },
-      {
-        "2023-07-01": 86602
-      },
-      {
-        "2023-08-01": 87063
-      },
-      {
-        "2023-09-01": 87793
-      },
-      {
-        "2023-10-01": 87801
-      },
-      {
-        "2023-11-01": 87930
-      },
-      {
-        "2023-12-01": 87216
-      },
-      {
-        "2024-01-01": 87538
-      },
-      {
-        "2024-02-01": 87973
-      },
-      {
-        "2024-03-01": 87699
-      },
-      {
-        "2024-04-01": 87481
-      },
-      {
-        "2024-05-01": 87177
-      },
-      {
-        "2024-06-01": 87360
-      },
-      {
-        "2024-07-01": 87479
-      },
-      {
-        "2024-08-01": 88350
-      },
-      {
-        "2024-09-01": 86526
-      },
-      {
-        "2024-10-01": 85867
-      },
-      {
-        "2024-11-01": 86038
-      },
-      {
-        "2024-12-01": 85618
-      },
-      {
-        "2025-01-01": 86463
-      },
-      {
-        "2025-02-01": 87199
-      },
-      {
-        "2025-03-01": 87919
-      },
-      {
-        "2025-04-01": 88084
-      },
-      {
-        "2025-05-01": 88103
-      },
-      {
-        "2025-06-01": 87334
-      },
-      {
-        "2025-07-01": 87966
-      },
-      {
-        "2025-08-01": 88273
-      },
-      {
-        "2025-09-01": 87336
-      },
-      {
-        "2025-10-01": 87413
-      },
-      {
-        "2025-12-01": 86596
-      },
-      {
-        "2026-01-01": 87212
-      },
-      {
-        "2026-02-01": 87367
-      },
-      {
-        "2026-04-01": 85704
-      },
-      {
-        "2026-05-01": 85992
-      },
-      {
-        "2026-06-01": 85761
       }
     ]
   },
