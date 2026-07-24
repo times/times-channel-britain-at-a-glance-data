@@ -26,6 +26,17 @@ safe_read_html <- function(url, retries = 3, pause = 10, ...) {
   stop("read_html failed after ", retries, " attempts: ", url)
 }
 
+# Retry wrapper for read_csv — same rate-limiting protection
+safe_read_csv <- function(url, retries = 3, pause = 10, ...) {
+  Sys.sleep(3)
+  for (i in seq_len(retries)) {
+    result <- tryCatch(readr::read_csv(url, ...), error = function(e) e)
+    if (!inherits(result, 'error')) return(result)
+    if (i < retries) { message("  read_csv error on attempt ", i, ", retrying in ", pause * i, "s..."); Sys.sleep(pause * i) }
+  }
+  stop("read_csv failed after ", retries, " attempts: ", url)
+}
+
 # Dynamic NHS financial year (April-March)
 fy_start <- ifelse(lubridate::month(Sys.Date()) >= 4, lubridate::year(Sys.Date()), lubridate::year(Sys.Date()) - 1)
 nhs_wl_url <- paste0('https://www.england.nhs.uk/statistics/statistical-work-areas/rtt-waiting-times/rtt-data-', fy_start, '-', formatC((fy_start + 1) %% 100, width = 2, flag = '0'), '/')
@@ -134,7 +145,7 @@ crime.url <- 'https://www.ons.gov.uk/peoplepopulationandcommunity/crimeandjustic
 safe_download(paste0('https://www.ons.gov.uk', crime.url[1]) , 'downloads/crime.xlsx')
 
 crime <- read_excel('downloads/crime.xlsx', 4, skip = 7) %>%
-  select(1:33) %>%
+  select(1:ncol(.)) %>%
   gather(date, t, 2:ncol(.)) %>%
   rename('offence' = 1, 'date' = 2) %>%
   mutate(date = lubridate::my(substr(trimws(gsub('(.*) to', '', date)), 1, 8)),
@@ -622,7 +633,7 @@ gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy
 
 #39. Debt as % of GDP
 
-debt.gdp <-  read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/hf6x/pusf') %>%
+debt.gdp <-  safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/hf6x/pusf') %>%
   slice(270:nrow(.)) %>%
   select('date' = 1, 'debt.gdp' = 2) %>%
   mutate(date= lubridate::ym(date),
@@ -804,6 +815,13 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Housing',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = price),
+                         consumer %>%
+                           mutate(label = 'Consumer confidence',
+                                  note = "Long-running index of consumers' financial mood (GfK)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = consumer),
                          petrol %>%
                            mutate(label = 'Petrol price',
                                   note = "Price of a litre of unleaded petrol (DESNZ)", 
@@ -1039,13 +1057,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = crimes),
-                         consumer %>%
-                           mutate(label = 'Consumer confidence',
-                                  note = "Long-running index of consumers' financial mood (GfK)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = consumer),
                          ren %>%
                            mutate(label = 'Electricity from renewables',
                                   note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)", 
