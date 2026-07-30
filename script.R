@@ -842,13 +842,13 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = inf),
-                         hp %>%
-                           mutate(label = 'House prices',
-                                  up = 'neutral',
-                                  note = "Rolling annual average of sold UK house prices (Land Registry)", 
-                                  parent = 'Housing',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = price),
+          boats %>%
+            mutate(label = 'Small boat crossings',
+              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
+              parent = 'Immigration',
+              up = 'bad',
+              unit = '') %>%
+            select(label, note, parent, date, up, unit, 'total' = rolling),
                          consumer %>%
                            mutate(label = 'Consumer confidence',
                                   note = "Long-running index of consumers' financial mood (GfK)", 
@@ -863,13 +863,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select( label, note, parent, date, up, unit, 'total' = petrol),
-                         boats %>%
-                           mutate(label = 'Small boat crossings',
-                                  note = "Number of people who have crossed the Channel in the past year (Home Office)", 
-                                  parent = 'Immigration',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rolling),
+          hp %>%
+            mutate(label = 'House prices',
+              up = 'neutral',
+              note = "Rolling annual average of sold UK house prices (Land Registry)", 
+              parent = 'Housing',
+              unit = '£') %>%
+            select(label, note, parent, date, up, unit, 'total' = price),
                          rhdi %>%
                            mutate(label = 'Real disposable income',
                                   note = "Annualised real household disposable income per person (ONS)", 
