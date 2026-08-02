@@ -827,6 +827,40 @@ eng <- bind_rows(eng %>%
 
 
 
+#49. Mortgage arrears (% of total mortgage balances)
+
+safe_download('https://www.bankofengland.co.uk/-/media/boe/files/statistics/mortgage-lenders-and-administrators/mlar-longrun-detailed.xlsx',
+              'downloads/mlar-longrun-detailed.xlsx')
+
+mlar <- read_excel('downloads/mlar-longrun-detailed.xlsx', sheet = '1.7', col_names = FALSE)
+
+# Quarter columns are identified by Q1-Q4 on row 7, with year labels on row 6.
+mlar_q <- as.character(unlist(mlar[7, ]))
+mlar_y <- as.character(unlist(mlar[6, ]))
+mlar_cols <- which(!is.na(mlar_q) & mlar_q %in% c('Q1', 'Q2', 'Q3', 'Q4'))
+
+mlar_year <- mlar_y[mlar_cols]
+for (i in seq_along(mlar_year)) {
+  if (is.na(mlar_year[i]) || mlar_year[i] == '') mlar_year[i] <- if (i == 1) NA else mlar_year[i - 1]
+}
+
+# Use sub-table C (all regulated + non-regulated) row 11:
+# "Balances as % total loan balances".
+mlar_c_start <- which(mlar[[1]] == 'C' & grepl('Residential loans to individuals: All', mlar[[3]], ignore.case = TRUE))[1]
+mlar_row <- which(seq_len(nrow(mlar)) > mlar_c_start &
+                    seq_len(nrow(mlar)) < (mlar_c_start + 40) &
+                    mlar[[1]] == '11' &
+                    grepl('Balances as % total loan balances', mlar[[3]], ignore.case = TRUE))[1]
+
+mortgage_arrears <- tibble(
+  date = lubridate::yq(paste(mlar_year, mlar_q[mlar_cols])),
+  arrears = suppressWarnings(as.numeric(unlist(mlar[mlar_row, mlar_cols])))
+) %>%
+  filter(!is.na(date), !is.na(arrears)) %>%
+  arrange(date)
+
+
+
 
 
 
@@ -912,6 +946,13 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = payroll),
+                         mortgage_arrears %>%
+                           mutate(label = 'Mortgage arrears',
+                                  note = 'Mortgage balances in arrears as a share of all mortgage balances (Bank of England/FCA MLAR)',
+                                  parent = 'Economy',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = arrears),
                          housing %>%
                            mutate(label = 'Housing starts',
                                   note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
