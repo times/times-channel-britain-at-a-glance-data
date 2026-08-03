@@ -482,6 +482,33 @@ neets <- read_excel('downloads/neets.xlsx', 2)  %>%
   filter(!is.na(neet), !is.na(date))
 
 
+# 24b. SUSPENSIONS (termly, England)
+
+safe_download(
+  'https://content.explore-education-statistics.service.gov.uk/api/releases/0e388e4d-3748-49a4-984c-08dece27c222/files?fromPage=ReleaseDownloads',
+  'downloads/exclusions.zip'
+)
+
+unzip('downloads/exclusions.zip', files = 'data/exc_termly_by_geography.csv', exdir = 'downloads')
+
+suspensions <- read_csv('downloads/data/exc_termly_by_geography.csv') %>%
+  filter(geographic_level == 'National', education_phase == 'Total') %>%
+  mutate(
+    start_year = as.integer(substr(as.character(time_period), 1, 4)),
+    end_year = 2000 + as.integer(substr(as.character(time_period), 5, 6)),
+    quarter = case_when(
+      time_identifier == 'Autumn term' ~ 'Q4',
+      time_identifier == 'Spring term' ~ 'Q1',
+      time_identifier == 'Summer term' ~ 'Q2',
+      TRUE ~ NA_character_
+    ),
+    year = if_else(time_identifier == 'Autumn term', start_year, end_year),
+    date = lubridate::yq(paste(year, quarter))
+  ) %>%
+  select(date, susp_rate) %>%
+  filter(!is.na(date), !is.na(susp_rate))
+
+
 # 25. Crown court open caseload
 
 
@@ -967,6 +994,13 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Housing',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = rough_sleep),
+                            suspensions %>%
+                              mutate(label = 'School suspensions',
+                                note = 'Suspension rate in state-funded schools, termly (Department for Education, England)',
+                                parent = 'Education',
+                                up = 'bad',
+                                unit = '%') %>%
+                              select(label, note, parent, date, up, unit, 'total' = susp_rate),
                          waits %>%
                            mutate(label = 'NHS waiting list',
                                   note = "Total size of waiting list (NHS England)", 
@@ -991,7 +1025,7 @@ master <- bind_rows(list(inf %>%
                          neets %>%
                            mutate(label = 'NEETS aged 16-24',
                                   note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
-                                  parent = 'Economy',
+                                parent = 'Education',
                                   up = 'bad',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = neet),

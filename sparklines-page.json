@@ -5175,6 +5175,73 @@
   },
   {
     "position": 15,
+    "label": "School suspensions",
+    "note": "Suspension rate in state-funded schools, termly (Department for Education, England)",
+    "parent": "Education",
+    "colour": "green",
+    "colour2": "green",
+    "colour5": "red",
+    "now": 3.1491,
+    "change": -0.5435,
+    "change2": -0.11,
+    "change5": 3.1346,
+    "unit": "%",
+    "data": [
+      {
+        "2020-01-01": 1.5884
+      },
+      {
+        "2020-04-01": 0.0145
+      },
+      {
+        "2020-10-01": 1.9431
+      },
+      {
+        "2021-01-01": 0.5203
+      },
+      {
+        "2021-04-01": 1.7936
+      },
+      {
+        "2021-10-01": 2.2103
+      },
+      {
+        "2022-01-01": 2.4029
+      },
+      {
+        "2022-04-01": 2.3017
+      },
+      {
+        "2022-10-01": 2.9569
+      },
+      {
+        "2023-01-01": 3.1303
+      },
+      {
+        "2023-04-01": 3.2591
+      },
+      {
+        "2023-10-01": 4.1346
+      },
+      {
+        "2024-01-01": 3.4997
+      },
+      {
+        "2024-04-01": 3.6926
+      },
+      {
+        "2024-10-01": 4.0201
+      },
+      {
+        "2025-01-01": 3.7231
+      },
+      {
+        "2025-04-01": 3.1491
+      }
+    ]
+  },
+  {
+    "position": 16,
     "label": "NHS waiting list",
     "note": "Total size of waiting list (NHS England)",
     "parent": "Health",
@@ -5421,7 +5488,7 @@
     ]
   },
   {
-    "position": 16,
+    "position": 17,
     "label": "Real wages",
     "note": "Average weekly wage, adjusted for inflation (ONS)",
     "parent": "Living standards",
@@ -5668,7 +5735,7 @@
     ]
   },
   {
-    "position": 17,
+    "position": 18,
     "label": "Real GDP per capita",
     "note": "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
     "parent": "Economy",
@@ -5759,10 +5826,10 @@
     ]
   },
   {
-    "position": 18,
+    "position": 19,
     "label": "NEETS aged 16-24",
     "note": "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)",
-    "parent": "Economy",
+    "parent": "Education",
     "colour": "red",
     "colour2": "red",
     "colour5": "red",
@@ -5850,7 +5917,7 @@
     ]
   },
   {
-    "position": 19,
+    "position": 20,
     "label": "A&E seen in 4 hours",
     "note": "Percentage of A&E patients seen within 4 hours (NHS England)",
     "parent": "Health",
@@ -6100,7 +6167,7 @@
     ]
   },
   {
-    "position": 20,
+    "position": 21,
     "label": "Redundancies",
     "note": "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
     "parent": "Economy",
@@ -7151,7 +7218,7 @@
     ]
   },
   {
-    "position": 21,
+    "position": 22,
     "label": "Unemployment",
     "note": "Percentage of people not in work but looking for a job (ONS)",
     "parent": "Economy",
@@ -7395,7 +7462,7 @@
     ]
   },
   {
-    "position": 22,
+    "position": 23,
     "label": "Net migration",
     "note": "Latest annual estimate of UK immigration, minus emigration (ONS)",
     "parent": "Immigration",
@@ -7483,7 +7550,7 @@
     ]
   },
   {
-    "position": 23,
+    "position": 24,
     "label": "Flights",
     "note": "Number of monthly flights to and from UK airports, seasonally-adjusted (ONS, EUROCONTROL)",
     "parent": "Economy",
@@ -7733,7 +7800,7 @@
     ]
   },
   {
-    "position": 24,
+    "position": 25,
     "label": "Renting a 2-bed",
     "note": "Cost of privately renting a 2-bed property (ONS)",
     "parent": "Housing",
@@ -7983,7 +8050,7 @@
     ]
   },
   {
-    "position": 25,
+    "position": 26,
     "label": "Electricity price",
     "note": "System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)",
     "parent": "Living standards",
@@ -8233,7 +8300,7 @@
     ]
   },
   {
-    "position": 26,
+    "position": 27,
     "label": "Debit card spend",
     "note": "Monthly debit card spending index from Revolut, where 100 = 2023 average (ONS, Revolut)",
     "parent": "Economy",
@@ -8483,7 +8550,7 @@
     ]
   },
   {
-    "position": 27,
+    "position": 28,
     "label": "Spend on rent",
     "note": "Monthly rental spend as a percentage of gross income for new tenancies (ONS, PriceHubble)",
     "parent": "Housing",
@@ -8733,7 +8800,7 @@
     ]
   },
   {
-    "position": 28,
+    "position": 29,
     "label": "Quarterly GDP growth",
     "note": "Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)",
     "parent": "Economy",
@@ -8824,7 +8891,7 @@
     ]
   },
   {
-    "position": 29,
+    "position": 30,
     "label": "Debt-to-GDP ratio",
     "note": "National debt as a percentage of GDP (ONS)",
     "parent": "Economy",
@@ -9074,7 +9141,7 @@
     ]
   },
   {
-    "position": 30,
+    "position": 31,
     "label": "England world ranking",
     "note": "England men’s national football team official world ranking (FIFA)",
     "parent": "Other",
@@ -9366,7 +9433,7 @@
     ]
   },
   {
-    "position": 31,
+    "position": 32,
     "label": "Vehicle production",
     "note": "Total number of vehicles made in Britain each month, seasonally-adjusted (ONS, SMMT)",
     "parent": "Economy",
@@ -9613,7 +9680,7 @@
     ]
   },
   {
-    "position": 32,
+    "position": 33,
     "label": "Long-term sick",
     "note": "Number of people who are inactive due to long-term sickness",
     "parent": "Health",
@@ -9857,7 +9924,7 @@
     ]
   },
   {
-    "position": 33,
+    "position": 34,
     "label": "Shoplifting",
     "note": "Shoplifting offences recorded by police",
     "parent": "Crime",
@@ -9894,7 +9961,7 @@
     ]
   },
   {
-    "position": 34,
+    "position": 35,
     "label": "BoE base rate",
     "note": "Base rate that underpins mortgage and savings rates (Bank of England)",
     "parent": "Living standards",
@@ -9920,7 +9987,7 @@
         "2020-03-19": 0.1
       },
       {
-        "2021-08-02": 0.1
+        "2021-08-03": 0.1
       },
       {
         "2021-12-15": 0.1
@@ -10013,7 +10080,7 @@
         "2024-08-01": 5
       },
       {
-        "2024-08-02": 5
+        "2024-08-03": 5
       },
       {
         "2024-11-06": 5
@@ -10034,7 +10101,7 @@
         "2025-05-08": 4.25
       },
       {
-        "2025-08-02": 4.25
+        "2025-08-03": 4.25
       },
       {
         "2025-08-06": 4.25
@@ -10049,12 +10116,12 @@
         "2025-12-18": 3.75
       },
       {
-        "2026-08-02": 3.75
+        "2026-08-03": 3.75
       }
     ]
   },
   {
-    "position": 35,
+    "position": 36,
     "label": "Diesel price",
     "note": "Price of a litre of diesel (DESNZ)",
     "parent": "Living standards",
@@ -11108,7 +11175,7 @@
     ]
   },
   {
-    "position": 36,
+    "position": 37,
     "label": "Survey-based crime",
     "note": "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)",
     "parent": "Crime",
@@ -11142,7 +11209,7 @@
     ]
   },
   {
-    "position": 37,
+    "position": 38,
     "label": "Net government approval",
     "note": "Government approval minus government disapproval  (YouGov)",
     "parent": "Government",
@@ -12166,7 +12233,7 @@
     ]
   },
   {
-    "position": 38,
+    "position": 39,
     "label": "Theft from the person",
     "note": "Police-recorded theft of items (includes phone snatching)",
     "parent": "Crime",
@@ -12203,7 +12270,7 @@
     ]
   },
   {
-    "position": 39,
+    "position": 40,
     "label": "Electricity from renewables",
     "note": "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
     "parent": "Government",
@@ -12294,7 +12361,7 @@
     ]
   },
   {
-    "position": 40,
+    "position": 41,
     "label": "Asylum grants",
     "note": "Number of people granted asylum at initial decision in the past year (Home Office)",
     "parent": "Immigration",
@@ -12385,7 +12452,7 @@
     ]
   },
   {
-    "position": 41,
+    "position": 42,
     "label": "Direct debits failing",
     "note": "Monthly direct debit failure rate (ONS)",
     "parent": "Living standards",
@@ -12599,7 +12666,7 @@
     ]
   },
   {
-    "position": 42,
+    "position": 43,
     "label": "Average NHS wait",
     "note": "Median number of weeks spent waiting for NHS treatment (NHS England)",
     "parent": "Health",
@@ -12846,7 +12913,7 @@
     ]
   },
   {
-    "position": 43,
+    "position": 44,
     "label": "Seen within 18 weeks",
     "note": "Percentage of patients who received hospital treatment within 18 weeks (NHS England)",
     "parent": "Health",
@@ -13093,7 +13160,7 @@
     ]
   },
   {
-    "position": 44,
+    "position": 45,
     "label": "Crown court caseload",
     "note": "Number of crown court cases currently open (Ministry of Justice)",
     "parent": "Crime",
@@ -13178,7 +13245,7 @@
     ]
   },
   {
-    "position": 45,
+    "position": 46,
     "label": "Knife crime",
     "note": "Offences involving a knife, recorded by policer (Home Office)",
     "parent": "Crime",
@@ -13269,7 +13336,7 @@
     ]
   },
   {
-    "position": 46,
+    "position": 47,
     "label": "Price of a coffee",
     "note": "Average price of a cup of takeaway coffee (ONS)",
     "parent": "Living standards",
@@ -13483,7 +13550,7 @@
     ]
   },
   {
-    "position": 47,
+    "position": 48,
     "label": "Price of a meal",
     "note": "Average price of a restaurant main course (ONS)",
     "parent": "Living standards",
@@ -13697,7 +13764,7 @@
     ]
   },
   {
-    "position": 48,
+    "position": 49,
     "label": "Prompt cancer treatment",
     "note": "Percentage starting cancer treatment within 62 days of referral (NHS)",
     "parent": "Health",
@@ -13944,7 +14011,7 @@
     ]
   },
   {
-    "position": 49,
+    "position": 50,
     "label": "Bed occupancy",
     "note": "Percentage of general acute beds occupied (NHS)",
     "parent": "Health",
@@ -14188,7 +14255,7 @@
     ]
   },
   {
-    "position": 50,
+    "position": 51,
     "label": "House price to earnings",
     "note": "Ratio of house prices to average annual wages (ONS)",
     "parent": "Housing",
@@ -14435,7 +14502,7 @@
     ]
   },
   {
-    "position": 51,
+    "position": 52,
     "label": "Job vacancies",
     "note": "Total number of job vacancies (ONS)",
     "parent": "Economy",
