@@ -435,6 +435,16 @@ prison_dw <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
          prison = as.numeric(Population)) %>%
   select(date, prison)
 
+prison_capacity <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
+  mutate(
+    date = lubridate::my(Date),
+    population = as.numeric(Population),
+    usable_capacity = as.numeric(`Useable operational capacity`),
+    capacity_pc = 100 * population / usable_capacity
+  ) %>%
+  select(date, capacity_pc) %>%
+  filter(!is.na(date), !is.na(capacity_pc))
+
 # Scrape current + previous year GOV.UK pages to fill in months after Datawrapper ends
 prison_yr <- lubridate::year(Sys.Date())
 prison_urls <- c(prison_yr, prison_yr - 1) %>%
@@ -952,6 +962,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = prison),
+                         prison_capacity %>%
+                           mutate(label = 'Prison capacity used',
+                                  note = 'Prison population as a percentage of usable operational prison capacity (Ministry of Justice)',
+                                  parent = 'Crime',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = capacity_pc),
                          pint %>%
                            mutate(label = 'Price of a pint',
                                   note = "Average price of a pint of premium lager (ONS)", 
