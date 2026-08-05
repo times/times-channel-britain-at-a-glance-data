@@ -435,7 +435,7 @@ prison_dw <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
          prison = as.numeric(Population)) %>%
   select(date, prison)
 
-prison_capacity <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
+prison_capacity_dw <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
   mutate(
     date = lubridate::my(Date),
     population = as.numeric(Population),
@@ -464,14 +464,25 @@ prison_govuk <- purrr::map_dfr(prison_urls, function(url) {
     download.file(url, tmp, quiet = TRUE)
     df <- readODS::read_ods(tmp, 1)
     total_row <- df[grepl('^Total$', df[[1]]), ]
-    pop <- as.numeric(total_row[[5]][1])
+    pop <- as.numeric(gsub('[^0-9.]', '', total_row[[5]][1]))
+    op_capacity <- as.numeric(gsub('[^0-9.]', '', total_row[[4]][1]))
     date_str <- gsub('Monthly Bulletin - ', '', names(df)[1])
-    tibble(date = lubridate::my(date_str), prison = pop)
+    tibble(date = lubridate::my(date_str), prison = pop, op_capacity = op_capacity)
   }, error = function(e) NULL)
 })
 
 # GOV.UK takes precedence for any overlapping months
 prison <- bind_rows(prison_govuk, prison_dw) %>%
+  select(date, prison) %>%
+  arrange(date) %>%
+  distinct(date, .keep_all = TRUE)
+
+prison_capacity_govuk <- prison_govuk %>%
+  mutate(capacity_pc = 100 * prison / op_capacity) %>%
+  select(date, capacity_pc) %>%
+  filter(!is.na(date), !is.na(capacity_pc), is.finite(capacity_pc))
+
+prison_capacity <- bind_rows(prison_capacity_govuk, prison_capacity_dw) %>%
   arrange(date) %>%
   distinct(date, .keep_all = TRUE)
 

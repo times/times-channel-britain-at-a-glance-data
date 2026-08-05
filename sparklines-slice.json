@@ -4224,13 +4224,13 @@
     "label": "Prison capacity used",
     "note": "Prison population as a percentage of usable operational prison capacity (Ministry of Justice)",
     "parent": "Crime",
-    "colour": "red",
+    "colour": "green",
     "colour2": "green",
-    "colour5": "red",
-    "now": 97.6509,
-    "change": 0.8786,
-    "change2": -1.4819,
-    "change5": 0.123,
+    "colour5": "green",
+    "now": 96.2309,
+    "change": -1.2694,
+    "change2": -2.1275,
+    "change5": -0.5204,
     "unit": "%",
     "data": [
       {
@@ -4439,6 +4439,27 @@
       },
       {
         "2025-09-01": 97.6509
+      },
+      {
+        "2025-10-01": 97.8748
+      },
+      {
+        "2025-12-01": 96.7942
+      },
+      {
+        "2026-01-01": 97.2578
+      },
+      {
+        "2026-02-01": 97.2993
+      },
+      {
+        "2026-04-01": 95.476
+      },
+      {
+        "2026-05-01": 95.9069
+      },
+      {
+        "2026-06-01": 96.2309
       }
     ]
   },
