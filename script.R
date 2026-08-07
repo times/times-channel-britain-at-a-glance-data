@@ -917,7 +917,14 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(inf %>%
+master <- bind_rows(list(debt %>%
+            mutate(label = 'National debt',
+              note = "Size of the national debt (ONS)", 
+              parent = 'Government',
+              up = 'bad',
+              unit = '£') %>%
+            select(label, note, parent, date, up, unit,  'total' = debt),
+          inf %>%
                            mutate(label = 'Inflation',
                                   up = 'bad',
                                   note = "Consumer prices index, change on previous 12 months (ONS)",
@@ -987,13 +994,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit,  total),
-                         debt %>%
-                           mutate(label = 'National debt',
-                                  note = "Size of the national debt (ONS)", 
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  'total' = debt),
                          payrolled %>%
                            mutate(label = 'Payrolled employees',
                                   up = 'good',
