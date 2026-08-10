@@ -917,7 +917,14 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(debt %>%
+master <- bind_rows(list(boats %>%
+            mutate(label = 'Small boat crossings',
+              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
+              parent = 'Immigration',
+              up = 'bad',
+              unit = '') %>%
+            select(label, note, parent, date, up, unit, 'total' = rolling),
+          debt %>%
             mutate(label = 'National debt',
               note = "Size of the national debt (ONS)", 
               parent = 'Government',
@@ -931,13 +938,6 @@ master <- bind_rows(list(debt %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = inf),
-          boats %>%
-            mutate(label = 'Small boat crossings',
-              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
-              parent = 'Immigration',
-              up = 'bad',
-              unit = '') %>%
-            select(label, note, parent, date, up, unit, 'total' = rolling),
                          consumer %>%
                            mutate(label = 'Consumer confidence',
                                   note = "Long-running index of consumers' financial mood (GfK)", 
