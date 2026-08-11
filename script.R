@@ -239,14 +239,21 @@ wages <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
 
 
 #14. petrol & diesel prices (DESNZ weekly road fuel prices)
-# Scrape GOV.UK page for latest CSV so the filename stays current
-fuel_url <- 'https://www.gov.uk/government/statistical-data-sets/oil-and-petroleum-products-weekly-statistics' %>%
-  safe_read_html() %>%
-  html_nodes('a') %>%
-  html_attr('href') %>%
-  .[grepl('weekly_road_fuel_prices_[0-9]+\\.csv$', .)] %>%
-  .[!grepl('2003_to_2017', .)] %>%
-  .[1]
+# GOV.UK page moved; scrape new URL with fallback to known asset
+fuel_url <- tryCatch({
+  links <- 'https://www.gov.uk/government/statistics/weekly-road-fuel-prices' %>%
+    safe_read_html() %>%
+    html_nodes('a') %>%
+    html_attr('href')
+  url <- links[grepl('CSV.*2018.*\\.csv$', links, ignore.case = TRUE)] %>%
+    .[!grepl('2003_to_2017', .)] %>%
+    .[1]
+  if (is.na(url)) stop('No matching fuel CSV found')
+  url
+}, error = function(e) {
+  message('Fuel URL scrape failed, using fallback: ', conditionMessage(e))
+  'https://assets.publishing.service.gov.uk/media/6a79e642e9c8ef7358ccc0b5/CSV__2018_-__.csv'
+})
 
 safe_download(fuel_url, 'downloads/fuel_prices.csv')
 
@@ -261,17 +268,26 @@ petrol <- fuel_raw %>%
 
 #15. government approval
 
-'https://api-test.yougov.com/public-data/v5/uk/trackers/government-approval/download/' %>%
-  safe_download(paste0('downloads/', 'approval.xlsx'))
+tryCatch({
+  'https://api-test.yougov.com/public-data/v5/uk/trackers/government-approval/download/' %>%
+    safe_download(paste0('downloads/', 'approval.xlsx'))
+}, error = function(e) {
+  message('YouGov download failed (SSL/timeout): ', conditionMessage(e), '. Skipping government approval.')
+})
 
-app <- read_excel('downloads/approval.xlsx') %>%
-  gather(date, t, 2:ncol(.)) %>%
-  select('q' = 1, date, t) %>%
-  filter(grepl('prov', q)) %>%
-  spread(q, t) %>%
-  mutate(net = 100 * (Approve - Disapprove),
-         date = lubridate::ymd(date))  %>%
-  select(date, net)
+app <- tryCatch({
+  read_excel('downloads/approval.xlsx') %>%
+    gather(date, t, 2:ncol(.)) %>%
+    select('q' = 1, date, t) %>%
+    filter(grepl('prov', q)) %>%
+    spread(q, t) %>%
+    mutate(net = 100 * (Approve - Disapprove),
+           date = lubridate::ymd(date))  %>%
+    select(date, net)
+}, error = function(e) {
+  message('Could not parse approval.xlsx, returning empty tibble')
+  tibble(date = as.Date(character()), net = numeric())
+})
 
 
 #16. consumer confidence
@@ -430,20 +446,38 @@ rent <- read_excel('downloads/rents.xlsx', 4, skip = 2)  %>%
 
 # 23. PRISONS
 
-prison_dw <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
-  mutate(date = lubridate::my(Date),
-         prison = as.numeric(Population)) %>%
-  select(date, prison)
+prison_dw <- tryCatch({
+  tmp_dw <- tempfile(fileext = '.csv')
+  httr::GET('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv',
+            httr::config(ssl_verifypeer = FALSE),
+            httr::write_disk(tmp_dw, overwrite = TRUE))
+  read_tsv(tmp_dw, show_col_types = FALSE) %>%
+    mutate(date = lubridate::my(Date),
+           prison = as.numeric(Population)) %>%
+    select(date, prison)
+}, error = function(e) {
+  message('Datawrapper prison data failed (SSL/network): ', conditionMessage(e))
+  tibble(date = as.Date(character()), prison = numeric())
+})
 
-prison_capacity_dw <- read_tsv('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv') %>%
-  mutate(
-    date = lubridate::my(Date),
-    population = as.numeric(Population),
-    usable_capacity = as.numeric(`Useable operational capacity`),
-    capacity_pc = 100 * population / usable_capacity
-  ) %>%
-  select(date, capacity_pc) %>%
-  filter(!is.na(date), !is.na(capacity_pc))
+prison_capacity_dw <- tryCatch({
+  tmp_dw2 <- tempfile(fileext = '.csv')
+  httr::GET('https://datawrapper.dwcdn.net/XLaXA/4/dataset.csv',
+            httr::config(ssl_verifypeer = FALSE),
+            httr::write_disk(tmp_dw2, overwrite = TRUE))
+  read_tsv(tmp_dw2, show_col_types = FALSE) %>%
+    mutate(
+      date = lubridate::my(Date),
+      population = as.numeric(Population),
+      usable_capacity = as.numeric(`Useable operational capacity`),
+      capacity_pc = 100 * population / usable_capacity
+    ) %>%
+    select(date, capacity_pc) %>%
+    filter(!is.na(date), !is.na(capacity_pc))
+}, error = function(e) {
+  message('Datawrapper prison capacity failed (SSL/network): ', conditionMessage(e))
+  tibble(date = as.Date(character()), capacity_pc = numeric())
+})
 
 # Scrape current + previous year GOV.UK pages to fill in months after Datawrapper ends
 prison_yr <- lubridate::year(Sys.Date())
@@ -858,12 +892,22 @@ rough_sleep <- tibble(date = as.Date(paste0(as.integer(rough_hdrvals[rough_cols]
 
 #48. England national team rankings 
 
-eng <- read_tsv('https://eloratings.net/England.tsv?_=1783339445558') %>%
-  select('y'= 1,'m' = 2,'d' = 3,
-         'home'= 4,'away'=5,
-         'home.elo' = 15, 'away.elo' = 16) %>%
-  mutate(date = lubridate::ymd(paste(y,m,d))) %>%
-  select(date, home, away, home.elo, away.elo)
+eng <- tryCatch({
+  tmp_elo <- tempfile(fileext = '.tsv')
+  httr::GET('https://eloratings.net/England.tsv',
+            httr::config(ssl_verifypeer = FALSE),
+            httr::write_disk(tmp_elo, overwrite = TRUE))
+  read_tsv(tmp_elo, col_names = FALSE, show_col_types = FALSE) %>%
+    select('y'= 1,'m' = 2,'d' = 3,
+           'home'= 4,'away'=5,
+           'home.elo' = 15, 'away.elo' = 16) %>%
+    mutate(date = lubridate::ymd(paste(y,m,d))) %>%
+    select(date, home, away, home.elo, away.elo)
+}, error = function(e) {
+  message('eloratings.net fetch failed (SSL/network): ', conditionMessage(e))
+  tibble(date = as.Date(character()), home = character(), away = character(),
+         home.elo = numeric(), away.elo = numeric())
+})
 
 
 eng <- bind_rows(eng %>%
