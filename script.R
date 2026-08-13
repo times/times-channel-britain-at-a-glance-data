@@ -961,7 +961,21 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(boats %>%
+master <- bind_rows(list(gdp.growth %>%
+                           mutate(label = 'Quarterly GDP growth',
+                                  up = 'good',
+                                  note = 'Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)',
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         gdp %>%
+                           mutate(label = 'Real GDP per capita',
+                                  up = 'good',
+                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         boats %>%
             mutate(label = 'Small boat crossings',
               note = "Number of people who have crossed the Channel in the past year (Home Office)", 
               parent = 'Immigration',
@@ -1087,13 +1101,6 @@ master <- bind_rows(list(boats %>%
                                   up = 'good',
                                   unit = '£') %>%
                            select( label, note, parent, date, up, unit, 'total' = wages),
-                         gdp %>%
-                           mutate(label = 'Real GDP per capita',
-                                  up = 'good',
-                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
                          neets %>%
                            mutate(label = 'NEETS aged 16-24',
                                   note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
@@ -1166,13 +1173,6 @@ master <- bind_rows(list(boats %>%
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = rentspend),
                          
-                         gdp.growth %>%
-                           mutate(label = 'Quarterly GDP growth',
-                                  up = 'good',
-                                  note = 'Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)',
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
                          debt.gdp %>%
                            mutate(label = 'Debt-to-GDP ratio',
                                   up = 'bad',
