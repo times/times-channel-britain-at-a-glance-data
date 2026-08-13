@@ -55,7 +55,7 @@ inf <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflat
 gdp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2') %>%
   slice(190:nrow(.)) %>%
   select('date' = 1, 'gdp' = 2) %>%
-  mutate(date = yq(date),
+  mutate(date = yq(date) + months(3) - days(1),
          gdp = as.numeric(gdp),
          gdp = rollsum(gdp, 4, fill = NA, align = 'right'))
 
@@ -349,7 +349,7 @@ r1 <- read_excel('downloads/renewables.xlsx', 'Quarter', skip = 5)  %>%
   mutate(date = gsub("[\r\n]", "", date),
          q = substr(date, 9, 9),
          y = substr(trimws(date), 11,14),
-         date = lubridate::yq(paste(y, q)),
+         date = lubridate::yq(paste(y, q)) + months(3) - days(1),
          t = as.numeric(t))
 
 
@@ -390,7 +390,7 @@ as.u <- 'https://www.gov.uk/government/statistical-data-sets/immigration-system-
 safe_download(as.u[grepl('/asylum-claims-datasets', as.u)], 'downloads/asylumclaims.xlsx')
 
 asylum <- read_excel('downloads/asylumclaims.xlsx', 11, skip = 1) %>%
-  mutate(date = lubridate::yq(Quarter)) %>%
+  mutate(date = lubridate::yq(Quarter) + months(3) - days(1)) %>%
   filter(`Case outcome group` == 'Grant of Protection') %>%
   group_by(date) %>%
   summarise(protec = sum(Decisions)) %>%
@@ -558,7 +558,7 @@ suspensions <- read_csv('downloads/data/exc_termly_by_geography.csv') %>%
       TRUE ~ NA_character_
     ),
     year = if_else(time_identifier == 'Autumn term', start_year, end_year),
-    date = lubridate::yq(paste(year, quarter))
+    date = lubridate::yq(paste(year, quarter)) + months(3) - days(1)
   ) %>%
   select(date, susp_rate) %>%
   filter(!is.na(date), !is.na(susp_rate))
@@ -572,7 +572,7 @@ safe_download('https://assets.publishing.service.gov.uk/media/6941934a1ec67214e9
 
 cc  <- read_excel('downloads/cc.xlsx', 2, skip = 8) %>%
   mutate(year = zoo::na.locf(year),
-         date = lubridate::yq(paste(year, quarter))) %>%
+         date = lubridate::yq(paste(year, quarter)) + months(3) - days(1)) %>%
   select(date, 'crowncourt' = 3)
 
 
@@ -743,7 +743,7 @@ payrolled <- read_excel('downloads/rti_sa.xlsx',skip = 4, 2) %>%
 gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihyq/pn2') %>%
   slice(200:nrow(.)) %>%
   select('date' = 1, 'gdp' = 2) %>%
-  mutate(date = lubridate::yq(date),
+  mutate(date = lubridate::yq(date) + months(3) - days(1),
          gdp = as.numeric(gdp))
 
 
@@ -849,7 +849,7 @@ vehicle <- read_excel('downloads/cars.xlsx', 6, skip = 5) %>%
 
 rhdi <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/crxx/ukea' , skip = 100)  %>%
   select('date' = 1, 'rhdi' = 2) %>%
-  mutate(date = lubridate::yq(date),
+  mutate(date = lubridate::yq(date) + months(3) - days(1),
          rhdi = 4*as.numeric(rhdi))
 
 
@@ -945,7 +945,7 @@ mlar_row <- which(seq_len(nrow(mlar)) > mlar_c_start &
                     grepl('Balances as % total loan balances', mlar[[3]], ignore.case = TRUE))[1]
 
 mortgage_arrears <- tibble(
-  date = lubridate::yq(paste(mlar_year, mlar_q[mlar_cols])),
+  date = lubridate::yq(paste(mlar_year, mlar_q[mlar_cols])) + months(3) - days(1),
   arrears = suppressWarnings(as.numeric(unlist(mlar[mlar_row, mlar_cols])))
 ) %>%
   filter(!is.na(date), !is.na(arrears)) %>%
