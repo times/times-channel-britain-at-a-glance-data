@@ -961,7 +961,28 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(gdp.growth %>%
+master <- bind_rows(list(unemp %>%
+                           mutate(label = 'Unemployment',
+                                  up = 'bad',
+                                  note = "Percentage of people not in work but looking for a job (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = unem),
+                         vac %>%
+                           mutate(label = 'Job vacancies',
+                                  note = "Total number of job vacancies (ONS)", 
+                                  parent = 'Economy',
+                                  up = 'good',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = vacancies),
+                         payrolled %>%
+                           mutate(label = 'Payrolled employees',
+                                  up = 'good',
+                                  note = "Number of payrolled employees (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = payroll),
+                         gdp.growth %>%
                            mutate(label = 'Quarterly GDP growth',
                                   up = 'good',
                                   note = 'Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)',
@@ -1052,13 +1073,6 @@ master <- bind_rows(list(gdp.growth %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit,  total),
-                         payrolled %>%
-                           mutate(label = 'Payrolled employees',
-                                  up = 'good',
-                                  note = "Number of payrolled employees (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = payroll),
                          mortgage_arrears %>%
                            mutate(label = 'Mortgage arrears',
                                   note = 'Mortgage balances in arrears as a share of all mortgage balances (Bank of England/FCA MLAR)',
@@ -1122,13 +1136,6 @@ master <- bind_rows(list(gdp.growth %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = redundancies),
-                         unemp %>%
-                           mutate(label = 'Unemployment',
-                                  up = 'bad',
-                                  note = "Percentage of people not in work but looking for a job (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = unem),
                          imm %>%
                            mutate(label = 'Net migration',
                                   note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
@@ -1328,14 +1335,7 @@ master <- bind_rows(list(gdp.growth %>%
                                   parent = 'Housing',
                                   up = 'bad',
                                   unit = '') %>%
-                           select(label, note, parent, date, up, unit,  'total' = ratio),
-                         vac %>%
-                           mutate(label = 'Job vacancies',
-                                  note = "Total number of job vacancies (ONS)", 
-                                  parent = 'Economy',
-                                  up = 'good',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = vacancies))) %>%
+                           select(label, note, parent, date, up, unit,  'total' = ratio))) %>%
   filter(date >= as.Date('2020-01-01'))
 
 # POSITION NOW SET BY ORDER
