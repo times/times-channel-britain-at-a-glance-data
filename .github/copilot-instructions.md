@@ -7,6 +7,9 @@ This repo powers the sparklines at thetimes.com/uk and thetimes.com/data.
 When the user says **"update times data"**, run `bash update.sh` in the terminal.
 That script: runs `Rscript script.R`, checks whether the JSONs changed, commits and pushes to GitHub, which auto-deploys the sparklines.
 
+## Sync first
+For any task that will edit files in this repo, first check the remote branch state and pull/rebase before making changes. If the branch is not up to date, sync it before editing so we do not build on stale local state.
+
 ## Reordering sparklines
 Prompts like **"reorder: 1. rhdi, 2. small boats, 3. nhs waits"** mean: move those items to the top of the `bind_rows(list(...))` block in the STEP TWO section of `script.R`, leaving everything else in its current order. Then run `update.sh`.
 
