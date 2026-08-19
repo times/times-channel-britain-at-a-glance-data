@@ -996,6 +996,13 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = gdp),
+          petrol %>%
+            mutate(label = 'Petrol price',
+              note = "Price of a litre of unleaded petrol (DESNZ)", 
+              parent = 'Living standards',
+              up = 'bad',
+              unit = '£') %>%
+            select( label, note, parent, date, up, unit, 'total' = petrol),
                          gdp %>%
                            mutate(label = 'Real GDP per capita',
                                   up = 'good',
@@ -1024,13 +1031,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'good',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = consumer),
-                         petrol %>%
-                           mutate(label = 'Petrol price',
-                                  note = "Price of a litre of unleaded petrol (DESNZ)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select( label, note, parent, date, up, unit, 'total' = petrol),
           hp %>%
             mutate(label = 'House prices',
               up = 'neutral',
