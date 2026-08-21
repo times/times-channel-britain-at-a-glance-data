@@ -757,10 +757,10 @@
     "colour": "green",
     "colour2": "red",
     "colour5": "red",
-    "now": -17,
-    "change": 2,
-    "change2": -4,
-    "change5": -10,
+    "now": -14,
+    "change": 3,
+    "change2": -1,
+    "change5": -6,
     "unit": "%",
     "data": [
       {
@@ -999,6 +999,9 @@
       },
       {
         "2026-07-01": -17
+      },
+      {
+        "2026-08-01": -14
       }
     ]
   },
