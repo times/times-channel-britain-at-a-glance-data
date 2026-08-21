@@ -75,8 +75,7 @@ unemp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentan
 
 hp <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
   filter(`Reporting.period` == 'monthly') %>%
-  select('date' = Period, 'price' = Average.price.All.property.types) %>%
-  mutate(date = ym(date), price = as.numeric(price)) 
+  (\(d) { pc <- grep('All.property|Pob.math', names(d), ignore.case = TRUE)[1]; tibble(date = ym(d$Period), price = as.numeric(d[[pc]])) })()
 
 
 #5. NHS WAITING LISTS
@@ -688,8 +687,7 @@ debt <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/gover
 
 house.price.earnings <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
   filter(`Reporting.period` == 'monthly') %>%
-  select('date' = Period, 'price' = Average.price.All.property.types) %>%
-  mutate(date = ym(date), price = as.numeric(price))  %>%
+  (\(d) { pc <- grep('All.property|Pob.math', names(d), ignore.case = TRUE)[1]; tibble(date = ym(d$Period), price = as.numeric(d[[pc]])) })() %>%
   left_join(read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kab9/emp') %>%
               slice(140:nrow(.)) %>%
               rename('date' = 1, 'earn' = 2) %>%
@@ -975,6 +973,20 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = unem),
+                         wages %>%
+                           mutate(label = 'Real wages',
+                                  note = "Average weekly wage, adjusted for inflation (ONS)",
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '£') %>%
+                           select( label, note, parent, date, up, unit, 'total' = wages),
+                         consumer %>%
+                           mutate(label = 'Consumer confidence',
+                                  note = "Long-running index of consumers' financial mood (GfK)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = consumer),
                          vac %>%
                            mutate(label = 'Job vacancies',
                                   note = "Total number of job vacancies (ONS)", 
@@ -1024,13 +1036,6 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = '£') %>%
             select(label, note, parent, date, up, unit,  'total' = debt),
-                         consumer %>%
-                           mutate(label = 'Consumer confidence',
-                                  note = "Long-running index of consumers' financial mood (GfK)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = consumer),
           hp %>%
             mutate(label = 'House prices',
               up = 'neutral',
@@ -1108,13 +1113,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, total),
-                         wages %>%
-                           mutate(label = 'Real wages',
-                                  note = "Average weekly wage, adjusted for inflation (ONS)",
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '£') %>%
-                           select( label, note, parent, date, up, unit, 'total' = wages),
                          neets %>%
                            mutate(label = 'NEETS aged 16-24',
                                   note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
