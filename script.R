@@ -1192,13 +1192,6 @@ master <- bind_rows(list(asylum %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = debt.gdp),
-                         eng %>%
-                           mutate(label = 'England world ranking',
-                                  note = 'England men’s national football team official world ranking (FIFA)',
-                                  parent = 'Other',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = elo),
                          vehicle %>%
                            mutate(label = 'Vehicle production',
                                   up = 'good',
@@ -1333,7 +1326,14 @@ master <- bind_rows(list(asylum %>%
                                   parent = 'Housing',
                                   up = 'bad',
                                   unit = '') %>%
-                           select(label, note, parent, date, up, unit,  'total' = ratio))) %>%
+                           select(label, note, parent, date, up, unit,  'total' = ratio),
+                         eng %>%
+                           mutate(label = 'England world ranking',
+                                  note = 'England men’s national football team official world ranking (FIFA)',
+                                  parent = 'Other',
+                                  up = 'bad',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = elo))) %>%
   filter(date >= as.Date('2020-01-01'))
 
 # POSITION NOW SET BY ORDER
