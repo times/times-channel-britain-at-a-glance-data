@@ -735,13 +735,14 @@ payrolled <- read_excel('downloads/rti_sa.xlsx',skip = 4, 2) %>%
   select(date, 'payroll' = 2)
 
 
-#38. Quarterly GDP 
+#38. GDP growth (3-month on 3-month rate)
 
-
-gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihyq/pn2') %>%
-  slice(200:nrow(.)) %>%
+# Headline measure from the monthly GDP release (ED3H, dataset MGDP) rather than
+# the quarterly national accounts — updates monthly and is revised each release.
+gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ed3h/mgdp') %>%
+  slice(220:nrow(.)) %>%
   select('date' = 1, 'gdp' = 2) %>%
-  mutate(date = lubridate::yq(date) + months(3) - days(1),
+  mutate(date = lubridate::ym(date),
          gdp = as.numeric(gdp))
 
 
@@ -980,6 +981,13 @@ master <- bind_rows(list(asylum %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = inf),
+                         gdp.growth %>%
+                           mutate(label = 'GDP growth (3-month rate)',
+                                  up = 'good',
+                                  note = 'Rolling three-month on three-month GDP growth, seasonally-adjusted and adjusted for inflation (ONS)',
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
                          unemp %>%
                            mutate(label = 'Unemployment',
                                   up = 'bad',
@@ -1015,13 +1023,6 @@ master <- bind_rows(list(asylum %>%
                                   parent = 'Economy',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = payroll),
-                         gdp.growth %>%
-                           mutate(label = 'Quarterly GDP growth',
-                                  up = 'good',
-                                  note = 'Quarter-on-quarter, seasonally-adjusted GDP growth, adjusted for inflation (ONS)',
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
           petrol %>%
             mutate(label = 'Petrol price',
               note = "Price of a litre of unleaded petrol (DESNZ)", 
