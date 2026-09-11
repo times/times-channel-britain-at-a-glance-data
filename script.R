@@ -960,7 +960,28 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(asylum %>%
+master <- bind_rows(list(electricity %>%
+            mutate(label = 'Electricity price',
+              note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
+              parent = 'Living standards',
+              up = 'bad',
+              unit = 'p') %>%
+            select(label, note, parent, date, up, unit, 'total' = electricity),
+          petrol %>%
+            mutate(label = 'Petrol price',
+              note = "Price of a litre of unleaded petrol (DESNZ)",
+              parent = 'Living standards',
+              up = 'bad',
+              unit = '£') %>%
+            select(label, note, parent, date, up, unit, 'total' = petrol),
+          ren %>%
+            mutate(label = 'Electricity from renewables',
+              note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
+              parent = 'Government',
+              up = 'good',
+              unit = '%') %>%
+            select(label, note, parent, date, up, unit, 'total' = renewablepc),
+          asylum %>%
                            mutate(label = 'Asylum grants',
                                   note = "Number of people granted asylum at initial decision in the past year (Home Office)", 
                                   parent = 'Immigration',
@@ -1023,13 +1044,6 @@ master <- bind_rows(list(asylum %>%
                                   parent = 'Economy',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = payroll),
-          petrol %>%
-            mutate(label = 'Petrol price',
-              note = "Price of a litre of unleaded petrol (DESNZ)", 
-              parent = 'Living standards',
-              up = 'bad',
-              unit = '£') %>%
-            select( label, note, parent, date, up, unit, 'total' = petrol),
                          gdp %>%
                            mutate(label = 'Real GDP per capita',
                                   up = 'good',
@@ -1163,13 +1177,6 @@ master <- bind_rows(list(asylum %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit, 'total' = rent2bed),
-                         electricity %>%
-                           mutate(label = 'Electricity price',
-                                  note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
-                                  parent = 'Living standards',
-                                  up = 'bad', 
-                                  unit = 'p') %>%
-                           select(label, note, parent, date, up, unit, 'total' = electricity),
                          debitcard %>%
                            mutate(label = 'Debit card spend',
                                   up = 'good',
@@ -1251,13 +1258,6 @@ master <- bind_rows(list(asylum %>%
                                   up = 'bad',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = crimes),
-                         ren %>%
-                           mutate(label = 'Electricity from renewables',
-                                  note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)", 
-                                  parent = 'Government',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = renewablepc),
                          dd %>%
                            mutate(label = 'Direct debits failing',
                                   note = "Monthly direct debit failure rate (ONS)", 
