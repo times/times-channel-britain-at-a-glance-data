@@ -3,3 +3,5 @@
 .RData
 .Ruserdata
 downloads/
+*.log
+.DS_Store
