@@ -960,13 +960,13 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(electricity %>%
-            mutate(label = 'Electricity price',
-              note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
-              parent = 'Living standards',
-              up = 'bad',
-              unit = 'p') %>%
-            select(label, note, parent, date, up, unit, 'total' = electricity),
+master <- bind_rows(list(inf %>%
+                           mutate(label = 'Inflation',
+                                  up = 'bad',
+                                  note = "Consumer prices index, change on previous 12 months (ONS)",
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = inf),
           petrol %>%
             mutate(label = 'Petrol price',
               note = "Price of a litre of unleaded petrol (DESNZ)",
@@ -974,6 +974,20 @@ master <- bind_rows(list(electricity %>%
               up = 'bad',
               unit = '£') %>%
             select(label, note, parent, date, up, unit, 'total' = petrol),
+                         diesel %>%
+                           mutate(label = 'Diesel price',
+                                  note = "Price of a litre of diesel (DESNZ)", 
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit,  'total' = diesel),
+          electricity %>%
+            mutate(label = 'Electricity price',
+              note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
+              parent = 'Living standards',
+              up = 'bad',
+              unit = 'p') %>%
+            select(label, note, parent, date, up, unit, 'total' = electricity),
           ren %>%
             mutate(label = 'Electricity from renewables',
               note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
@@ -995,13 +1009,6 @@ master <- bind_rows(list(electricity %>%
               up = 'bad',
               unit = '') %>%
             select(label, note, parent, date, up, unit, 'total' = rolling),
-                         inf %>%
-                           mutate(label = 'Inflation',
-                                  up = 'bad',
-                                  note = "Consumer prices index, change on previous 12 months (ONS)",
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = inf),
                          gdp.growth %>%
                            mutate(label = 'GDP growth (3-month rate)',
                                   up = 'good',
@@ -1229,13 +1236,6 @@ master <- bind_rows(list(electricity %>%
                                   parent = 'Living standards',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = rate),
-                         diesel %>%
-                           mutate(label = 'Diesel price',
-                                  note = "Price of a litre of diesel (DESNZ)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  'total' = diesel),
                          
                          crime %>%
                            mutate(label = 'Survey-based crime',
