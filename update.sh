@@ -18,6 +18,9 @@ fi
 echo "--- Committing and pushing ---"
 git add sparklines-page.json sparklines-slice.json script.R data/
 git commit -m "Update data: $(date '+%Y-%m-%d')"
+# Note: in a sandboxed/CI shell, git push can fail with "Missing or invalid
+# credentials" if the macOS Keychain credential helper can't run (needs full
+# filesystem access) — commit still succeeds, just re-run `git push` unsandboxed.
 git push
 
 echo "--- Done. Sparklines updated on thetimes.com ---"
