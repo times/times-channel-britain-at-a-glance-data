@@ -967,6 +967,13 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = inf),
+                         br %>%
+                           mutate(label = 'BoE base rate',
+                                  up = 'bad',
+                                  note = "Base rate that underpins mortgage and savings rates (Bank of England)", 
+                                  parent = 'Living standards',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rate),
           petrol %>%
             mutate(label = 'Petrol price',
               note = "Price of a litre of unleaded petrol (DESNZ)",
@@ -988,6 +995,13 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = 'p') %>%
             select(label, note, parent, date, up, unit, 'total' = electricity),
+                         payrolled %>%
+                           mutate(label = 'Payrolled employees',
+                                  up = 'good',
+                                  note = "Number of payrolled employees (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = payroll),
           ren %>%
             mutate(label = 'Electricity from renewables',
               note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
@@ -1044,13 +1058,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'good',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = vacancies),
-                         payrolled %>%
-                           mutate(label = 'Payrolled employees',
-                                  up = 'good',
-                                  note = "Number of payrolled employees (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = payroll),
                          gdp %>%
                            mutate(label = 'Real GDP per capita',
                                   up = 'good',
@@ -1228,14 +1235,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit= '') %>%
                            select( label, note, parent, date, up, unit, 'total' = crimes),
-                         
-                         br %>%
-                           mutate(label = 'BoE base rate',
-                                  up = 'bad',
-                                  note = "Base rate that underpins mortgage and savings rates (Bank of England)", 
-                                  parent = 'Living standards',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rate),
                          
                          crime %>%
                            mutate(label = 'Survey-based crime',
