@@ -988,13 +988,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit,  'total' = diesel),
-          electricity %>%
-            mutate(label = 'Electricity price',
-              note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
-              parent = 'Living standards',
+                         boats %>%
+            mutate(label = 'Small boat crossings',
+              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
+              parent = 'Immigration',
               up = 'bad',
-              unit = 'p') %>%
-            select(label, note, parent, date, up, unit, 'total' = electricity),
+              unit = '') %>%
+            select(label, note, parent, date, up, unit, 'total' = rolling),
                          payrolled %>%
                            mutate(label = 'Payrolled employees',
                                   up = 'good',
@@ -1016,13 +1016,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'neutral',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = protec),
-                         boats %>%
-            mutate(label = 'Small boat crossings',
-              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
-              parent = 'Immigration',
+          electricity %>%
+            mutate(label = 'Electricity price',
+              note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
+              parent = 'Living standards',
               up = 'bad',
-              unit = '') %>%
-            select(label, note, parent, date, up, unit, 'total' = rolling),
+              unit = 'p') %>%
+            select(label, note, parent, date, up, unit, 'total' = electricity),
                          gdp.growth %>%
                            mutate(label = 'GDP growth (3-month rate)',
                                   up = 'good',
