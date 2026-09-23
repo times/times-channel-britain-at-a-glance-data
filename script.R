@@ -1002,6 +1002,20 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '') %>%
                            select(label, note, parent, date, up, unit, 'total' = payroll),
+                         wages %>%
+                           mutate(label = 'Real wages',
+                                  note = "Average weekly wage, adjusted for inflation (ONS)",
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '£') %>%
+                           select( label, note, parent, date, up, unit, 'total' = wages),
+                         unemp %>%
+                           mutate(label = 'Unemployment',
+                                  up = 'bad',
+                                  note = "Percentage of people not in work but looking for a job (ONS)", 
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = unem),
           ren %>%
             mutate(label = 'Electricity from renewables',
               note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
@@ -1030,20 +1044,6 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = gdp),
-                         unemp %>%
-                           mutate(label = 'Unemployment',
-                                  up = 'bad',
-                                  note = "Percentage of people not in work but looking for a job (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = unem),
-                         wages %>%
-                           mutate(label = 'Real wages',
-                                  note = "Average weekly wage, adjusted for inflation (ONS)",
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '£') %>%
-                           select( label, note, parent, date, up, unit, 'total' = wages),
                          consumer %>%
                            mutate(label = 'Consumer confidence',
                                   note = "Long-running index of consumers' financial mood (GfK)", 
