@@ -981,6 +981,13 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = '£') %>%
             select(label, note, parent, date, up, unit, 'total' = petrol),
+                         consumer %>%
+                           mutate(label = 'Consumer confidence',
+                                  note = "Long-running index of consumers' financial mood (GfK)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = consumer),
                          diesel %>%
                            mutate(label = 'Diesel price',
                                   note = "Price of a litre of diesel (DESNZ)", 
@@ -1044,13 +1051,6 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = gdp),
-                         consumer %>%
-                           mutate(label = 'Consumer confidence',
-                                  note = "Long-running index of consumers' financial mood (GfK)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = consumer),
                          vac %>%
                            mutate(label = 'Job vacancies',
                                   note = "Total number of job vacancies (ONS)", 
