@@ -313,7 +313,8 @@ consumer_latest <- tryCatch({
 
   gfk_value <- str_match(gfk_score_text, '(?:to|at) (-?\\d+(?:\\.\\d+)?) in [A-Za-z]+')[, 2]
   gfk_month <- str_match(gfk_score_text, '(?:to|at) -?\\d+(?:\\.\\d+)? in ([A-Za-z]+)')[, 2]
-  gfk_year <- str_match(gfk_text, 'London,\\s*[A-Za-z]+\\s+\\d{1,2},\\s*(\\d{4})')[, 2]
+  # Dateline format varies between "London, Month Day, Year" and "London (Month Day, Year)"
+  gfk_year <- str_match(gfk_text, 'London\\s*[,(]\\s*[A-Za-z]+\\s+\\d{1,2},?\\s*(\\d{4})')[, 2]
 
   gfk_date <- lubridate::my(paste(gfk_month, gfk_year))
 
