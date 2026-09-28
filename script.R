@@ -968,13 +968,6 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = inf),
-                         br %>%
-                           mutate(label = 'BoE base rate',
-                                  up = 'bad',
-                                  note = "Base rate that underpins mortgage and savings rates (Bank of England)", 
-                                  parent = 'Living standards',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rate),
           petrol %>%
             mutate(label = 'Petrol price',
               note = "Price of a litre of unleaded petrol (DESNZ)",
@@ -982,13 +975,6 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = '£') %>%
             select(label, note, parent, date, up, unit, 'total' = petrol),
-                         consumer %>%
-                           mutate(label = 'Consumer confidence',
-                                  note = "Long-running index of consumers' financial mood (GfK)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = consumer),
                          diesel %>%
                            mutate(label = 'Diesel price',
                                   note = "Price of a litre of diesel (DESNZ)", 
@@ -996,6 +982,20 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit,  'total' = diesel),
+                         br %>%
+                           mutate(label = 'BoE base rate',
+                                  up = 'bad',
+                                  note = "Base rate that underpins mortgage and savings rates (Bank of England)", 
+                                  parent = 'Living standards',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rate),
+                         consumer %>%
+                           mutate(label = 'Consumer confidence',
+                                  note = "Long-running index of consumers' financial mood (GfK)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = consumer),
                          boats %>%
             mutate(label = 'Small boat crossings',
               note = "Number of people who have crossed the Channel in the past year (Home Office)", 
