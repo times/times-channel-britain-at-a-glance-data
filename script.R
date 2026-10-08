@@ -1003,6 +1003,27 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = '') %>%
             select(label, note, parent, date, up, unit, 'total' = rolling),
+                         pint %>%
+                           mutate(label = 'Price of a pint',
+                                  note = "Average price of a pint of premium lager (ONS)", 
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit,  total),
+                         rhdi %>%
+                           mutate(label = 'Real disposable income',
+                                  note = "Annualised real household disposable income per person (ONS)", 
+                                  parent = 'Living standards',
+                                  up = 'good',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rhdi),
+                         gilts %>%
+                           mutate(label = 'Gilt yields',
+                                  note = "10-year government borrowing costs(Bank of England)", 
+                                  parent = 'Government',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select( label, note, parent, date, up, unit, 'total' = yield),
                          payrolled %>%
                            mutate(label = 'Payrolled employees',
                                   up = 'good',
@@ -1080,20 +1101,6 @@ master <- bind_rows(list(inf %>%
               parent = 'Housing',
               unit = '£') %>%
             select(label, note, parent, date, up, unit, 'total' = price),
-                         rhdi %>%
-                           mutate(label = 'Real disposable income',
-                                  note = "Annualised real household disposable income per person (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rhdi),
-                         gilts %>%
-                           mutate(label = 'Gilt yields',
-                                  note = "10-year government borrowing costs(Bank of England)", 
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select( label, note, parent, date, up, unit, 'total' = yield),
                          prison %>%
                            mutate(label = 'Prisoners',
                                   note = "Total prison population (Ministry of Justice)", 
@@ -1108,13 +1115,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = capacity_pc),
-                         pint %>%
-                           mutate(label = 'Price of a pint',
-                                  note = "Average price of a pint of premium lager (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  total),
                          mortgage_arrears %>%
                            mutate(label = 'Mortgage arrears',
                                   note = 'Mortgage balances in arrears as a share of all mortgage balances (Bank of England/FCA MLAR)',
