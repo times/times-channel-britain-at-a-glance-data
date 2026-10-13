@@ -982,6 +982,13 @@ master <- bind_rows(list(inf %>%
                                   up = 'bad',
                                   unit = '£') %>%
                            select(label, note, parent, date, up, unit,  'total' = diesel),
+                         boats %>%
+            mutate(label = 'Small boat crossings',
+              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
+              parent = 'Immigration',
+              up = 'bad',
+              unit = '') %>%
+            select(label, note, parent, date, up, unit, 'total' = rolling),
                          br %>%
                            mutate(label = 'BoE base rate',
                                   up = 'bad',
@@ -996,13 +1003,6 @@ master <- bind_rows(list(inf %>%
                                   up = 'good',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = consumer),
-                         boats %>%
-            mutate(label = 'Small boat crossings',
-              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
-              parent = 'Immigration',
-              up = 'bad',
-              unit = '') %>%
-            select(label, note, parent, date, up, unit, 'total' = rolling),
                          pint %>%
                            mutate(label = 'Price of a pint',
                                   note = "Average price of a pint of premium lager (ONS)", 
