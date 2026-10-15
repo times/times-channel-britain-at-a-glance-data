@@ -952,11 +952,11 @@ mortgage_arrears <- tibble(
   arrange(date)
 
 
-#48. MONTHLY GDP (index)
+#48. GDP GROWTH (annual rate)
 
-# Headline level measure from the monthly GDP release (ECY2, dataset MGDP) — a
-# chained-volume, seasonally-adjusted index of real output, updates monthly.
-gdp.monthly <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ecy2/mgdp') %>%
+# Official annual (year-on-year) growth rate from the monthly GDP release
+# (ED2R, dataset MGDP) — chained-volume, seasonally-adjusted, updates monthly.
+gdp.monthly <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ed2r/mgdp') %>%
   slice(8:nrow(.)) %>%
   select('date' = 1, 'gdp' = 2) %>%
   mutate(date = ym(date),
@@ -971,11 +971,11 @@ gdp.monthly <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/econom
 
 
 master <- bind_rows(list(gdp.monthly %>%
-                           mutate(label = 'Monthly GDP',
+                           mutate(label = 'GDP growth (annual rate)',
                                   up = 'good',
-                                  note = "Index of UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
+                                  note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
                                   parent = 'Economy',
-                                  unit = '') %>%
+                                  unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = gdp),
                          gdp.growth %>%
                            mutate(label = 'GDP growth (3-month rate)',
