@@ -952,6 +952,15 @@ mortgage_arrears <- tibble(
   arrange(date)
 
 
+#48. MONTHLY GDP (index)
+
+# Headline level measure from the monthly GDP release (ECY2, dataset MGDP) — a
+# chained-volume, seasonally-adjusted index of real output, updates monthly.
+gdp.monthly <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ecy2/mgdp') %>%
+  slice(8:nrow(.)) %>%
+  select('date' = 1, 'gdp' = 2) %>%
+  mutate(date = ym(date),
+         gdp = as.numeric(gdp))
 
 
 
@@ -961,7 +970,21 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(inf %>%
+master <- bind_rows(list(gdp.monthly %>%
+                           mutate(label = 'Monthly GDP',
+                                  up = 'good',
+                                  note = "Index of UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
+                                  parent = 'Economy',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         gdp.growth %>%
+                           mutate(label = 'GDP growth (3-month rate)',
+                                  up = 'good',
+                                  note = 'Rolling three-month on three-month GDP growth, seasonally-adjusted and adjusted for inflation (ONS)',
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         inf %>%
                            mutate(label = 'Inflation',
                                   up = 'bad',
                                   note = "Consumer prices index, change on previous 12 months (ONS)",
@@ -1066,13 +1089,6 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = 'p') %>%
             select(label, note, parent, date, up, unit, 'total' = electricity),
-                         gdp.growth %>%
-                           mutate(label = 'GDP growth (3-month rate)',
-                                  up = 'good',
-                                  note = 'Rolling three-month on three-month GDP growth, seasonally-adjusted and adjusted for inflation (ONS)',
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
                          vac %>%
                            mutate(label = 'Job vacancies',
                                   note = "Total number of job vacancies (ONS)", 
