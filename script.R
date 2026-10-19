@@ -1050,415 +1050,414 @@ write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(gdp.monthly %>%
-                           mutate(label = 'GDP growth (annual rate)',
-                                  up = 'good',
-                                  note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
-                         inf %>%
-                           mutate(label = 'Inflation',
-                                  up = 'bad',
-                                  note = "Consumer prices index, change on previous 12 months (ONS)",
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = inf),
-          petrol %>%
-            mutate(label = 'Petrol price',
-              note = "Price of a litre of unleaded petrol (DESNZ)",
-              parent = 'Living standards',
-              up = 'bad',
-              unit = '£') %>%
-            select(label, note, parent, date, up, unit, 'total' = petrol),
-                         mortgage_rates %>%
-                           mutate(label = 'Average 2-year mortgage rate',
-                                  note = 'Average rate on new 2-year fixed mortgages (Moneyfacts)',
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rate_2yr),
-                         mortgage_rates %>%
-                           mutate(label = 'Average 5-year mortgage rate',
-                                  note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rate_5yr),
-                         diesel %>%
-                           mutate(label = 'Diesel price',
-                                  note = "Price of a litre of diesel (DESNZ)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  'total' = diesel),
-                         boats %>%
-            mutate(label = 'Small boat crossings',
-              note = "Number of people who have crossed the Channel in the past year (Home Office)", 
-              parent = 'Immigration',
-              up = 'bad',
-              unit = '') %>%
-            select(label, note, parent, date, up, unit, 'total' = rolling),
-                         br %>%
-                           mutate(label = 'BoE base rate',
-                                  up = 'bad',
-                                  note = "Base rate that underpins mortgage and savings rates (Bank of England)", 
-                                  parent = 'Living standards',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rate),
-                         consumer %>%
-                           mutate(label = 'Consumer confidence',
-                                  note = "Long-running index of consumers' financial mood (GfK)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = consumer),
-                         pint %>%
-                           mutate(label = 'Price of a pint',
-                                  note = "Average price of a pint of premium lager (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  total),
-                         rhdi %>%
-                           mutate(label = 'Real disposable income',
-                                  note = "Annualised real household disposable income per person (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rhdi),
-                         gilts %>%
-                           mutate(label = 'Gilt yields',
-                                  note = "10-year government borrowing costs(Bank of England)", 
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select( label, note, parent, date, up, unit, 'total' = yield),
-                         payrolled %>%
-                           mutate(label = 'Payrolled employees',
-                                  up = 'good',
-                                  note = "Number of payrolled employees (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = payroll),
-                         wages %>%
-                           mutate(label = 'Real wages',
-                                  note = "Average weekly wage, adjusted for inflation (ONS)",
-                                  parent = 'Living standards',
-                                  up = 'good',
-                                  unit = '£') %>%
-                           select( label, note, parent, date, up, unit, 'total' = wages),
-                         unemp %>%
-                           mutate(label = 'Unemployment',
-                                  up = 'bad',
-                                  note = "Percentage of people not in work but looking for a job (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = unem),
-          ren %>%
-            mutate(label = 'Electricity from renewables',
-              note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
-              parent = 'Government',
-              up = 'good',
-              unit = '%') %>%
-            select(label, note, parent, date, up, unit, 'total' = renewablepc),
-          asylum %>%
-                           mutate(label = 'Asylum grants',
-                                  note = "Number of people granted asylum at initial decision in the past year (Home Office)", 
-                                  parent = 'Immigration',
-                                  up = 'neutral',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = protec),
-          electricity %>%
-            mutate(label = 'Electricity price',
-              note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
-              parent = 'Living standards',
-              up = 'bad',
-              unit = 'p') %>%
-            select(label, note, parent, date, up, unit, 'total' = electricity),
-                         vac %>%
-                           mutate(label = 'Job vacancies',
-                                  note = "Total number of job vacancies (ONS)", 
-                                  parent = 'Economy',
-                                  up = 'good',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = vacancies),
-                         gdp %>%
-                           mutate(label = 'Real GDP per capita',
-                                  up = 'good',
-                                  note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)", 
-                                  parent = 'Economy',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
-          debt %>%
-            mutate(label = 'National debt',
-              note = "Size of the national debt (ONS)", 
-              parent = 'Government',
-              up = 'bad',
-              unit = '£') %>%
-            select(label, note, parent, date, up, unit,  'total' = debt),
-                         psnb %>%
-                           mutate(label = 'Public sector net borrowing',
-                                  note = 'Monthly government borrowing (ONS)',
-                                  parent = 'Government',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = psnb),
-          hp %>%
-            mutate(label = 'House prices',
-              up = 'neutral',
-              note = "Rolling annual average of sold UK house prices (Land Registry)", 
-              parent = 'Housing',
-              unit = '£') %>%
-            select(label, note, parent, date, up, unit, 'total' = price),
-                         prison %>%
-                           mutate(label = 'Prisoners',
-                                  note = "Total prison population (Ministry of Justice)", 
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = prison),
-                         prison_capacity %>%
-                           mutate(label = 'Prison capacity used',
-                                  note = 'Prison population as a percentage of usable operational prison capacity (Ministry of Justice)',
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = capacity_pc),
-                         mortgage_arrears %>%
-                           mutate(label = 'Mortgage arrears',
-                                  note = 'Mortgage balances in arrears as a share of all mortgage balances (Bank of England/FCA MLAR)',
-                                  parent = 'Economy',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = arrears),
-                         housing %>%
-                           mutate(label = 'Housing starts',
-                                  note = "Number of housing units on which construction has started in England in the past year (MHCLG)", 
-                                  parent = 'Housing',
-                                  up = 'good',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = start),
-                         rough_sleep %>%
-                           mutate(label = 'Rough sleeping',
-                                  up = 'bad',
-                                  note = "Estimated number of people sleeping rough on a single night in autumn (MHCLG, England)", 
-                                  parent = 'Housing',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rough_sleep),
-                            suspensions %>%
-                              mutate(label = 'School suspensions',
-                                note = 'Suspension rate in state-funded schools, termly (Department for Education, England)',
-                                parent = 'Education',
-                                up = 'bad',
-                                unit = '%') %>%
-                              select(label, note, parent, date, up, unit, 'total' = susp_rate),
-                         waits %>%
-                           mutate(label = 'NHS waiting list',
-                                  note = "Total size of waiting list (NHS England)", 
-                                  parent = 'Health',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, total),
-                         neets %>%
-                           mutate(label = 'NEETS aged 16-24',
-                                  note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)", 
-                                parent = 'Education',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = neet),
-                         ae %>%
-                           mutate(label = 'A&E seen in 4 hours',
-                                  note = "Percentage of A&E patients seen within 4 hours (NHS England)", 
-                                  parent = 'Health',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = pc4hour),
-                         red %>%
-                           mutate(label = 'Redundancies',
-                                  note = "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
-                                  parent = 'Economy',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = redundancies),
-                         imm %>%
-                           mutate(label = 'Net migration',
-                                  note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
-                                  parent = 'Immigration',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, total),
-                         flights %>%
-                           mutate(label = 'Flights',
-                                  note = 'Number of monthly flights to and from UK airports, seasonally-adjusted (ONS, EUROCONTROL)',
-                                  parent = 'Economy',
-                                  up = 'good',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = flights),
-                         rent %>%
-                           mutate(label = 'Renting a 2-bed',
-                                  note = "Cost of privately renting a 2-bed property (ONS)", 
-                                  parent = 'Housing',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rent2bed),
-                         debitcard %>%
-                           mutate(label = 'Debit card spend',
-                                  up = 'good',
-                                  note = "Monthly debit card spending index from Revolut, where 100 = 2023 average (ONS, Revolut)", 
-                                  parent = 'Economy',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = spending),
-                         
-                         rentspend %>%
-                           mutate(label = 'Spend on rent',
-                                  up = 'bad',
-                                  note = 'Monthly rental spend as a percentage of gross income for new tenancies (ONS, PriceHubble)',
-                                  parent = 'Housing',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = rentspend),
-                         
-                         debt.gdp %>%
-                           mutate(label = 'Debt-to-GDP ratio',
-                                  up = 'bad',
-                                  note = 'National debt as a percentage of GDP (ONS)',
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = debt.gdp),
-                         vehicle %>%
-                           mutate(label = 'Vehicle production',
-                                  up = 'good',
-                                  note = 'Total number of vehicles made in Britain each month, seasonally-adjusted (ONS, SMMT)',
-                                  parent = 'Economy',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = vehicles),
-                         inac %>%
-                           mutate(label = 'Long-term sick',
-                                  up = 'bad',
-                                  note = "Number of people who are inactive due to long-term sickness", 
-                                  parent = 'Health',
-                                  unit = '') %>%
-                           select( label, note, parent, date, up, unit, total),
-                         shop %>%
-                           mutate(label = 'Shoplifting',
-                                  note = 'Shoplifting offences recorded by police',
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit= '') %>%
-                           select( label, note, parent, date, up, unit, 'total' = crimes),
-                         
-                         crime %>%
-                           mutate(label = 'Survey-based crime',
-                                  note = "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)", 
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = `With fraud`),
-                         app %>%
-                           mutate(label = 'Net government approval',
-                                  note = "Government approval minus government disapproval  (YouGov)", 
-                                  parent = 'Government',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = net),
-                         theft.person %>%
-                           mutate(label = 'Theft from the person',
-                                  note = 'Police-recorded theft of items (includes phone snatching)',
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = crimes),
-                         dd %>%
-                           mutate(label = 'Direct debits failing',
-                                  note = "Monthly direct debit failure rate (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = ddfail),
-                         waits %>%
-                           mutate(label = 'Average NHS wait',
-                                  note = 'Median number of weeks spent waiting for NHS treatment (NHS England)',
-                                  parent = 'Health',
-                                  up = 'bad',
-                                  unit = '')  %>%
-                           select(label, note, parent, date, up, unit, 'total' = average),
-                         waits %>%
-                           mutate(label = 'Seen within 18 weeks',
-                                  note = 'Percentage of patients who received hospital treatment within 18 weeks (NHS England)',
-                                  parent = 'Health',
-                                  up = 'good',
-                                  unit = '%')  %>%
-                           select(label, note, parent, date, up, unit, 'total' = within18),
-                         cc %>%
-                           mutate(label = 'Crown court caseload',
-                                  note = "Number of crown court cases currently open (Ministry of Justice)", 
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = crowncourt),
-                         knife %>%
-                           mutate(label = 'Knife crime',
-                                  note = "Offences involving a knife, recorded by policer (Home Office)", 
-                                  parent = 'Crime',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit,  'total' = knife),
-                         coffee %>%
-                           mutate(label = 'Price of a coffee',
-                                  note = "Average price of a cup of takeaway coffee (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  'total' = total),
-                         restaurant %>%
-                           mutate(label = 'Price of a meal',
-                                  note = "Average price of a restaurant main course (ONS)", 
-                                  parent = 'Living standards',
-                                  up = 'bad',
-                                  unit = '£') %>%
-                           select(label, note, parent, date, up, unit,  'total' = total),
-                         cancer %>%
-                           mutate(label = 'Prompt cancer treatment',
-                                  note = "Percentage starting cancer treatment within 62 days of referral (NHS)", 
-                                  parent = 'Health',
-                                  up = 'good',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit,  'total' = cancer62),
-                         beds %>%
-                           mutate(label = 'Bed occupancy',
-                                  note = "Percentage of general acute beds occupied (NHS)", 
-                                  parent = 'Health',
-                                  up = 'bad',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit,  'total' = occupancy),
-                         house.price.earnings %>%
-                           mutate(label = 'House price to earnings',
-                                  note = "Ratio of house prices to average annual wages (ONS)", 
-                                  parent = 'Housing',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit,  'total' = ratio),
-                         eng %>%
-                           mutate(label = 'England world ranking',
-                                  note = 'England men’s national football team official world ranking (FIFA)',
-                                  parent = 'Other',
-                                  up = 'bad',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = elo),
-                         visas %>%
-                           mutate(label = 'Visas granted',
-                                  note = 'Number of visas granted in the past year, excluding visitor visas (Home Office)',
-                                  parent = 'Immigration',
-                                  up = 'neutral',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = total),
-                         births %>%
-                           mutate(label = 'Live births',
-                                  note = 'Number of live births registered each year in England and Wales (ONS)',
-                                  parent = 'Other',
-                                  up = 'neutral',
-                                  unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = births))) %>%
+master <- bind_rows(list(
+  gdp.monthly %>%
+    mutate(label = 'GDP growth (annual rate)',
+           up = 'good',
+           note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
+           parent = 'Economy',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = gdp),
+  inf %>%
+    mutate(label = 'Inflation',
+           up = 'bad',
+           note = "Consumer prices index, change on previous 12 months (ONS)",
+           parent = 'Economy',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = inf),
+  petrol %>%
+    mutate(label = 'Petrol price',
+           note = "Price of a litre of unleaded petrol (DESNZ)",
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = petrol),
+  mortgage_rates %>%
+    mutate(label = 'Average 2-year mortgage rate',
+           note = 'Average rate on new 2-year fixed mortgages (Moneyfacts)',
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = rate_2yr),
+  mortgage_rates %>%
+    mutate(label = 'Average 5-year mortgage rate',
+           note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = rate_5yr),
+  diesel %>%
+    mutate(label = 'Diesel price',
+           note = "Price of a litre of diesel (DESNZ)",
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = diesel),
+  boats %>%
+    mutate(label = 'Small boat crossings',
+           note = "Number of people who have crossed the Channel in the past year (Home Office)",
+           parent = 'Immigration',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = rolling),
+  br %>%
+    mutate(label = 'BoE base rate',
+           up = 'bad',
+           note = "Base rate that underpins mortgage and savings rates (Bank of England)",
+           parent = 'Living standards',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = rate),
+  consumer %>%
+    mutate(label = 'Consumer confidence',
+           note = "Long-running index of consumers' financial mood (GfK)",
+           parent = 'Living standards',
+           up = 'good',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = consumer),
+  pint %>%
+    mutate(label = 'Price of a pint',
+           note = "Average price of a pint of premium lager (ONS)",
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, total),
+  rhdi %>%
+    mutate(label = 'Real disposable income',
+           note = "Annualised real household disposable income per person (ONS)",
+           parent = 'Living standards',
+           up = 'good',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = rhdi),
+  gilts %>%
+    mutate(label = 'Gilt yields',
+           note = "10-year government borrowing costs(Bank of England)",
+           parent = 'Government',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = yield),
+  payrolled %>%
+    mutate(label = 'Payrolled employees',
+           up = 'good',
+           note = "Number of payrolled employees (ONS)",
+           parent = 'Economy',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = payroll),
+  wages %>%
+    mutate(label = 'Real wages',
+           note = "Average weekly wage, adjusted for inflation (ONS)",
+           parent = 'Living standards',
+           up = 'good',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = wages),
+  unemp %>%
+    mutate(label = 'Unemployment',
+           up = 'bad',
+           note = "Percentage of people not in work but looking for a job (ONS)",
+           parent = 'Economy',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = unem),
+  ren %>%
+    mutate(label = 'Electricity from renewables',
+           note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
+           parent = 'Government',
+           up = 'good',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = renewablepc),
+  asylum %>%
+    mutate(label = 'Asylum grants',
+           note = "Number of people granted asylum at initial decision in the past year (Home Office)",
+           parent = 'Immigration',
+           up = 'neutral',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = protec),
+  electricity %>%
+    mutate(label = 'Electricity price',
+           note = 'System price of electricity per kilowatt-hour, monthly average (ONS, Elexon)',
+           parent = 'Living standards',
+           up = 'bad',
+           unit = 'p') %>%
+    select(label, note, parent, date, up, unit, 'total' = electricity),
+  vac %>%
+    mutate(label = 'Job vacancies',
+           note = "Total number of job vacancies (ONS)",
+           parent = 'Economy',
+           up = 'good',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = vacancies),
+  gdp %>%
+    mutate(label = 'Real GDP per capita',
+           up = 'good',
+           note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
+           parent = 'Economy',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = gdp),
+  debt %>%
+    mutate(label = 'National debt',
+           note = "Size of the national debt (ONS)",
+           parent = 'Government',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = debt),
+  psnb %>%
+    mutate(label = 'Public sector net borrowing',
+           note = 'Monthly government borrowing (ONS)',
+           parent = 'Government',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = psnb),
+  hp %>%
+    mutate(label = 'House prices',
+           up = 'neutral',
+           note = "Rolling annual average of sold UK house prices (Land Registry)",
+           parent = 'Housing',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = price),
+  prison %>%
+    mutate(label = 'Prisoners',
+           note = "Total prison population (Ministry of Justice)",
+           parent = 'Crime',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = prison),
+  prison_capacity %>%
+    mutate(label = 'Prison capacity used',
+           note = 'Prison population as a percentage of usable operational prison capacity (Ministry of Justice)',
+           parent = 'Crime',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = capacity_pc),
+  mortgage_arrears %>%
+    mutate(label = 'Mortgage arrears',
+           note = 'Mortgage balances in arrears as a share of all mortgage balances (Bank of England/FCA MLAR)',
+           parent = 'Economy',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = arrears),
+  housing %>%
+    mutate(label = 'Housing starts',
+           note = "Number of housing units on which construction has started in England in the past year (MHCLG)",
+           parent = 'Housing',
+           up = 'good',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = start),
+  rough_sleep %>%
+    mutate(label = 'Rough sleeping',
+           up = 'bad',
+           note = "Estimated number of people sleeping rough on a single night in autumn (MHCLG, England)",
+           parent = 'Housing',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = rough_sleep),
+  suspensions %>%
+    mutate(label = 'School suspensions',
+           note = 'Suspension rate in state-funded schools, termly (Department for Education, England)',
+           parent = 'Education',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = susp_rate),
+  waits %>%
+    mutate(label = 'NHS waiting list',
+           note = "Total size of waiting list (NHS England)",
+           parent = 'Health',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, total),
+  neets %>%
+    mutate(label = 'NEETS aged 16-24',
+           note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)",
+           parent = 'Education',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = neet),
+  ae %>%
+    mutate(label = 'A&E seen in 4 hours',
+           note = "Percentage of A&E patients seen within 4 hours (NHS England)",
+           parent = 'Health',
+           up = 'good',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = pc4hour),
+  red %>%
+    mutate(label = 'Redundancies',
+           note = "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
+           parent = 'Economy',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = redundancies),
+  imm %>%
+    mutate(label = 'Net migration',
+           note = "Latest annual estimate of UK immigration, minus emigration (ONS)",
+           parent = 'Immigration',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, total),
+  flights %>%
+    mutate(label = 'Flights',
+           note = 'Number of monthly flights to and from UK airports, seasonally-adjusted (ONS, EUROCONTROL)',
+           parent = 'Economy',
+           up = 'good',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = flights),
+  rent %>%
+    mutate(label = 'Renting a 2-bed',
+           note = "Cost of privately renting a 2-bed property (ONS)",
+           parent = 'Housing',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = rent2bed),
+  debitcard %>%
+    mutate(label = 'Debit card spend',
+           up = 'good',
+           note = "Monthly debit card spending index from Revolut, where 100 = 2023 average (ONS, Revolut)",
+           parent = 'Economy',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = spending),
+  rentspend %>%
+    mutate(label = 'Spend on rent',
+           up = 'bad',
+           note = 'Monthly rental spend as a percentage of gross income for new tenancies (ONS, PriceHubble)',
+           parent = 'Housing',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = rentspend),
+  debt.gdp %>%
+    mutate(label = 'Debt-to-GDP ratio',
+           up = 'bad',
+           note = 'National debt as a percentage of GDP (ONS)',
+           parent = 'Economy',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = debt.gdp),
+  vehicle %>%
+    mutate(label = 'Vehicle production',
+           up = 'good',
+           note = 'Total number of vehicles made in Britain each month, seasonally-adjusted (ONS, SMMT)',
+           parent = 'Economy',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = vehicles),
+  inac %>%
+    mutate(label = 'Long-term sick',
+           up = 'bad',
+           note = "Number of people who are inactive due to long-term sickness",
+           parent = 'Health',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, total),
+  shop %>%
+    mutate(label = 'Shoplifting',
+           note = 'Shoplifting offences recorded by police',
+           parent = 'Crime',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = crimes),
+  crime %>%
+    mutate(label = 'Survey-based crime',
+           note = "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)",
+           parent = 'Crime',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = `With fraud`),
+  app %>%
+    mutate(label = 'Net government approval',
+           note = "Government approval minus government disapproval (YouGov)",
+           parent = 'Government',
+           up = 'good',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = net),
+  theft.person %>%
+    mutate(label = 'Theft from the person',
+           note = 'Police-recorded theft of items (includes phone snatching)',
+           parent = 'Crime',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = crimes),
+  dd %>%
+    mutate(label = 'Direct debits failing',
+           note = "Monthly direct debit failure rate (ONS)",
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = ddfail),
+  waits %>%
+    mutate(label = 'Average NHS wait',
+           note = 'Median number of weeks spent waiting for NHS treatment (NHS England)',
+           parent = 'Health',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = average),
+  waits %>%
+    mutate(label = 'Seen within 18 weeks',
+           note = 'Percentage of patients who received hospital treatment within 18 weeks (NHS England)',
+           parent = 'Health',
+           up = 'good',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = within18),
+  cc %>%
+    mutate(label = 'Crown court caseload',
+           note = "Number of crown court cases currently open (Ministry of Justice)",
+           parent = 'Crime',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = crowncourt),
+  knife %>%
+    mutate(label = 'Knife crime',
+           note = "Offences involving a knife, recorded by policer (Home Office)",
+           parent = 'Crime',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = knife),
+  coffee %>%
+    mutate(label = 'Price of a coffee',
+           note = "Average price of a cup of takeaway coffee (ONS)",
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = total),
+  restaurant %>%
+    mutate(label = 'Price of a meal',
+           note = "Average price of a restaurant main course (ONS)",
+           parent = 'Living standards',
+           up = 'bad',
+           unit = '£') %>%
+    select(label, note, parent, date, up, unit, 'total' = total),
+  cancer %>%
+    mutate(label = 'Prompt cancer treatment',
+           note = "Percentage starting cancer treatment within 62 days of referral (NHS)",
+           parent = 'Health',
+           up = 'good',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = cancer62),
+  beds %>%
+    mutate(label = 'Bed occupancy',
+           note = "Percentage of general acute beds occupied (NHS)",
+           parent = 'Health',
+           up = 'bad',
+           unit = '%') %>%
+    select(label, note, parent, date, up, unit, 'total' = occupancy),
+  house.price.earnings %>%
+    mutate(label = 'House price to earnings',
+           note = "Ratio of house prices to average annual wages (ONS)",
+           parent = 'Housing',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = ratio),
+  eng %>%
+    mutate(label = 'England world ranking',
+           note = 'England men’s national football team official world ranking (FIFA)',
+           parent = 'Other',
+           up = 'bad',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = elo),
+  visas %>%
+    mutate(label = 'Visas granted',
+           note = 'Number of visas granted in the past year, excluding visitor visas (Home Office)',
+           parent = 'Immigration',
+           up = 'neutral',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = total),
+  births %>%
+    mutate(label = 'Live births',
+           note = 'Number of live births registered each year in England and Wales (ONS)',
+           parent = 'Other',
+           up = 'neutral',
+           unit = '') %>%
+    select(label, note, parent, date, up, unit, 'total' = births)
+)) %>%
   filter(date >= as.Date('2020-01-01'))
 
 # POSITION NOW SET BY ORDER
