@@ -736,14 +736,14 @@ payrolled <- read_excel('downloads/rti_sa.xlsx',skip = 4, 2) %>%
   select(date, 'payroll' = 2)
 
 
-#38. GDP growth (3-month on 3-month rate)
+#38. GDP growth (annual rate)
 
-# Headline measure from the monthly GDP release (ED3H, dataset MGDP) rather than
-# the quarterly national accounts — updates monthly and is revised each release.
-gdp.growth <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ed3h/mgdp') %>%
-  slice(220:nrow(.)) %>%
+# Official annual (year-on-year) growth rate from the monthly GDP release
+# (ED2R, dataset MGDP) — chained-volume, seasonally-adjusted, updates monthly.
+gdp.monthly <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ed2r/mgdp') %>%
+  slice(8:nrow(.)) %>%
   select('date' = 1, 'gdp' = 2) %>%
-  mutate(date = lubridate::ym(date),
+  mutate(date = ym(date),
          gdp = as.numeric(gdp))
 
 
@@ -952,6 +952,95 @@ mortgage_arrears <- tibble(
   arrange(date)
 
 
+#51. Public sector net borrowing (monthly)
+
+psnb <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/j5ii/pusf',
+                  show_col_types = FALSE, col_names = FALSE) %>%
+  rename('date' = 1, 'psnb' = 2) %>%
+  filter(grepl('^[0-9]{4} [A-Z]{3}$', date)) %>%
+  # ONS cites this chart series as "-J5II" i.e. sign-flipped, to match headline borrowing figures
+  mutate(date = lubridate::ym(date),
+         psnb = -1 * as.numeric(psnb) * 1000000)
+
+
+#54. Entry clearance visas granted, excluding visitor visas (Home Office)
+
+# Same quarterly Home Office "Immigration system statistics" release used for
+# asylum grants (section 19). Uses the detailed quarterly dataset (not the
+# annual summary table) so we get a genuine rolling 12-month total that updates
+# every quarter, the same technique as asylum grants and small boat crossings.
+visa_d02_url <- 'https://www.gov.uk/government/statistical-data-sets/immigration-system-statistics-data-tables' %>%
+  safe_read_html() %>%
+  html_nodes('a') %>%
+  html_attr('href') %>%
+  .[grepl('entry-clearance-visa-outcomes-datasets.*\\.xlsx$', ., ignore.case = TRUE)] %>%
+  .[1]
+
+safe_download(visa_d02_url, 'downloads/visa_outcomes.xlsx')
+
+visa_raw <- read_excel('downloads/visa_outcomes.xlsx', sheet = 'Data_Vis_D02', col_names = FALSE)
+visa_hdr <- as.character(unlist(visa_raw[4, ]))
+visa_d <- visa_raw[-(1:4), ]
+names(visa_d) <- visa_hdr
+
+visas <- visa_d %>%
+  filter(`Case outcome` == 'Issued', `Visa type group` != 'Visitor') %>%
+  mutate(Decisions = as.numeric(Decisions)) %>%
+  group_by(Quarter) %>%
+  summarise(total = sum(Decisions, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(date = lubridate::yq(Quarter) + months(3) - days(1)) %>%
+  arrange(date) %>%
+  mutate(total = rollsum(total, 4, align = 'right', fill = NA)) %>%
+  filter(!is.na(total)) %>%
+  select(date, total)
+
+
+#55. Live births (England and Wales, annual)
+
+safe_download('https://www.ons.gov.uk/visualisations/dvc3620/fig01/datadownload.xlsx', 'downloads/births.xlsx')
+
+births <- read_excel('downloads/births.xlsx', 'Figure_1', skip = 9) %>%
+  select('date' = 1, 'births' = 2) %>%
+  mutate(date = as.Date(paste0(date, '-12-31')),
+         births = as.numeric(births)) %>%
+  filter(!is.na(births))
+
+
+#56. Mortgage rates (Moneyfacts average 2-year and 5-year fixes)
+
+# Moneyfacts' API only supports "latest value" queries on our customer ID (date
+# ranges return error 1503), so we build our own history: splice today's reading
+# into data/moneyfacts_mortgage_historic.csv under today's actual date (not
+# rounded to month start), replacing any existing row for today if we've already
+# run this script today. The historic rows stay first-of-month (as supplied);
+# going forward new rows land on whatever date we happened to run on.
+mortgage_rates_historic <- read_csv('data/moneyfacts_mortgage_historic.csv') %>%
+  mutate(date = as.Date(date))
+
+mf_body <- list(tenors = list('Two-Year Fixed', 'Five-Year Fixed'))
+mf_resp <- httr::POST('https://api.moneyfactsgroup.co.uk/averagerates/mortgages/customerId/613000BD-C84F-4F77-8096-E3DD7650DE66',
+                       body = jsonlite::toJSON(mf_body, auto_unbox = TRUE),
+                       httr::content_type_json(), encode = 'raw')
+mf_json <- jsonlite::fromJSON(httr::content(mf_resp, as = 'text', encoding = 'UTF-8'), flatten = TRUE)
+
+mf_rate <- function(tenor_label) {
+  idx <- grep(tenor_label, mf_json$tenors$name, fixed = TRUE)
+  as.numeric(mf_json$tenors$values[[idx]]$rate[1])
+}
+
+mortgage_rates_latest <- tibble(
+  date = Sys.Date(),
+  rate_2yr = mf_rate('Two-Year Fixed'),
+  rate_5yr = mf_rate('Five-Year Fixed')
+)
+
+mortgage_rates <- mortgage_rates_historic %>%
+  filter(date != mortgage_rates_latest$date) %>%
+  bind_rows(mortgage_rates_latest) %>%
+  arrange(date)
+
+write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 
 
 
@@ -961,7 +1050,14 @@ mortgage_arrears <- tibble(
 #COMBINE THEM. Note the order is set by the order you arrange them here
 
 
-master <- bind_rows(list(inf %>%
+master <- bind_rows(list(gdp.monthly %>%
+                           mutate(label = 'GDP growth (annual rate)',
+                                  up = 'good',
+                                  note = 'Year-on-year GDP growth, seasonally-adjusted and adjusted for inflation (ONS)',
+                                  parent = 'Economy',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = gdp),
+                         inf %>%
                            mutate(label = 'Inflation',
                                   up = 'bad',
                                   note = "Consumer prices index, change on previous 12 months (ONS)",
@@ -975,6 +1071,20 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = '£') %>%
             select(label, note, parent, date, up, unit, 'total' = petrol),
+                         mortgage_rates %>%
+                           mutate(label = 'Average 2-year mortgage rate',
+                                  note = 'Average rate on new 2-year fixed mortgages (Moneyfacts)',
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rate_2yr),
+                         mortgage_rates %>%
+                           mutate(label = 'Average 5-year mortgage rate',
+                                  note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
+                                  parent = 'Living standards',
+                                  up = 'bad',
+                                  unit = '%') %>%
+                           select(label, note, parent, date, up, unit, 'total' = rate_5yr),
                          diesel %>%
                            mutate(label = 'Diesel price',
                                   note = "Price of a litre of diesel (DESNZ)", 
@@ -1066,13 +1176,6 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = 'p') %>%
             select(label, note, parent, date, up, unit, 'total' = electricity),
-                         gdp.growth %>%
-                           mutate(label = 'GDP growth (3-month rate)',
-                                  up = 'good',
-                                  note = 'Rolling three-month on three-month GDP growth, seasonally-adjusted and adjusted for inflation (ONS)',
-                                  parent = 'Economy',
-                                  unit = '%') %>%
-                           select(label, note, parent, date, up, unit, 'total' = gdp),
                          vac %>%
                            mutate(label = 'Job vacancies',
                                   note = "Total number of job vacancies (ONS)", 
@@ -1094,6 +1197,13 @@ master <- bind_rows(list(inf %>%
               up = 'bad',
               unit = '£') %>%
             select(label, note, parent, date, up, unit,  'total' = debt),
+                         psnb %>%
+                           mutate(label = 'Public sector net borrowing',
+                                  note = 'Monthly government borrowing (ONS)',
+                                  parent = 'Government',
+                                  up = 'bad',
+                                  unit = '£') %>%
+                           select(label, note, parent, date, up, unit, 'total' = psnb),
           hp %>%
             mutate(label = 'House prices',
               up = 'neutral',
@@ -1334,7 +1444,21 @@ master <- bind_rows(list(inf %>%
                                   parent = 'Other',
                                   up = 'bad',
                                   unit = '') %>%
-                           select(label, note, parent, date, up, unit, 'total' = elo))) %>%
+                           select(label, note, parent, date, up, unit, 'total' = elo),
+                         visas %>%
+                           mutate(label = 'Visas granted',
+                                  note = 'Number of visas granted in the past year, excluding visitor visas (Home Office)',
+                                  parent = 'Immigration',
+                                  up = 'neutral',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = total),
+                         births %>%
+                           mutate(label = 'Live births',
+                                  note = 'Number of live births registered each year in England and Wales (ONS)',
+                                  parent = 'Other',
+                                  up = 'neutral',
+                                  unit = '') %>%
+                           select(label, note, parent, date, up, unit, 'total' = births))) %>%
   filter(date >= as.Date('2020-01-01'))
 
 # POSITION NOW SET BY ORDER
