@@ -1053,7 +1053,7 @@ write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 master <- bind_rows(list(gdp.monthly %>%
                            mutate(label = 'GDP growth (annual rate)',
                                   up = 'good',
-                                  note = 'Year-on-year GDP growth, seasonally-adjusted and adjusted for inflation (ONS)',
+                                  note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
                                   parent = 'Economy',
                                   unit = '%') %>%
                            select(label, note, parent, date, up, unit, 'total' = gdp),
