@@ -1158,6 +1158,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = inf),
+    unemp %>%
+      mutate(label = 'Unemployment',
+             up = 'bad',
+             note = "Percentage of people not in work but looking for a job (ONS)",
+             parent = 'Economy',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = unem),
     petrol %>%
       mutate(label = 'Petrol price',
              note = "Price of a litre of unleaded petrol (DESNZ)",
@@ -1242,13 +1249,6 @@ if (!quick) {
              up = 'good',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = wages),
-    unemp %>%
-      mutate(label = 'Unemployment',
-             up = 'bad',
-             note = "Percentage of people not in work but looking for a job (ONS)",
-             parent = 'Economy',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = unem),
     ren %>%
       mutate(label = 'Electricity from renewables',
              note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
