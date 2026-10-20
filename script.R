@@ -1561,6 +1561,7 @@ if (!quick) {
 
   file <- compute_file(master) %>%
     left_join(label_order, by = 'label') %>%
+    arrange(position) %>%
     select(position, everything())
 
   file %>%
