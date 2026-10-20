@@ -651,6 +651,80 @@ suspensions <- read_csv('downloads/data/exc_termly_by_geography.csv') %>%
   filter(!is.na(date), !is.na(susp_rate))
 
 
+# 24c. SCHOOL ABSENCE (termly, England)
+
+safe_download(
+  'https://content.explore-education-statistics.service.gov.uk/api/releases/bc053a9f-7963-4523-9e7b-08df18a929bb/files?fromPage=ReleaseDownloads',
+  'downloads/absence.zip'
+)
+
+unzip('downloads/absence.zip', files = 'data/Absence_2term_nat_reg_la_termly.csv', exdir = 'downloads')
+
+absence <- read_csv('downloads/data/Absence_2term_nat_reg_la_termly.csv') %>%
+  filter(geographic_level == 'National', education_phase == 'Total') %>%
+  mutate(
+    start_year = as.integer(substr(as.character(time_period), 1, 4)),
+    end_year = 2000 + as.integer(substr(as.character(time_period), 5, 6)),
+    quarter = case_when(
+      time_identifier == 'Autumn term' ~ 'Q4',
+      time_identifier == 'Spring term' ~ 'Q1',
+      time_identifier == 'Summer term' ~ 'Q2',
+      TRUE ~ NA_character_
+    ),
+    year = if_else(time_identifier == 'Autumn term', start_year, end_year),
+    date = lubridate::yq(paste(year, quarter)) + months(3) - days(1),
+    absence_rate = as.numeric(sess_overall_percent)
+  ) %>%
+  select(date, absence_rate) %>%
+  filter(!is.na(date), !is.na(absence_rate))
+
+
+# 24d. GCSE ATTAINMENT (grade 5+ English & maths, annual, England)
+
+safe_download(
+  'https://content.explore-education-statistics.service.gov.uk/api/releases/5f2cbd6f-3524-4947-8c2c-08df1a222654/files?fromPage=ReleaseDownloads',
+  'downloads/gcse.zip'
+)
+
+# filename is year-prefixed (e.g. 202526_...) so match on the stable suffix
+gcse.files <- unzip('downloads/gcse.zip', list = TRUE)$Name
+gcse.file <- gcse.files[grepl('national_characteristics_by_school_types_provisional\\.csv$', gcse.files)]
+unzip('downloads/gcse.zip', files = gcse.file, exdir = 'downloads')
+
+gcse <- read_csv(file.path('downloads', gcse.file)) %>%
+  filter(establishment_type_group == 'All state-funded', breakdown_topic == 'Total') %>%
+  mutate(
+    end_year = 2000 + as.integer(substr(as.character(time_period), 5, 6)),
+    date = lubridate::ymd(paste0(end_year, '-08-31')),
+    gcse_rate = as.numeric(engmath_95_percent)
+  ) %>%
+  select(date, gcse_rate) %>%
+  filter(!is.na(date), !is.na(gcse_rate))
+
+
+# 24e. A-LEVEL ATTAINMENT (average point score, annual, England)
+
+safe_download(
+  'https://content.explore-education-statistics.service.gov.uk/api/releases/a918dd51-e050-4e34-9179-d7e9ccc7b15b/files?fromPage=ReleaseDownloads',
+  'downloads/alevel.zip'
+)
+
+# filename is year-suffixed (e.g. ..._201625_API.csv) so match on the stable prefix
+alevel.files <- unzip('downloads/alevel.zip', list = TRUE)$Name
+alevel.file <- alevel.files[grepl('^data/aggregated_attainment_timeseries.*_API\\.csv$', alevel.files)]
+unzip('downloads/alevel.zip', files = alevel.file, exdir = 'downloads')
+
+alevel <- read_csv(file.path('downloads', alevel.file)) %>%
+  filter(cohort == 'A level', breakdown == 'All students') %>%
+  mutate(
+    end_year = 2000 + as.integer(substr(as.character(time_period), 5, 6)),
+    date = lubridate::ymd(paste0(end_year, '-08-31')),
+    aps = as.numeric(aps_per_entry)
+  ) %>%
+  select(date, aps) %>%
+  filter(!is.na(date), !is.na(aps))
+
+
 # 25. Crown court open caseload
 
 
@@ -1347,6 +1421,27 @@ if (!quick) {
              up = 'bad',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = susp_rate),
+    absence %>%
+      mutate(label = 'School absence',
+             note = 'Overall absence rate in state-funded schools, termly (Department for Education, England)',
+             parent = 'Education',
+             up = 'bad',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = absence_rate),
+    gcse %>%
+      mutate(label = 'GCSE attainment',
+             note = 'Percentage of pupils achieving grade 5 or above in English and maths GCSEs (Department for Education, England)',
+             parent = 'Education',
+             up = 'good',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = gcse_rate),
+    alevel %>%
+      mutate(label = 'A-level attainment',
+             note = 'Average A-level point score per entry (Department for Education, England)',
+             parent = 'Education',
+             up = 'good',
+             unit = '') %>%
+      select(label, note, parent, date, up, unit, 'total' = aps),
     waits %>%
       mutate(label = 'NHS waiting list',
              note = "Total size of waiting list (NHS England)",

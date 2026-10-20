@@ -9237,6 +9237,144 @@
   },
   {
     "position": 30,
+    "label": "School absence",
+    "note": "Overall absence rate in state-funded schools, termly (Department for Education, England)",
+    "parent": "Education",
+    "colour": "green",
+    "colour2": "green",
+    "colour5": "red",
+    "now": 6.7638,
+    "change": -0.1602,
+    "change2": -0.4819,
+    "change5": 3.4889,
+    "unit": "%",
+    "data": [
+      {
+        "2020-12-31": 4.6614
+      },
+      {
+        "2021-03-31": 3.2749
+      },
+      {
+        "2021-06-30": 5.8076
+      },
+      {
+        "2021-12-31": 6.899
+      },
+      {
+        "2022-03-31": 7.9306
+      },
+      {
+        "2022-06-30": 7.9555
+      },
+      {
+        "2022-12-31": 7.5286
+      },
+      {
+        "2023-03-31": 6.9839
+      },
+      {
+        "2023-06-30": 7.5623
+      },
+      {
+        "2023-12-31": 6.6874
+      },
+      {
+        "2024-03-31": 7.2457
+      },
+      {
+        "2024-06-30": 7.5913
+      },
+      {
+        "2024-12-31": 6.3826
+      },
+      {
+        "2025-03-31": 6.924
+      },
+      {
+        "2025-06-30": 6.8377
+      },
+      {
+        "2025-12-31": 6.4701
+      },
+      {
+        "2026-03-31": 6.7638
+      }
+    ]
+  },
+  {
+    "position": 31,
+    "label": "GCSE attainment",
+    "note": "Percentage of pupils achieving grade 5 or above in English and maths GCSEs (Department for Education, England)",
+    "parent": "Education",
+    "colour": "green",
+    "colour2": "green",
+    "colour5": "red",
+    "now": 46.3,
+    "change": 0.9,
+    "change2": 0.4,
+    "change5": -5.6,
+    "unit": "%",
+    "data": [
+      {
+        "2020-08-31": 49.9
+      },
+      {
+        "2021-08-31": 51.9
+      },
+      {
+        "2022-08-31": 49.8
+      },
+      {
+        "2023-08-31": 45.3
+      },
+      {
+        "2024-08-31": 45.9
+      },
+      {
+        "2025-08-31": 45.4
+      },
+      {
+        "2026-08-31": 46.3
+      }
+    ]
+  },
+  {
+    "position": 32,
+    "label": "A-level attainment",
+    "note": "Average A-level point score per entry (Department for Education, England)",
+    "parent": "Education",
+    "colour": "green",
+    "colour2": "green",
+    "colour5": "red",
+    "now": 36.0884,
+    "change": 0.542,
+    "change2": 0.7994,
+    "change5": -3.5534,
+    "unit": "",
+    "data": [
+      {
+        "2020-08-31": 39.6418
+      },
+      {
+        "2021-08-31": 41.6626
+      },
+      {
+        "2022-08-31": 38.8739
+      },
+      {
+        "2023-08-31": 35.289
+      },
+      {
+        "2024-08-31": 35.5464
+      },
+      {
+        "2025-08-31": 36.0884
+      }
+    ]
+  },
+  {
+    "position": 33,
     "label": "NHS waiting list",
     "note": "Total size of waiting list (NHS England)",
     "parent": "Health",
@@ -9492,7 +9630,7 @@
     ]
   },
   {
-    "position": 31,
+    "position": 34,
     "label": "NEETS aged 16-24",
     "note": "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)",
     "parent": "Education",
@@ -9586,7 +9724,7 @@
     ]
   },
   {
-    "position": 32,
+    "position": 35,
     "label": "A&E seen in 4 hours",
     "note": "Percentage of A&E patients seen within 4 hours (NHS England)",
     "parent": "Health",
@@ -9845,7 +9983,7 @@
     ]
   },
   {
-    "position": 33,
+    "position": 36,
     "label": "Redundancies",
     "note": "Total potential redundancies from HR1 forms, rolling four-week average (Insolvency Service)",
     "parent": "Economy",
@@ -10929,7 +11067,7 @@
     ]
   },
   {
-    "position": 34,
+    "position": 37,
     "label": "Net migration",
     "note": "Latest annual estimate of UK immigration, minus emigration (ONS)",
     "parent": "Immigration",
@@ -11017,7 +11155,7 @@
     ]
   },
   {
-    "position": 35,
+    "position": 38,
     "label": "Flights",
     "note": "Number of monthly flights to and from UK airports, seasonally-adjusted (ONS, EUROCONTROL)",
     "parent": "Economy",
@@ -11276,7 +11414,7 @@
     ]
   },
   {
-    "position": 36,
+    "position": 39,
     "label": "Renting a 2-bed",
     "note": "Cost of privately renting a 2-bed property (ONS)",
     "parent": "Housing",
@@ -11532,7 +11670,7 @@
     ]
   },
   {
-    "position": 37,
+    "position": 40,
     "label": "Debit card spend",
     "note": "Monthly debit card spending index from Revolut, where 100 = 2023 average (ONS, Revolut)",
     "parent": "Economy",
@@ -11791,7 +11929,7 @@
     ]
   },
   {
-    "position": 38,
+    "position": 41,
     "label": "Spend on rent",
     "note": "Monthly rental spend as a percentage of gross income for new tenancies (ONS, PriceHubble)",
     "parent": "Housing",
@@ -12050,7 +12188,7 @@
     ]
   },
   {
-    "position": 39,
+    "position": 42,
     "label": "Debt-to-GDP ratio",
     "note": "National debt as a percentage of GDP (ONS)",
     "parent": "Economy",
@@ -12306,7 +12444,7 @@
     ]
   },
   {
-    "position": 40,
+    "position": 43,
     "label": "Vehicle production",
     "note": "Total number of vehicles made in Britain each month, seasonally-adjusted (ONS, SMMT)",
     "parent": "Economy",
@@ -12562,7 +12700,7 @@
     ]
   },
   {
-    "position": 41,
+    "position": 44,
     "label": "Long-term sick",
     "note": "Number of people who are inactive due to long-term sickness",
     "parent": "Health",
@@ -12815,7 +12953,7 @@
     ]
   },
   {
-    "position": 42,
+    "position": 45,
     "label": "Shoplifting",
     "note": "Shoplifting offences recorded by police",
     "parent": "Crime",
@@ -12852,7 +12990,7 @@
     ]
   },
   {
-    "position": 43,
+    "position": 46,
     "label": "Survey-based crime",
     "note": "Victim-based crime estimate using the Crime Survey of England and Wales (ONS)",
     "parent": "Crime",
@@ -12886,7 +13024,7 @@
     ]
   },
   {
-    "position": 44,
+    "position": 47,
     "label": "Theft from the person",
     "note": "Police-recorded theft of items (includes phone snatching)",
     "parent": "Crime",
@@ -12923,7 +13061,7 @@
     ]
   },
   {
-    "position": 45,
+    "position": 48,
     "label": "Direct debits failing",
     "note": "Monthly direct debit failure rate (ONS)",
     "parent": "Living standards",
@@ -13143,7 +13281,7 @@
     ]
   },
   {
-    "position": 46,
+    "position": 49,
     "label": "Average NHS wait",
     "note": "Median number of weeks spent waiting for NHS treatment (NHS England)",
     "parent": "Health",
@@ -13399,7 +13537,7 @@
     ]
   },
   {
-    "position": 47,
+    "position": 50,
     "label": "Seen within 18 weeks",
     "note": "Percentage of patients who received hospital treatment within 18 weeks (NHS England)",
     "parent": "Health",
@@ -13655,7 +13793,7 @@
     ]
   },
   {
-    "position": 48,
+    "position": 51,
     "label": "Crown court caseload",
     "note": "Number of crown court cases currently open (Ministry of Justice)",
     "parent": "Crime",
@@ -13740,7 +13878,7 @@
     ]
   },
   {
-    "position": 49,
+    "position": 52,
     "label": "Knife crime",
     "note": "Offences involving a knife, recorded by policer (Home Office)",
     "parent": "Crime",
@@ -13831,7 +13969,7 @@
     ]
   },
   {
-    "position": 50,
+    "position": 53,
     "label": "Price of a coffee",
     "note": "Average price of a cup of takeaway coffee (ONS)",
     "parent": "Living standards",
@@ -14051,7 +14189,7 @@
     ]
   },
   {
-    "position": 51,
+    "position": 54,
     "label": "Price of a meal",
     "note": "Average price of a restaurant main course (ONS)",
     "parent": "Living standards",
@@ -14271,7 +14409,7 @@
     ]
   },
   {
-    "position": 52,
+    "position": 55,
     "label": "Prompt cancer treatment",
     "note": "Percentage starting cancer treatment within 62 days of referral (NHS)",
     "parent": "Health",
@@ -14527,7 +14665,7 @@
     ]
   },
   {
-    "position": 53,
+    "position": 56,
     "label": "Bed occupancy",
     "note": "Percentage of general acute beds occupied (NHS)",
     "parent": "Health",
@@ -14780,7 +14918,7 @@
     ]
   },
   {
-    "position": 54,
+    "position": 57,
     "label": "House price to earnings",
     "note": "Ratio of house prices to average annual wages (ONS)",
     "parent": "Housing",
@@ -15033,7 +15171,7 @@
     ]
   },
   {
-    "position": 55,
+    "position": 58,
     "label": "England world ranking",
     "note": "England men’s national football team official world ranking (FIFA)",
     "parent": "Other",
@@ -15337,7 +15475,7 @@
     ]
   },
   {
-    "position": 56,
+    "position": 59,
     "label": "Visas granted",
     "note": "Number of visas granted in the past year, excluding visitor visas (Home Office)",
     "parent": "Immigration",
@@ -15431,7 +15569,7 @@
     ]
   },
   {
-    "position": 57,
+    "position": 60,
     "label": "Live births",
     "note": "Number of live births registered each year in England and Wales (ONS)",
     "parent": "Other",
