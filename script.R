@@ -1246,6 +1246,13 @@ if (!quick) {
              up = 'bad',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = petrol),
+    hp %>%
+      mutate(label = 'House prices',
+             up = 'neutral',
+             note = "Rolling annual average of sold UK house prices (Land Registry)",
+             parent = 'Housing',
+             unit = '£') %>%
+      select(label, note, parent, date, up, unit, 'total' = price),
     mortgage_rates %>%
       mutate(label = 'Average 2-year mortgage rate',
              note = 'Average rate on new 2-year fixed mortgages (Moneyfacts)',
@@ -1253,13 +1260,6 @@ if (!quick) {
              up = 'bad',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = rate_2yr),
-    mortgage_rates %>%
-      mutate(label = 'Average 5-year mortgage rate',
-             note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
-             parent = 'Living standards',
-             up = 'bad',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = rate_5yr),
     diesel %>%
       mutate(label = 'Diesel price',
              note = "Price of a litre of diesel (DESNZ)",
@@ -1267,6 +1267,13 @@ if (!quick) {
              up = 'bad',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = diesel),
+    rent %>%
+      mutate(label = 'Renting a 2-bed',
+             note = "Cost of privately renting a 2-bed property (ONS)",
+             parent = 'Housing',
+             up = 'bad',
+             unit = '£') %>%
+      select(label, note, parent, date, up, unit, 'total' = rent2bed),
     boats %>%
       mutate(label = 'Small boat crossings',
              note = "Number of people who have crossed the Channel in the past year (Home Office)",
@@ -1316,6 +1323,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = payroll),
+    mortgage_rates %>%
+      mutate(label = 'Average 5-year mortgage rate',
+             note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
+             parent = 'Living standards',
+             up = 'bad',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = rate_5yr),
     wages %>%
       mutate(label = 'Real wages',
              note = "Average weekly wage, adjusted for inflation (ONS)",
@@ -1372,13 +1386,6 @@ if (!quick) {
              up = 'bad',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = psnb),
-    hp %>%
-      mutate(label = 'House prices',
-             up = 'neutral',
-             note = "Rolling annual average of sold UK house prices (Land Registry)",
-             parent = 'Housing',
-             unit = '£') %>%
-      select(label, note, parent, date, up, unit, 'total' = price),
     prison %>%
       mutate(label = 'Prisoners',
              note = "Total prison population (Ministry of Justice)",
@@ -1484,13 +1491,6 @@ if (!quick) {
              up = 'good',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = flights),
-    rent %>%
-      mutate(label = 'Renting a 2-bed',
-             note = "Cost of privately renting a 2-bed property (ONS)",
-             parent = 'Housing',
-             up = 'bad',
-             unit = '£') %>%
-      select(label, note, parent, date, up, unit, 'total' = rent2bed),
     debitcard %>%
       mutate(label = 'Debit card spend',
              up = 'good',
@@ -1622,7 +1622,7 @@ if (!quick) {
              note = "Ratio of house prices to average annual wages (ONS)",
              parent = 'Housing',
              up = 'bad',
-             unit = '') %>%
+             unit = 'x') %>%
       select(label, note, parent, date, up, unit, 'total' = ratio),
     eng %>%
       mutate(label = 'England world ranking',
