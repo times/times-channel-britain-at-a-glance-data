@@ -1218,13 +1218,6 @@ write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 if (!quick) {
 
   master <- bind_rows(list(
-    gdp.monthly %>%
-      mutate(label = 'GDP growth (annual rate)',
-             up = 'good',
-             note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
-             parent = 'Economy',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = gdp),
     inf %>%
       mutate(label = 'Inflation',
              up = 'bad',
@@ -1232,6 +1225,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = inf),
+    gdp.monthly %>%
+      mutate(label = 'GDP growth (annual rate)',
+             up = 'good',
+             note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
+             parent = 'Economy',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = gdp),
     unemp %>%
       mutate(label = 'Unemployment',
              up = 'bad',
