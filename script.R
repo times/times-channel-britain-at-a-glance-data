@@ -120,7 +120,7 @@ if (!quick) {
 
 #1. INFLATION
 
-inf <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7g7/mm23') %>%
+inf <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7g7/mm23') %>%
   slice(220:nrow(.)) %>%
   select('date' = 1, 'inf' = 2) %>%
   mutate(date = ym(date),
@@ -128,7 +128,7 @@ inf <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflat
 
 #2. REAL GDP PER CAPITA
 
-gdp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2') %>%
+gdp <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ihxw/pn2') %>%
   slice(190:nrow(.)) %>%
   select('date' = 1, 'gdp' = 2) %>%
   mutate(date = yq(date) + months(3) - days(1),
@@ -138,7 +138,7 @@ gdp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossd
 
 #3. UNEMPLOYMENT
 
-unemp <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms') %>%
+unemp <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peoplenotinwork/unemployment/timeseries/mgsx/lms') %>%
   slice(310:nrow(.)) %>%
   select('date' = 1, 'unem' = 2) %>%
   mutate(date = ym(date),
@@ -258,7 +258,7 @@ if (!quick) {
 
 #10. INACTIVITY BY REASON
 
-inac <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peoplenotinwork/economicinactivity/timeseries/lf69/lms') %>%
+inac <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peoplenotinwork/economicinactivity/timeseries/lf69/lms') %>%
   slice(300:nrow(.)) %>%
   rename('date' = 1, 'total' = 2) %>%
   mutate(date = lubridate::ym(date), 
@@ -305,11 +305,11 @@ vac <- 'https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmark
 
 #13. real wages (regular pay seasonally adjusted)
 
-wages <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai7/emp',
+wages <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kai7/emp',
                   skip = 150) %>%
   select('date' = 1, 'pay' = 2)  %>%
   mutate(date = lubridate::ym(date)) %>%
-  left_join(read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7bt/mm23')  %>%
+  left_join(safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7bt/mm23')  %>%
               slice(200:nrow(.)) %>%
               select('date' = 1, 'inf' = 2) %>%
               mutate(date = lubridate::ym(date),
@@ -840,7 +840,7 @@ beds <- read_excel('downloads/beds.xlsx', 2, skip = 12) %>%
 
 # 33. national debt
 
-debt <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/hf6w/pusf') %>%
+debt <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/hf6w/pusf') %>%
   slice(300:nrow(.)) %>%
   select('date' = 1, 'debt' = 2) %>%
   mutate(date= lubridate::ym(date),
@@ -853,7 +853,7 @@ debt <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/gover
 house.price.earnings <- read.csv('https://landregistry.data.gov.uk/app/ukhpi/download/new.csv?from=1991-01-01&location=http%3A%2F%2Flandregistry.data.gov.uk%2Fid%2Fregion%2Funited-kingdom&thm%5B%5D=property_type&in%5B%5D=avg') %>%
   filter(`Reporting.period` == 'monthly') %>%
   (\(d) { pc <- grep('All.property|Pob.math', names(d), ignore.case = TRUE)[1]; tibble(date = ym(d$Period), price = as.numeric(d[[pc]])) })() %>%
-  left_join(read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kab9/emp') %>%
+  left_join(safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/timeseries/kab9/emp') %>%
               slice(140:nrow(.)) %>%
               rename('date' = 1, 'earn' = 2) %>%
               mutate(date = lubridate::ym(date), earn =  as.numeric(earn),
@@ -904,7 +904,7 @@ payrolled <- read_excel('downloads/rti_sa.xlsx',skip = 4, 2) %>%
 
 # Official annual (year-on-year) growth rate from the monthly GDP release
 # (ED2R, dataset MGDP) — chained-volume, seasonally-adjusted, updates monthly.
-gdp.monthly <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ed2r/mgdp') %>%
+gdp.monthly <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/ed2r/mgdp') %>%
   slice(8:nrow(.)) %>%
   select('date' = 1, 'gdp' = 2) %>%
   mutate(date = ym(date),
@@ -1011,7 +1011,7 @@ vehicle <- read_excel('downloads/cars.xlsx', 6, skip = 5) %>%
 
 #46. Real household disposable income
 
-rhdi <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/crxx/ukea' , skip = 100)  %>%
+rhdi <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/grossdomesticproductgdp/timeseries/crxx/ukea' , skip = 100)  %>%
   select('date' = 1, 'rhdi' = 2) %>%
   mutate(date = lubridate::yq(date) + months(3) - days(1),
          rhdi = 4*as.numeric(rhdi))
@@ -1118,7 +1118,7 @@ mortgage_arrears <- tibble(
 
 #51. Public sector net borrowing (monthly)
 
-psnb <- read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/j5ii/pusf',
+psnb <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/governmentpublicsectorandtaxes/publicsectorfinance/timeseries/j5ii/pusf',
                   show_col_types = FALSE, col_names = FALSE) %>%
   rename('date' = 1, 'psnb' = 2) %>%
   filter(grepl('^[0-9]{4} [A-Z]{3}$', date)) %>%
@@ -1225,6 +1225,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = inf),
+    consumer %>%
+      mutate(label = 'Consumer confidence',
+             note = "Long-running index of consumers' financial mood (GfK)",
+             parent = 'Living standards',
+             up = 'good',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = consumer),
     gdp.monthly %>%
       mutate(label = 'GDP growth (annual rate)',
              up = 'good',
@@ -1288,13 +1295,6 @@ if (!quick) {
              parent = 'Living standards',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = rate),
-    consumer %>%
-      mutate(label = 'Consumer confidence',
-             note = "Long-running index of consumers' financial mood (GfK)",
-             parent = 'Living standards',
-             up = 'good',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = consumer),
     pint %>%
       mutate(label = 'Price of a pint',
              note = "Average price of a pint of premium lager (ONS)",
