@@ -20,7 +20,7 @@ if git diff --quiet sparklines-page.json sparklines-slice.json; then
 fi
 
 echo "--- Committing and pushing ---"
-git add sparklines-page.json sparklines-slice.json
+git add sparklines-page.json sparklines-slice.json data/moneyfacts_mortgage_historic.csv
 git commit -m "Quick update: $(date '+%Y-%m-%d %H:%M')"
 # Note: in a sandboxed/CI shell, git push can fail with "Missing or invalid
 # credentials" if the macOS Keychain credential helper can't run (needs full
