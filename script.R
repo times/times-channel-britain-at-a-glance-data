@@ -682,7 +682,7 @@ absence <- read_csv('downloads/data/Absence_2term_nat_reg_la_termly.csv') %>%
 # 24d. GCSE ATTAINMENT (grade 5+ English & maths, annual, England)
 
 safe_download(
-  'https://content.explore-education-statistics.service.gov.uk/api/releases/5f2cbd6f-3524-4947-8c2c-08df1a222654/files?fromPage=ReleaseDownloads',
+  'https://content.explore-education-statistics.service.gov.uk/api/releases/365271b7-7f8e-486b-bfdc-319204b3b8c7/files?fromPage=ReleaseDownloads',
   'downloads/gcse.zip'
 )
 
@@ -1274,13 +1274,13 @@ if (!quick) {
              up = 'bad',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = diesel),
-    rent %>%
-      mutate(label = 'Renting a 2-bed',
-             note = "Cost of privately renting a 2-bed property (ONS)",
-             parent = 'Housing',
+    debt %>%
+      mutate(label = 'National debt',
+             note = "Size of the national debt (ONS)",
+             parent = 'Government',
              up = 'bad',
              unit = '£') %>%
-      select(label, note, parent, date, up, unit, 'total' = rent2bed),
+      select(label, note, parent, date, up, unit, 'total' = debt),
     boats %>%
       mutate(label = 'Small boat crossings',
              note = "Number of people who have crossed the Channel in the past year (Home Office)",
@@ -1323,13 +1323,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = payroll),
-    mortgage_rates %>%
-      mutate(label = 'Average 5-year mortgage rate',
-             note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
-             parent = 'Living standards',
-             up = 'bad',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = rate_5yr),
+    gdp %>%
+      mutate(label = 'Real GDP per capita',
+             up = 'good',
+             note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
+             parent = 'Economy',
+             unit = '£') %>%
+      select(label, note, parent, date, up, unit, 'total' = gdp),
     wages %>%
       mutate(label = 'Real wages',
              note = "Average weekly wage, adjusted for inflation (ONS)",
@@ -1365,20 +1365,20 @@ if (!quick) {
              up = 'good',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = vacancies),
-    gdp %>%
-      mutate(label = 'Real GDP per capita',
-             up = 'good',
-             note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
-             parent = 'Economy',
-             unit = '£') %>%
-      select(label, note, parent, date, up, unit, 'total' = gdp),
-    debt %>%
-      mutate(label = 'National debt',
-             note = "Size of the national debt (ONS)",
-             parent = 'Government',
+    mortgage_rates %>%
+      mutate(label = 'Average 5-year mortgage rate',
+             note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
+             parent = 'Living standards',
+             up = 'bad',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = rate_5yr),
+    rent %>%
+      mutate(label = 'Renting a 2-bed',
+             note = "Cost of privately renting a 2-bed property (ONS)",
+             parent = 'Housing',
              up = 'bad',
              unit = '£') %>%
-      select(label, note, parent, date, up, unit, 'total' = debt),
+      select(label, note, parent, date, up, unit, 'total' = rent2bed),
     psnb %>%
       mutate(label = 'Public sector net borrowing',
              note = 'Monthly government borrowing (ONS)',
