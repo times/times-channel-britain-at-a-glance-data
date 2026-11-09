@@ -7,6 +7,9 @@ This repo powers the sparklines at thetimes.com/uk and thetimes.com/data.
 - **"update times data"** or **"full update times data"** → run `bash update.sh`. Runs `Rscript script.R` (fetches all ~58 series), checks whether the JSONs changed, commits and pushes to GitHub, which auto-deploys the sparklines.
 - **"quick update times data"** → run `bash quick-update.sh`. Runs `Rscript script.R --quick`, which only refetches the fast-moving daily/weekly series (petrol, diesel, gilts, small boat crossings, BoE base rate, mortgage rates) and reuses the last full run's values for everything else. Needs an existing `sparklines-page.json` from a prior full run.
 
+## "Update numbers you need" (Trendline newsletter)
+- **"update numbers you need"** (or "numbers you need to know", "trendline numbers") → run the **Trendline Numbers** subagent (`.github/agents/trendline-numbers.agent.md`). Trendline goes out Thursday afternoons; the agent finds tracked series released in the week up to the next edition (already out + still to come). Relay its output to the user verbatim.
+
 ## Sync first
 For any task that will edit files in this repo, first check the remote branch state and pull/rebase before making changes. If the branch is not up to date, sync it before editing so we do not build on stale local state.
 
