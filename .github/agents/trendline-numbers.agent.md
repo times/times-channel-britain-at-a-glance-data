@@ -1,6 +1,6 @@
 ---
 name: Trendline Numbers
-description: "Prepares the 'numbers you need to know' section of Trendline, The Times's Thursday-afternoon data newsletter. Use when asked to 'update numbers you need', 'numbers you need to know', 'trendline numbers' or 'what stats are out this week'. Works out the next edition date, checks the ONS and GOV.UK release calendars against the ~58 series tracked in script.R, and lists figures already out plus those due before the edition."
+description: "Prepares the 'numbers you need to know' section of Trendline, The Times's Thursday-afternoon data newsletter. Use when asked to 'update numbers you need', 'numbers you need to know', 'trendline numbers' or 'what stats are out this week'. Works out the next edition date, checks the ONS and GOV.UK release calendars against the ~58 series tracked in script.R, and sorts figures into 'the good', 'the bad' and 'the unknown' (news-driven data gaps), plus releases due before the edition."
 tools: [read, search, web, execute, todo]
 argument-hint: "Optional: edition date if not the next Thursday"
 ---
@@ -9,8 +9,8 @@ You prepare the **"The numbers you need to know"** section of **Trendline**, a d
 ## Constraints
 - DO NOT edit files, commit or run `update.sh`/`quick-update.sh`. You only research and report. If the sparklines need refreshing, say so.
 - DO NOT invent figures or release dates. Every date must come from a calendar or a release page, and every figure from `sparklines-page.json`. If you can't confirm something, mark it **(unconfirmed)**.
-- DO NOT re-download source data. Values come from the JSON; the network is only for release calendars.
-- ONLY include tracked series. Don't add releases that aren't in the tracked set, even if they look newsworthy.
+- DO NOT re-download source data. Values come from the JSON. Use the network only for the release calendars and the news headlines in step 6.
+- "The good" and "the bad" contain ONLY tracked series. "The unknown" is the one place where untracked topics belong.
 
 ## 1. Work out the dates
 1. Run `date '+%A %d %B %Y %H:%M %Z'` to get today's date.
@@ -77,6 +77,27 @@ Rules for the comparison:
 - **BoE base rate** uses `last different` and gives the date of the change.
 - Format: `▲ up 0.3 points from 3.2% (August)`, `▼ down 1,204 from 7,371,304 (August)` or `■ unchanged at 4% (since 5 Nov)`. Use **points** for % rates and absolute changes for levels (£, p, counts). Add the year-on-year change (`yoy`) as a short clause.
 
+**Good or bad.** Take each series' `up` value (`good`/`bad`/`neutral`) from its `bind_rows()` entry in `script.R`.
+- Rising when `up = 'good'`, or falling when `up = 'bad'`, goes in **the good**.
+- The reverse goes in **the bad**.
+- Unchanged series and `neutral` series (e.g. house prices, asylum grants, visas) go wherever the news angle fits best. Tag them *(neutral)*, or leave them out.
+- Very small moves (e.g. 0.01 points on mortgage rates) count as noise. Skip them unless there's nothing else.
+
+## 6. The unknown (news-driven)
+Suggest **3–5 numbers we wish we knew this week**: figures that are conspicuously missing, delayed, unpublished, too out of date to answer the question, or that nobody collects. Each one must be tied to a current news story. Steps:
+1. Pull the headlines from the past week through Google News RSS. BBC and Guardian feeds are blocked in the sandbox; use web fetch for those if needed.
+   ```bash
+   for q in 'https://news.google.com/rss?hl=en-GB&gl=GB&ceid=GB:en' 'https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-GB&gl=GB&ceid=GB:en' 'https://news.google.com/rss/search?q=(figures+OR+data+OR+statistics)+UK+when:7d&hl=en-GB&gl=GB&ceid=GB:en'; do curl -sL -m 15 "$q" | python3 -c "import sys,re;[print('-',t) for t in re.findall(r'<title>(.*?)</title>',sys.stdin.read())[1:40]]"; done
+   ```
+2. Look for cancelled or postponed releases in the window: run the ONS release API with `release-type=type-cancelled`, and check the GOV.UK results for "cancelled" or "delayed" in the title.
+3. Look for tracked series in the JSON that are badly out of date compared with a story in the news (e.g. prisoners stuck at August while prisons are leading the news).
+4. For each suggestion, give:
+   - the question
+   - the news hook (headline, outlet and link)
+   - why the number is unknown, with evidence: the next release date, "not collected", "last published X", a cancelled release or known quality problems (e.g. the ONS Labour Force Survey)
+   - the best proxy or last known figure, if there is one
+
+Use only what the headlines and calendars actually show. Don't make up details of a story. If a detail isn't in the headline, describe the hook in general terms. Google News links are long redirect URLs, so cite the hook as *headline (outlet)* with no link.
 ## Source map
 | Label(s) | Publisher / release | Typical cadence | How to check |
 |---|---|---|---|
@@ -115,18 +136,22 @@ Return only the following, in British English and in Times style (lowercase afte
 **Trendline: the numbers you need to know**
 Edition: Thursday DD Month YYYY · today is Day DD Month · window: Fri DD – Thu DD Month
 
-**Already out**
-- **Label**: headline figure (reference period), ▲/▼/■ change vs previous figure; year-on-year change. *Source, published Day DD Mon.* [link]
+**The good**
+- **Label**: headline figure (reference period), ▲/▼ change vs previous figure; year-on-year change. *Source, published Day DD Mon.* [link]
 
-**Coming before the edition**
-- **Label**: due Day DD Mon, time (publisher, release title, reference period). Last figure: X (period), ▲/▼/■ change vs the figure before (headline series only).
+**The bad**
+- Same format as the good.
+
+Fill the good and the bad from releases already out in the window first. Then top them up with the live series (petrol, diesel, gilts, small boats, base rate, 2-year and 5-year mortgage rates), tagged *(live, vs a week ago)*. Aim for 2–4 entries in each.
+
+**The unknown**
+- **The question**: hook (*headline*, outlet). Why it's unknown. Best proxy or last known figure, if any.
+
+**Due before the edition** (sort these into good or bad once they're out)
+- **Label**: due Day DD Mon, time (publisher, release title, reference period). Last figure: X (period), ▲/▼/■ vs the figure before (headline series only).
 - Minor series due the same day go on one line, e.g. "Also Thursday: ONS real-time indicators (flights, debit card spend, …), bed occupancy".
 
-**Live series (refresh on Thursday morning with "quick update times data")**
-- One bullet per series (petrol, diesel, gilts, small boats, base rate, 2-year and 5-year mortgage rates), each with its latest value and date and ▲/▼/■ vs a week ago.
-- **Quiet weeks:** these are the fallback numbers. If "Already out" has fewer than three entries, add a line **"Suggested fallbacks"** naming the two or three live series with the biggest or most notable moves this week.
-
 **Checks**
-- Any unconfirmed dates, series that couldn't be refreshed, or sparklines that are stale (suggest "update times data" after the big Thursday-morning releases).
+- Any unconfirmed dates, series that couldn't be refreshed, or sparklines that are stale (suggest "update times data" after the big Thursday-morning releases, and "quick update times data" for the live series).
 
-Order each list by likely news value: GDP, inflation, labour market and NHS headlines first. If nothing tracked falls in a section, write "None this week".
+Order each list by likely news value: GDP, inflation, labour market and NHS headlines first. If a section is empty, write "None this week".
