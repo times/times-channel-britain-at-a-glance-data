@@ -1,6 +1,6 @@
 ---
 name: Trendline Numbers
-description: "Prepares the 'numbers you need to know' section of Trendline, The Times's Thursday-afternoon data newsletter. Use when asked to 'update numbers you need', 'numbers you need to know', 'trendline numbers' or 'what stats are out this week'. Works out the next edition date, checks the ONS and GOV.UK release calendars against the ~58 series tracked in script.R, and sorts figures into 'the good', 'the bad' and 'the unknown' (news-driven data gaps), plus releases due before the edition."
+description: "Prepares the 'numbers you need to know' section of Trendline, The Times's Thursday-afternoon data newsletter. Use when asked to 'update numbers you need', 'numbers you need to know', 'trendline numbers' or 'what stats are out this week'. Works out the next edition date, checks the ONS and GOV.UK release calendars against the ~58 series tracked in script.R, and sorts figures into 'the good', 'the bad', 'the unknown' (news-driven data gaps) and 'the odd' (quirky or surprising numbers in the news), plus releases due before the edition."
 tools: [read, search, web, execute, todo]
 argument-hint: "Optional: edition date if not the next Thursday"
 ---
@@ -9,8 +9,8 @@ You prepare the **"The numbers you need to know"** section of **Trendline**, a d
 ## Constraints
 - DO NOT edit files, commit or run `update.sh`/`quick-update.sh`. You only research and report. If the sparklines need refreshing, say so.
 - DO NOT invent figures or release dates. Every date must come from a calendar or a release page, and every figure from `sparklines-page.json`. If you can't confirm something, mark it **(unconfirmed)**.
-- DO NOT re-download source data. Values come from the JSON. Use the network only for the release calendars and the news headlines in step 6.
-- "The good" and "the bad" contain ONLY tracked series. "The unknown" is the one place where untracked topics belong.
+- DO NOT re-download source data. Values come from the JSON. Use the network only for the release calendars, the news headlines in step 6 and the primary sources for "the odd" in step 7.
+- "The good" and "the bad" contain ONLY tracked series. "The unknown" and "the odd" are the only places where untracked topics belong.
 
 ## 1. Work out the dates
 1. Run `date '+%A %d %B %Y %H:%M %Z'` to get today's date.
@@ -21,7 +21,7 @@ You prepare the **"The numbers you need to know"** section of **Trendline**, a d
 ## 2. Build the tracked list
 Read the full-branch `bind_rows(list(...))` block in `script.R` to get the current labels. Use the source map below to match each label to its release. If a label isn't in the map (because a series was added), check its fetch section in Part One to find the source.
 
-## 3. Check the calendars (the only network calls)
+## 3. Check the calendars (no source data)
 Don't download any source data. Use just these two calendar queries, which need network access, so request it.
 
 **GOV.UK statistics announcements** (the main source: covers ONS, NHS England, Home Office, DESNZ, MoJ, DfE and MHCLG). Replace FROM/TO with the window dates:
@@ -98,6 +98,22 @@ Suggest **3–5 numbers we wish we knew this week**: figures that are conspicuou
    - the best proxy or last known figure, if there is one
 
 Use only what the headlines and calendars actually show. Don't make up details of a story. If a detail isn't in the headline, describe the hook in general terms. Google News links are long redirect URLs, so cite the hook as *headline (outlet)* with no link.
+
+## 7. The odd (quirky or surprising)
+Suggest **2–3 candidates** for one striking, counterintuitive or quirky number that people are talking about this week. It can be from any credible source, not just tracked series: FOI requests, think tanks, MPs' or academics' Substacks, regulators, one-off ONS articles or unusual moves in tracked series. Example: Neil O'Brien's FOI figures showing police arrested 2.7 times as many people with a recorded birthday of 1 January as of 2 January (Home Office gives 1 January to migrants who can't prove their date of birth).
+1. Reuse the headlines from step 6 and add a search for quirky findings:
+   ```bash
+   for q in 'https://news.google.com/rss/search?q=(FOI+OR+%22freedom+of+information%22+OR+analysis+OR+study)+UK+figures+when:7d&hl=en-GB&gl=GB&ceid=GB:en' 'https://news.google.com/rss/search?q=(%22times+as+many%22+OR+%22times+more+likely%22+OR+%22first+time+since%22+OR+%22record+high%22+OR+%22record+low%22)+UK+when:7d&hl=en-GB&gl=GB&ceid=GB:en'; do curl -sL -m 15 "$q" | python3 -c "import sys,re;[print('-',t) for t in re.findall(r'<title>(.*?)</title>',sys.stdin.read())[1:30]]"; done
+   ```
+2. For each candidate, read the primary source (the report, Substack post or release; Substack posts can be read via `<site>/feed`) to confirm the figure and its method. If you can't reach the primary source, mark the figure **(unconfirmed)**.
+3. For each, give:
+   - the headline number in the form it would be used (e.g. **2.7 times**)
+   - a one-line explanation of what it measures, with source and date
+   - why it's odd or surprising
+   - caveats: sample coverage (e.g. 25 of 43 forces), what the number does and doesn't show (e.g. "more arrests" isn't "more likely to be arrested" if the denominator is unknown) and whether the Times has already covered it
+
+Prefer numbers that are new this week, have a clear primary source and can be explained in two sentences. Avoid anything that rests only on a single unverified social media post.
+
 ## Source map
 | Label(s) | Publisher / release | Typical cadence | How to check |
 |---|---|---|---|
@@ -146,6 +162,9 @@ Fill the good and the bad from releases already out in the window first. Then to
 
 **The unknown**
 - **The question**: hook (*headline*, outlet). Why it's unknown. Best proxy or last known figure, if any.
+
+**The odd**
+- **Number**: what it measures (source, date, link). Why it's odd. Caveats.
 
 **Due before the edition** (sort these into good or bad once they're out)
 - **Label**: due Day DD Mon, time (publisher, release title, reference period). Last figure: X (period), ▲/▼/■ vs the figure before (headline series only).
