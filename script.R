@@ -18,6 +18,8 @@ safe_download <- function(url, destfile, retries = 3, pause = 10, ...) {
 # Retry wrapper for read_html — same rate-limiting protection
 safe_read_html <- function(url, retries = 3, pause = 10, ...) {
   Sys.sleep(3)
+  # NHS England's CDN serves stale listing pages for a while after a release; a unique query string bypasses it
+  if (grepl('england\\.nhs\\.uk', url)) url <- paste0(url, ifelse(grepl('\\?', url), '&', '?'), 'nocache=', as.integer(Sys.time()))
   for (i in seq_len(retries)) {
     result <- tryCatch(rvest::read_html(url, ...), error = function(e) e)
     if (!inherits(result, 'error')) return(result)
