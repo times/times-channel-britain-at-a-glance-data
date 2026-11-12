@@ -1225,13 +1225,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = inf),
-    consumer %>%
-      mutate(label = 'Consumer confidence',
-             note = "Long-running index of consumers' financial mood (GfK)",
-             parent = 'Living standards',
+    gdp %>%
+      mutate(label = 'Real GDP per capita',
              up = 'good',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = consumer),
+             note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
+             parent = 'Economy',
+             unit = '£') %>%
+      select(label, note, parent, date, up, unit, 'total' = gdp),
     gdp.monthly %>%
       mutate(label = 'GDP growth (annual rate)',
              up = 'good',
@@ -1323,13 +1323,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = payroll),
-    gdp %>%
-      mutate(label = 'Real GDP per capita',
+    consumer %>%
+      mutate(label = 'Consumer confidence',
+             note = "Long-running index of consumers' financial mood (GfK)",
+             parent = 'Living standards',
              up = 'good',
-             note = "Annualised quarterly GDP per person, adjusted for inflation (ONS)",
-             parent = 'Economy',
-             unit = '£') %>%
-      select(label, note, parent, date, up, unit, 'total' = gdp),
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = consumer),
     wages %>%
       mutate(label = 'Real wages',
              note = "Average weekly wage, adjusted for inflation (ONS)",
