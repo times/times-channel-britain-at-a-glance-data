@@ -14,9 +14,12 @@ This repo powers the sparklines at thetimes.com/uk and thetimes.com/data.
 For any task that will edit files in this repo, first check the remote branch state and pull/rebase before making changes. If the branch is not up to date, sync it before editing so we do not build on stale local state.
 
 ## Reordering sparklines
-Prompts like **"reorder: 1. rhdi, 2. small boats, 3. nhs waits"** mean: move those items to the top of the `bind_rows(list(...))` block in the STEP TWO section of `script.R`, leaving everything else in its current order. Then run the **full** `update.sh` — never `quick-update.sh`.
+Prompts like **"reorder: 1. rhdi, 2. small boats, 3. nhs waits"** mean: move those items to the top, leaving everything else in its current order. Run `bash reorder.sh "Real disposable income" "Small boat crossings" "NHS waiting list"` — no data refetch needed. It runs `reorder.R`, which:
+- rewrites `position` in `sparklines-page.json` and `sparklines-slice.json` (live immediately, and kept by quick updates, which copy positions from the previous JSON)
+- reorders the full-branch `bind_rows(list(...))` block in STEP TWO of `script.R`, so the next full update produces the same order
+- then commits and pushes
 
-Reordering never works on a quick update: quick mode doesn't rebuild `position` from the list order, it just copies each label's last-known `position` straight out of the previous `sparklines-page.json` and only refreshes the values for its 6 fast-moving series. Any position change requires editing `bind_rows()` and running a full update so `position` gets recalculated for every label.
+Labels match case-insensitively, and a partial name works if it matches only one label (e.g. "gdp growth" → "GDP growth (annual rate)"); ambiguous or unknown names stop with an error listing the candidates. Use this rather than hand-editing `bind_rows()`, which only takes effect after a full update.
 
 ## Script structure
 - **Part One**: each numbered section fetches one data series

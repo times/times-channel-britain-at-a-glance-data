@@ -1220,13 +1220,13 @@ write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 if (!quick) {
 
   master <- bind_rows(list(
-    inf %>%
-      mutate(label = 'Inflation',
+    waits %>%
+      mutate(label = 'NHS waiting list',
+             note = "Total size of waiting list (NHS England)",
+             parent = 'Health',
              up = 'bad',
-             note = "Consumer prices index, change on previous 12 months (ONS)",
-             parent = 'Economy',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = inf),
+             unit = '') %>%
+      select(label, note, parent, date, up, unit, total),
     gdp %>%
       mutate(label = 'Real GDP per capita',
              up = 'good',
@@ -1241,6 +1241,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = gdp),
+    inf %>%
+      mutate(label = 'Inflation',
+             up = 'bad',
+             note = "Consumer prices index, change on previous 12 months (ONS)",
+             parent = 'Economy',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = inf),
     unemp %>%
       mutate(label = 'Unemployment',
              up = 'bad',
@@ -1248,6 +1255,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = unem),
+    consumer %>%
+      mutate(label = 'Consumer confidence',
+             note = "Long-running index of consumers' financial mood (GfK)",
+             parent = 'Living standards',
+             up = 'good',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = consumer),
     petrol %>%
       mutate(label = 'Petrol price',
              note = "Price of a litre of unleaded petrol (DESNZ)",
@@ -1325,13 +1339,6 @@ if (!quick) {
              parent = 'Economy',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = payroll),
-    consumer %>%
-      mutate(label = 'Consumer confidence',
-             note = "Long-running index of consumers' financial mood (GfK)",
-             parent = 'Living standards',
-             up = 'good',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = consumer),
     wages %>%
       mutate(label = 'Real wages',
              note = "Average weekly wage, adjusted for inflation (ONS)",
@@ -1451,13 +1458,6 @@ if (!quick) {
              up = 'good',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = aps),
-    waits %>%
-      mutate(label = 'NHS waiting list',
-             note = "Total size of waiting list (NHS England)",
-             parent = 'Health',
-             up = 'bad',
-             unit = '') %>%
-      select(label, note, parent, date, up, unit, total),
     neets %>%
       mutate(label = 'NEETS aged 16-24',
              note = "Percentage of people aged 16-24 who are not in employment, education or training (Department for Education)",
