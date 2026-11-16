@@ -5,3 +5,4 @@
 downloads/
 *.log
 .DS_Store
+.Renviron

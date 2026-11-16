@@ -37,3 +37,11 @@ Labels match case-insensitively, and a partial name works if it matches only one
 
 ## Key sources
 ONS (most series), NHS England, Bank of England, Land Registry, Home Office, RAC, YouGov, GfK, FRED
+
+## Welfare at a glance (Times Welfare Inquiry)
+`welfare.R` fetches 16 welfare series and writes `welfare_page.json` (same JSON shape as `sparklines-page.json`, but ~10 years of history via `start_date`). It is standalone: it has its own copies of the `safe_*` helpers and `compute_file()`, so changes to `script.R` don't affect it.
+- **"update welfare data"** → run `bash update-welfare.sh`. Runs `Rscript welfare.R`, commits and pushes `welfare_page.json` if it changed. `update.sh` / `reorder.sh` do not touch the welfare file.
+- Order in the STEP TWO `bind_rows()` sets `position`; categories (`parent`) are Health and disability, Work, Housing, Spending, Living standards.
+- DWP caseloads (sickness benefits, PIP, UC no work requirements) come from the **Stat-Xplore API** via `sx_table()`. The key lives in a gitignored `.Renviron` as `STATXPLORE_API_KEY=...` — never commit it.
+- Spending series come from DWP's benefit expenditure and caseload tables (latest publication found dynamically; outturn years only). Child poverty from the HBAI summary ODS, temporary accommodation from MHCLG's homelessness time series ODS, median pay from the ASHE selected estimates file.
+- Minimum wage pre-April 2019 and state pension pre-current-year values are hardcoded in `welfare.R`; the current rates are scraped from GOV.UK each run.
