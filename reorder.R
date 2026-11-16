@@ -23,6 +23,16 @@ match_label <- function(query, labels) {
   if (length(exact) == 1) return(exact)
   partial <- labels[grepl(normalise(query), normalise(labels), fixed = TRUE)]
   if (length(partial) == 1) return(partial)
+  # Fallback: every query word (minus a plural "s") starts a word in the label, e.g. "small boats" -> "Small boat crossings"
+  if (length(partial) == 0) {
+    words <- sub('s$', '', strsplit(tolower(query), '[^a-z0-9]+')[[1]])
+    words <- words[nchar(words) > 0]
+    partial <- labels[sapply(labels, function(l) {
+      lw <- strsplit(tolower(l), '[^a-z0-9]+')[[1]]
+      all(sapply(words, function(w) any(startsWith(lw, w))))
+    })]
+    if (length(partial) == 1) return(partial)
+  }
   if (length(partial) == 0) stop('No label matches "', query, '"')
   stop('"', query, '" matches more than one label: ', paste(partial, collapse = ', '))
 }
