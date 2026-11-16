@@ -1220,6 +1220,13 @@ write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 if (!quick) {
 
   master <- bind_rows(list(
+    boats %>%
+      mutate(label = 'Small boat crossings',
+             note = "Number of people who have crossed the Channel in the past year (Home Office)",
+             parent = 'Immigration',
+             up = 'bad',
+             unit = '') %>%
+      select(label, note, parent, date, up, unit, 'total' = rolling),
     waits %>%
       mutate(label = 'NHS waiting list',
              note = "Total size of waiting list (NHS England)",
@@ -1297,13 +1304,6 @@ if (!quick) {
              up = 'bad',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = debt),
-    boats %>%
-      mutate(label = 'Small boat crossings',
-             note = "Number of people who have crossed the Channel in the past year (Home Office)",
-             parent = 'Immigration',
-             up = 'bad',
-             unit = '') %>%
-      select(label, note, parent, date, up, unit, 'total' = rolling),
     br %>%
       mutate(label = 'BoE base rate',
              up = 'bad',
