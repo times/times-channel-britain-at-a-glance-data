@@ -1271,6 +1271,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = inf),
+    mortgage_rates %>%
+      mutate(label = 'Average 2-year mortgage rate',
+             note = 'Average rate on new 2-year fixed mortgages (Moneyfacts)',
+             parent = 'Living standards',
+             up = 'bad',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = rate_2yr),
     consumer %>%
       mutate(label = 'Consumer confidence',
              note = "Long-running index of consumers' financial mood (GfK)",
@@ -1292,13 +1299,6 @@ if (!quick) {
              parent = 'Housing',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = price),
-    mortgage_rates %>%
-      mutate(label = 'Average 2-year mortgage rate',
-             note = 'Average rate on new 2-year fixed mortgages (Moneyfacts)',
-             parent = 'Living standards',
-             up = 'bad',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = rate_2yr),
     diesel %>%
       mutate(label = 'Diesel price',
              note = "Price of a litre of diesel (DESNZ)",
