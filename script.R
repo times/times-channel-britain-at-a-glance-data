@@ -1222,6 +1222,27 @@ write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 if (!quick) {
 
   master <- bind_rows(list(
+    unemp %>%
+      mutate(label = 'Unemployment',
+             up = 'bad',
+             note = "Percentage of people not in work but looking for a job (ONS)",
+             parent = 'Economy',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = unem),
+    vac %>%
+      mutate(label = 'Job vacancies',
+             note = "Total number of job vacancies (ONS)",
+             parent = 'Economy',
+             up = 'good',
+             unit = '') %>%
+      select(label, note, parent, date, up, unit, 'total' = vacancies),
+    wages %>%
+      mutate(label = 'Real wages',
+             note = "Average weekly wage, adjusted for inflation (ONS)",
+             parent = 'Living standards',
+             up = 'good',
+             unit = '£') %>%
+      select(label, note, parent, date, up, unit, 'total' = wages),
     boats %>%
       mutate(label = 'Small boat crossings',
              note = "Number of people who have crossed the Channel in the past year (Home Office)",
@@ -1243,13 +1264,6 @@ if (!quick) {
              parent = 'Economy',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = gdp),
-    vac %>%
-      mutate(label = 'Job vacancies',
-             note = "Total number of job vacancies (ONS)",
-             parent = 'Economy',
-             up = 'good',
-             unit = '') %>%
-      select(label, note, parent, date, up, unit, 'total' = vacancies),
     inf %>%
       mutate(label = 'Inflation',
              up = 'bad',
@@ -1257,13 +1271,6 @@ if (!quick) {
              parent = 'Economy',
              unit = '%') %>%
       select(label, note, parent, date, up, unit, 'total' = inf),
-    unemp %>%
-      mutate(label = 'Unemployment',
-             up = 'bad',
-             note = "Percentage of people not in work but looking for a job (ONS)",
-             parent = 'Economy',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = unem),
     consumer %>%
       mutate(label = 'Consumer confidence',
              note = "Long-running index of consumers' financial mood (GfK)",
@@ -1341,13 +1348,6 @@ if (!quick) {
              parent = 'Economy',
              unit = '') %>%
       select(label, note, parent, date, up, unit, 'total' = payroll),
-    wages %>%
-      mutate(label = 'Real wages',
-             note = "Average weekly wage, adjusted for inflation (ONS)",
-             parent = 'Living standards',
-             up = 'good',
-             unit = '£') %>%
-      select(label, note, parent, date, up, unit, 'total' = wages),
     ren %>%
       mutate(label = 'Electricity from renewables',
              note = "Percentage of UK electricity generated through renewable sources (Department for Energy Security and Net Zero)",
