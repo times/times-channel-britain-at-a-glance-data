@@ -1241,13 +1241,13 @@ if (!quick) {
              parent = 'Economy',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = gdp),
-    gdp.monthly %>%
-      mutate(label = 'GDP growth (annual rate)',
-             up = 'good',
-             note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
+    vac %>%
+      mutate(label = 'Job vacancies',
+             note = "Total number of job vacancies (ONS)",
              parent = 'Economy',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = gdp),
+             up = 'good',
+             unit = '') %>%
+      select(label, note, parent, date, up, unit, 'total' = vacancies),
     inf %>%
       mutate(label = 'Inflation',
              up = 'bad',
@@ -1367,13 +1367,13 @@ if (!quick) {
              up = 'bad',
              unit = 'p') %>%
       select(label, note, parent, date, up, unit, 'total' = electricity),
-    vac %>%
-      mutate(label = 'Job vacancies',
-             note = "Total number of job vacancies (ONS)",
-             parent = 'Economy',
+    gdp.monthly %>%
+      mutate(label = 'GDP growth (annual rate)',
              up = 'good',
-             unit = '') %>%
-      select(label, note, parent, date, up, unit, 'total' = vacancies),
+             note = "Year-on-year growth in UK economic output, seasonally-adjusted and adjusted for inflation (ONS)",
+             parent = 'Economy',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = gdp),
     mortgage_rates %>%
       mutate(label = 'Average 5-year mortgage rate',
              note = 'Average rate on new 5-year fixed mortgages (Moneyfacts)',
