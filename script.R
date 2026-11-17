@@ -314,6 +314,8 @@ wages <- safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/employm
   left_join(safe_read_csv('https://www.ons.gov.uk/generator?format=csv&uri=/economy/inflationandpriceindices/timeseries/d7bt/mm23')  %>%
               slice(200:nrow(.)) %>%
               select('date' = 1, 'inf' = 2) %>%
+              # keep monthly rows only — ym() parses "2026 Q3" as March
+              filter(grepl('^\\d{4} [A-Z]{3}$', date)) %>%
               mutate(date = lubridate::ym(date),
                      inf = as.numeric(inf),
                      inf2 = inf / last(inf)))  %>%
