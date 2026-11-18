@@ -686,7 +686,7 @@ absence <- read_csv('downloads/data/Absence_2term_nat_reg_la_termly.csv') %>%
 # 24d. GCSE ATTAINMENT (grade 5+ English & maths, annual, England)
 
 safe_download(
-  'https://content.explore-education-statistics.service.gov.uk/api/releases/365271b7-7f8e-486b-bfdc-319204b3b8c7/files?fromPage=ReleaseDownloads',
+  'https://content.explore-education-statistics.service.gov.uk/api/releases/82886c22-59d8-489d-aa4b-92a25f3ff399/files?fromPage=ReleaseDownloads',
   'downloads/gcse.zip'
 )
 
