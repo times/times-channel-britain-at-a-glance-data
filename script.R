@@ -1222,6 +1222,13 @@ write_csv(mortgage_rates, 'data/moneyfacts_mortgage_historic.csv')
 if (!quick) {
 
   master <- bind_rows(list(
+    inf %>%
+      mutate(label = 'Inflation',
+             up = 'bad',
+             note = "Consumer prices index, change on previous 12 months (ONS)",
+             parent = 'Economy',
+             unit = '%') %>%
+      select(label, note, parent, date, up, unit, 'total' = inf),
     unemp %>%
       mutate(label = 'Unemployment',
              up = 'bad',
@@ -1264,13 +1271,6 @@ if (!quick) {
              parent = 'Economy',
              unit = '£') %>%
       select(label, note, parent, date, up, unit, 'total' = gdp),
-    inf %>%
-      mutate(label = 'Inflation',
-             up = 'bad',
-             note = "Consumer prices index, change on previous 12 months (ONS)",
-             parent = 'Economy',
-             unit = '%') %>%
-      select(label, note, parent, date, up, unit, 'total' = inf),
     mortgage_rates %>%
       mutate(label = 'Average 2-year mortgage rate',
              note = 'Average rate on new 2-year fixed mortgages (Moneyfacts)',
