@@ -34,6 +34,10 @@ Labels match case-insensitively, and a partial name works if it matches only one
 1. Add a numbered fetch section in Part One
 2. Add to `bind_rows()` in STEP TWO with `label`, `note`, `parent`, `up` (good/bad/neutral), `unit`
 3. `up = 'good'` = green when rising; `up = 'bad'` = red when rising
+4. Give it the next unused number in the `metric_ids` tribble near the top of `script.R` (the run stops if a label has no id)
+
+## Metric ids
+Each record has a permanent `id` (for developers) alongside `position` (display order). Ids come from `metric_ids` in `script.R`, keyed by label, and never change when sparklines are reordered. Never reuse or renumber an id; if a label is renamed, rename it in `metric_ids` and keep its id. 1–61 were assigned by category on 2026-11-19.
 
 ## Key sources
 ONS (most series), NHS England, Bank of England, Land Registry, Home Office, RAC, YouGov, GfK, FRED

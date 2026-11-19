@@ -44,6 +44,91 @@ safe_read_csv <- function(url, retries = 3, pause = 10, ...) {
 # and reuses the last full run's data for everything else — see quick-update.sh.
 quick <- '--quick' %in% commandArgs(trailingOnly = TRUE)
 
+# Permanent ids for developers: unlike `position`, these never change when sparklines are reordered.
+# New measures take the next unused number; never reuse or renumber. If a label is renamed, rename it here and keep its id.
+metric_ids <- tribble(
+  ~id, ~label,
+  # Economy
+  1,  'Inflation',
+  2,  'Unemployment',
+  3,  'Job vacancies',
+  4,  'Real GDP per capita',
+  5,  'Payrolled employees',
+  6,  'GDP growth (annual rate)',
+  7,  'Mortgage arrears',
+  8,  'Redundancies',
+  9,  'Flights',
+  10, 'Debit card spend',
+  11, 'Debt-to-GDP ratio',
+  12, 'Vehicle production',
+  # Living standards
+  13, 'Real wages',
+  14, 'Average 2-year mortgage rate',
+  15, 'Consumer confidence',
+  16, 'Petrol price',
+  17, 'Diesel price',
+  18, 'BoE base rate',
+  19, 'Price of a pint',
+  20, 'Real disposable income',
+  21, 'Electricity price',
+  22, 'Average 5-year mortgage rate',
+  23, 'Direct debits failing',
+  24, 'Price of a coffee',
+  25, 'Price of a meal',
+  # Housing
+  26, 'House prices',
+  27, 'Renting a 2-bed',
+  28, 'Housing starts',
+  29, 'Rough sleeping',
+  30, 'Spend on rent',
+  31, 'House price to earnings',
+  # Government
+  32, 'National debt',
+  33, 'Gilt yields',
+  34, 'Electricity from renewables',
+  35, 'Public sector net borrowing',
+  36, 'Net government approval',
+  # Health
+  37, 'NHS waiting list',
+  38, 'A&E seen in 4 hours',
+  39, 'Long-term sick',
+  40, 'Average NHS wait',
+  41, 'Seen within 18 weeks',
+  42, 'Prompt cancer treatment',
+  43, 'Bed occupancy',
+  # Crime
+  44, 'Prisoners',
+  45, 'Prison capacity used',
+  46, 'Shoplifting',
+  47, 'Survey-based crime',
+  48, 'Theft from the person',
+  49, 'Crown court caseload',
+  50, 'Knife crime',
+  # Immigration
+  51, 'Small boat crossings',
+  52, 'Asylum grants',
+  53, 'Net migration',
+  54, 'Visas granted',
+  # Education
+  55, 'School suspensions',
+  56, 'School absence',
+  57, 'GCSE attainment',
+  58, 'A-level attainment',
+  59, 'NEETS aged 16-24',
+  # Other
+  60, 'England world ranking',
+  61, 'Live births'
+  # New measures go here, from 62
+) %>%
+  mutate(id = as.integer(id))
+stopifnot(!anyDuplicated(metric_ids$id), !anyDuplicated(metric_ids$label))
+
+metric_id_for <- function(labels) {
+  missing <- setdiff(labels, metric_ids$label)
+  if (length(missing) > 0) stop('No id in metric_ids for: ', paste(missing, collapse = ', '), ' \u2014 add it with the next unused number.')
+  metric_ids$id[match(labels, metric_ids$label)]
+}
+
 # Shared position-agnostic "build file" logic, used by both the full and
 # quick-update paths. Position is attached by the caller afterwards.
 compute_file <- function(master_in) {
@@ -1660,8 +1745,9 @@ if (!quick) {
 
   file <- compute_file(master) %>%
     left_join(label_order, by = 'label') %>%
+    mutate(id = metric_id_for(label)) %>%
     arrange(position) %>%
-    select(position, everything())
+    select(id, position, everything())
 
   file %>%
     write_json('sparklines-page.json', auto_unbox = T, pretty = T)
@@ -1741,11 +1827,13 @@ if (!quick) {
   quick_file <- compute_file(quick_master) %>%
     mutate(position = unname(position_lookup[label]))
 
-  # Everything else keeps its exact previous record, untouched
+  # Everything else keeps its previous record, with its id (re)attached
   kept <- Filter(function(r) !(r$label %in% quick_file$label), previous)
+  kept <- lapply(kept, function(r) c(list(id = metric_id_for(r$label)), r[setdiff(names(r), 'id')]))
 
   quick_records <- lapply(seq_len(nrow(quick_file)), function(i) {
     list(
+      id = metric_id_for(quick_file$label[[i]]),
       position = quick_file$position[[i]],
       label = quick_file$label[[i]],
       note = quick_file$note[[i]],
